@@ -10,8 +10,6 @@ You can use Senéhorario directly in your browser, no installation required:
 
 - **Live site:** [https://cmolina.xyz/senehorario/](https://cmolina.xyz/senehorario/)
 
-A backend server is already running to support the live site, so students can use the tool immediately without needing to set up their own backend or frontend.
-
 ## Current Features
 
 - Search the Uniandes catalog by NRC, course code, or name, with section details (professors, term/cycle, meeting times).
