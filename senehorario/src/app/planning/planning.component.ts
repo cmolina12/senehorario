@@ -18,6 +18,7 @@ import interactionPlugin from '@fullcalendar/interaction/index.js';
 export class PlanningComponent implements OnInit, OnDestroy {
   // --- Component state ---
   private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly storageKey = 'planningState';
   searchQuery: string = ''; // searchQuery: User input for search
   courses: CourseModel[] = []; // courses: courses shown upon successful
 
@@ -109,10 +110,15 @@ export class PlanningComponent implements OnInit, OnDestroy {
   };
 
   updateCalendarEvents() {
+    const events =
+      this.scheduleOptions[this.selectedScheduleIndex] &&
+      Array.isArray(this.scheduleOptions[this.selectedScheduleIndex])
+        ? this.scheduleOptions[this.selectedScheduleIndex]
+        : [];
     // Replace the events list while keeping other calendar settings intact
     this.calendarOptions = {
       ...this.calendarOptions,
-      events: this.scheduleOptions[this.selectedScheduleIndex],
+      events,
     };
     console.log('Updated calendar events:', this.calendarOptions.events);
     this.cdr.detectChanges(); // Ensure view updates
@@ -122,6 +128,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (this.selectedScheduleIndex > 0) {
       this.selectedScheduleIndex--;
       this.updateCalendarEvents();
+      this.persistState();
     }
   }
 
@@ -133,6 +140,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (this.selectedScheduleIndex < this.scheduleOptions.length - 1) {
       this.selectedScheduleIndex++;
       this.updateCalendarEvents();
+      this.persistState();
     }
   }
 
@@ -189,6 +197,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     // Run the schedule fetch after selection change
     this.checkRequirement(course.code, action);
+    this.persistState();
   }
 
   isSectionSelected(courseCode: string, sectionNrc: string): boolean {
@@ -198,6 +207,56 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   getSelectedCourseCodes(): string[] {
     return Object.keys(this.selectedSectionsByCourse);
+  }
+
+  private persistState(): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const state = {
+        selectedSectionsByCourse: this.selectedSectionsByCourse,
+        selectedCoursesMeta: this.selectedCoursesMeta,
+        scheduleOptions: this.scheduleOptions,
+        selectedScheduleIndex: this.selectedScheduleIndex,
+      };
+      localStorage.setItem(this.storageKey, JSON.stringify(state));
+    } catch (error) {
+      console.warn('Could not save planning state to localStorage.', error);
+    }
+  }
+
+  private restoreState(): void {
+    if (typeof localStorage === 'undefined') return;
+    const savedState = localStorage.getItem(this.storageKey);
+    if (!savedState) return;
+
+    try {
+      const parsed = JSON.parse(savedState);
+      this.selectedSectionsByCourse = parsed.selectedSectionsByCourse || {};
+      this.selectedCoursesMeta = parsed.selectedCoursesMeta || {};
+      this.scheduleOptions = parsed.scheduleOptions || [];
+      this.selectedScheduleIndex =
+        typeof parsed.selectedScheduleIndex === 'number'
+          ? parsed.selectedScheduleIndex
+          : 0;
+
+      if (
+        this.selectedScheduleIndex < 0 ||
+        this.selectedScheduleIndex >= this.scheduleOptions.length
+      ) {
+        this.selectedScheduleIndex = 0;
+      }
+
+      if (this.scheduleOptions.length > 0) {
+        this.updateCalendarEvents();
+      }
+    } catch (error) {
+      console.warn('Could not restore planning state from localStorage.', error);
+    }
+
+    if (this.hasSelectedSections) {
+      // Refresh schedules so restored sections always re-sync with backend data
+      this.fetchSchedules();
+    }
   }
 
   constructor(
@@ -302,6 +361,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.scheduleOptions = this.mapSchedulesToCalendarEvents(schedules);
           this.selectedScheduleIndex = 0; // Reset to first schedule
           this.updateCalendarEvents(); // Update calendar with the first schedule
+          this.persistState();
           this.cdr.detectChanges(); // Ensure view updates
           console.log('Schedules fetched successfully:', schedules);
           console.log('Number of schedules:', schedules.length);
@@ -472,6 +532,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
+    this.restoreState();
     // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {
       this.updateCalendarEvents();
