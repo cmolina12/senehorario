@@ -16,17 +16,18 @@ import interactionPlugin from '@fullcalendar/interaction/index.js';
   styleUrls: ['./planning.component.css'],
 })
 export class PlanningComponent implements OnInit, OnDestroy {
-  // Properties for course search and selection
-  private calendarRefreshInterval: any;
-  searchQuery: string = '';
-  courses: CourseModel[] = [];
+  // --- Component state ---
+  private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
+  searchQuery: string = ''; // searchQuery: User input for search
+  courses: CourseModel[] = []; // courses: courses shown upon successful
 
-  selectedEvent: SectionModel | null = null; // To store the currently selected event for display
+  // Selected event shown on the side panel
+  selectedEvent: SectionModel | null = null;
 
-  sections: SectionModel[] = [];
-  selectedSections: SectionModel[] = [];
-  scheduleOptions: any[] = [];
-  scheduleOptionsTest = [
+  sections: SectionModel[] = []; // Sections for each of the courses
+  selectedSections: SectionModel[] = []; // Sectios manually selected by the user for their schedule
+  scheduleOptions: any[] = []; // Schedule options generated
+  /* scheduleOptionsTest = [
     // Schedule 1
     [
       {
@@ -47,13 +48,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
         textColor: '#222',
       },
     ],
-  ];
+  ]; */
 
   selectedScheduleIndex = 0; // Start with the first schedule
 
   selectedSectionsByCourse: { [courseCode: string]: SectionModel[] } = {}; // Maps course code to an array of selected sections for that course
-  selectedCoursesMeta: { [courseCode: string]: { title: string; credits: number } } =
-    {}; // Maps course code to its meta info for display
+  selectedCoursesMeta: {
+    [courseCode: string]: { title: string; credits: number };
+  } = {}; // Maps course code to its meta info for display
   selectedEventInfo: {
     courseCode?: string;
     courseTitle?: string;
@@ -87,7 +89,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       return { html: arg.event.title };
     },
     eventClick: (arg) => {
-      console.log('Event clicked:', this.selectedEvent);
+      // Extract data stored on the event for quick detail rendering
       const extended = arg.event.extendedProps as any;
       this.selectedEvent = extended['section'] as SectionModel;
       this.selectedEventInfo = {
@@ -96,7 +98,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
         courseTitle:
           extended['courseTitle'] || (this.selectedEvent as any)?.courseTitle,
         courseCredits:
-          extended['courseCredits'] || (this.selectedEvent as any)?.courseCredits,
+          extended['courseCredits'] ||
+          (this.selectedEvent as any)?.courseCredits,
       };
       if (this.selectedEventInfo?.courseCode) {
         this.activeSelectedCourseCode = this.selectedEventInfo.courseCode;
@@ -106,6 +109,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   };
 
   updateCalendarEvents() {
+    // Replace the events list while keeping other calendar settings intact
     this.calendarOptions = {
       ...this.calendarOptions,
       events: this.scheduleOptions[this.selectedScheduleIndex],
@@ -132,6 +136,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Toggles a section inside a course and immediately re-checks lab/main requirements
   onSectionClick(course: CourseModel, section: SectionModel): void {
     console.log('Section selected:', section);
     let action: string = '';
@@ -204,8 +209,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   // Method to handle course selection
   toggleCourse(course: CourseModel): void {
     this.expandedCourses[course.code] = !this.expandedCourses[course.code];
-    // This worked unintentionally as the dictionary is initialized empty as default.
-    // When this first runs the opposite of 'undefined' will be true, so it will create the key-value pair for the course code and expand it correctly.
+    // Using truthy toggle also initializes the key the first time we open a course
   }
 
   getCicloLabel(section: any): string {
@@ -259,6 +263,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   // Method to fetch schedules based on selected sections
 
   fetchSchedules(): void {
+    // Build payload for schedule service: array of sections per course
     const sectionsPerCourse: SectionModel[][] = Object.values(
       this.selectedSectionsByCourse
     );
@@ -282,6 +287,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           }
 
           schedules.forEach((schedule) => {
+            // Attach course metadata to sections so the calendar event can display it
             schedule.forEach((section, i) => {
               const meta = this.selectedCoursesMeta[courseCodes[i]];
               (section as any).courseCode = courseCodes[i];
@@ -320,7 +326,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       SATURDAY: 6,
     };
 
-    // Set the base week (Monday of the week you want to display)
+    // Base week starts on July 28, 2025 (FullCalendar uses absolute dates)
     const baseWeek = new Date(2025, 6, 28); // July 28, 2025 (month is 0-based)
 
     function getDateForDay(baseDate: Date, dayOfWeek: number): Date {
@@ -347,7 +353,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       '#e3bc08',
     ];
 
-    // This is the "return" for the function
+    // Translate backend schedules into FullCalendar event objects
     return schedules.map((schedule: SectionModel[]) =>
       schedule.flatMap((section: SectionModel, idx: number) =>
         section.meetings.map((meeting) => {
@@ -360,7 +366,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
           return {
             title: `
               <div style="font-size:0.95em;">
-                <b>${(section as any).courseCode} - ${section.sectionId}</b><br><br>
+                <b>${(section as any).courseCode} - ${
+              section.sectionId
+            }</b><br><br>
                 <span class = "fc-event-teacher" style="font-size:0.92em; font-weight:400;">${section.professors.join(
                   ', '
                 )}</span>
@@ -386,6 +394,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   checkRequirement(courseCode: string, action: string) {
     console.log(`Checking requirements for course: ${courseCode}`);
+    // Labs have a trailing 'T'. Keep track of main vs lab codes to enforce coupling.
     const isLab = courseCode.endsWith('T');
     const baseCourseCode = isLab ? courseCode.slice(0, -1) : courseCode;
     const labCode = isLab ? courseCode : courseCode + 'T';
@@ -461,8 +470,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
     });
   }
 
-  runApiTests = false; // Set to true to run API tests on component initialization
+  runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
+    // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {
       this.updateCalendarEvents();
     }, 1000);
@@ -491,6 +501,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
       // --- SCHEDULE SERVICE TEST ---
 
+      /*
       this.courseService.getSections('IIND2201').subscribe({
         next: (sections1: SectionModel[]) => {
           const SectionOne_CourseOne = sections1.find(
@@ -563,7 +574,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error fetching sections for IIND2201:', error);
         },
-      });
+      }); */
     }
   }
 
