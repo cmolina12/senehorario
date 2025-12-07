@@ -52,6 +52,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
   selectedScheduleIndex = 0; // Start with the first schedule
 
   selectedSectionsByCourse: { [courseCode: string]: SectionModel[] } = {}; // Maps course code to an array of selected sections for that course
+  selectedCoursesMeta: { [courseCode: string]: { title: string; credits: number } } =
+    {}; // Maps course code to its meta info for display
+  selectedEventInfo: {
+    courseCode?: string;
+    courseTitle?: string;
+    courseCredits?: number;
+  } | null = null;
   activeSelectedCourseCode: string | null = null;
 
   loading = false;
@@ -81,7 +88,19 @@ export class PlanningComponent implements OnInit, OnDestroy {
     },
     eventClick: (arg) => {
       console.log('Event clicked:', this.selectedEvent);
-      this.selectedEvent = arg.event.extendedProps['section'] as SectionModel;
+      const extended = arg.event.extendedProps as any;
+      this.selectedEvent = extended['section'] as SectionModel;
+      this.selectedEventInfo = {
+        courseCode:
+          extended['courseCode'] || (this.selectedEvent as any)?.courseCode,
+        courseTitle:
+          extended['courseTitle'] || (this.selectedEvent as any)?.courseTitle,
+        courseCredits:
+          extended['courseCredits'] || (this.selectedEvent as any)?.courseCredits,
+      };
+      if (this.selectedEventInfo?.courseCode) {
+        this.activeSelectedCourseCode = this.selectedEventInfo.courseCode;
+      }
       this.cdr.detectChanges(); // Ensure view updates
     },
   };
@@ -120,6 +139,10 @@ export class PlanningComponent implements OnInit, OnDestroy {
     // Initialize the selected sections array for the course if it doesn't exist
     if (!this.selectedSectionsByCourse[course.code]) {
       this.selectedSectionsByCourse[course.code] = []; // Create a new array for this course
+      this.selectedCoursesMeta[course.code] = {
+        title: course.title,
+        credits: course.credits,
+      };
       console.log(`Initialized selected sections for course ${course.code}.`);
     }
 
@@ -150,6 +173,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       // Remove the whole course if no sections are selected after removal
       if (this.selectedSectionsByCourse[course.code].length === 0) {
         delete this.selectedSectionsByCourse[course.code];
+        delete this.selectedCoursesMeta[course.code];
         console.log(
           `No sections left for course ${course.code}, removing it from selected sections.`,
           this.selectedSectionsByCourse
@@ -259,11 +283,15 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
           schedules.forEach((schedule) => {
             schedule.forEach((section, i) => {
+              const meta = this.selectedCoursesMeta[courseCodes[i]];
               (section as any).courseCode = courseCodes[i];
+              (section as any).courseTitle = meta?.title;
+              (section as any).courseCredits = meta?.credits;
             });
           });
 
           this.selectedEvent = null; // Reset selected event when new schedules are fetched
+          this.selectedEventInfo = null;
           this.ScheduleError = ''; // Clear any previous error message
           this.scheduleOptions = this.mapSchedulesToCalendarEvents(schedules);
           this.selectedScheduleIndex = 0; // Reset to first schedule
@@ -332,9 +360,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           return {
             title: `
               <div style="font-size:0.95em;">
-                <b>${(section as any).courseCode} - ${
-              section.sectionId
-            }</b><br><br>
+                <b>${(section as any).courseCode} - ${section.sectionId}</b><br><br>
                 <span class = "fc-event-teacher" style="font-size:0.92em; font-weight:400;">${section.professors.join(
                   ', '
                 )}</span>
@@ -343,9 +369,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
             start: startDate.toISOString(),
             end: endDate.toISOString(),
             color: colorPalette[idx % colorPalette.length],
-            textColor: '#222',  
-            // Attach full section object to the event for later reference because I'm lazy
-            section: section,
+            textColor: '#222',
+            extendedProps: {
+              section: section,
+              courseCode: (section as any).courseCode,
+              courseTitle: (section as any).courseTitle,
+              courseCredits: (section as any).courseCredits,
+            },
           };
         })
       )

@@ -5,20 +5,17 @@ import { SectionModel } from '../models/section-model';
 import { environment } from '../../environments/environment'; // Adjust the import path as necessary
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScheduleService {
-
   private environment: string = environment.apiUrl;
   private apiUrl: string = `${this.environment}schedules`;
 
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  getSchedules(sectionsPerCourse: SectionModel[][]): Observable<SectionModel[][]>{
-
+  getSchedules(
+    sectionsPerCourse: SectionModel[][]
+  ): Observable<SectionModel[][]> {
     return this.http.post<SectionModel[][]>(this.apiUrl, sectionsPerCourse);
-
   }
-
 }
