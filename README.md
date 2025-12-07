@@ -12,45 +12,14 @@ You can use Senéhorario directly in your browser, no installation required:
 
 A backend server is already running to support the live site, so students can use the tool immediately without needing to set up their own backend or frontend.
 
-## Planned Features
+## Current Features
 
-The following features are currently in development for the first release:
-
-- Search and select courses from the Uniandes catalog
-- Display all possible schedules based on selected courses and sections
-- Responsive UI built with Angular
-- Integration with the Senéhorario backend API
-
-## Requirements (for local development)
-
-- Node.js 18+
-- npm 9+
-- Senéhorario Backend (running locally or remotely)
-
-## Building and Running Locally
-
-To install dependencies and run the application locally:
-
-```bash
-# Install dependencies
-npm install
-
-# Start the development server
-npm start
-```
-
-The app will be available at `http://localhost:4200/` by default.
-
-## Backend Options
-
-You can use the frontend with either:
-
-1. **The Provided Hosted Backend (default for the live site):**
-   - No setup required, just use the published site.
-
-2. **Your Own Backend Instance:**
-   - Clone and start the [Senéhorario Backend](https://github.com/cmolina12/senehorario-backend) by following its README instructions. By default, the backend runs on `http://localhost:8080/`.
-   - To connect your local frontend to your own backend, update the relevant environment configuration file in `src/environments/`.
+- Search the Uniandes catalog by NRC, course code, or name, with section details (professors, term/cycle, meeting times).
+- Pick sections for each course and see how many you’ve chosen, with a quick view of the current course’s selected sections.
+- Automatic checks for required lab/main pairings so you don’t build invalid schedules.
+- Generate all compatible schedule options from your chosen sections and step through them.
+- Interactive weekly calendar preview with color-coded classes; click any class to see its section details.
+- Planner state saves in your browser (selected sections, course info, schedule options) so you can resume later.
 
 ## License
 
