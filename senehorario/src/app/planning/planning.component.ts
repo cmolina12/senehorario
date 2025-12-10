@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { CourseService } from "../services/course.service";
 import { CourseModel } from "../models/course-model";
 import { ScheduleService } from "../services/schedule.service";
@@ -80,11 +80,11 @@ export class PlanningComponent implements OnInit, OnDestroy {
     slotMinTime: "06:00:00",
     slotMaxTime: "20:00:00",
     allDaySlot: false,
-    dayHeaderFormat: { weekday: "long" }, // Updated responsively on init/resize
+    dayHeaderFormat: { weekday: "long" }, // Short weekday format
     events: [], // Use the first schedule for initial display
     hiddenDays: [0], // Hide Sunday (0)
-    slotDuration: "00:30:00", // 30-minute slots
-    slotLabelInterval: "00:30", // label every 30 minutes
+    slotDuration: "01:00:00", // 30-minute slots
+    slotLabelInterval: "01:00", // label every 30 minutes
     slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true }, // e.g., 08:00, 08:30
     eventContent: function (arg) {
       return { html: arg.event.title };
@@ -149,12 +149,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
     console.log("Section selected:", section);
     let action: string = "";
 
-    // Clear current selection if it matches the toggled section
-    if (this.selectedEvent?.nrc === section.nrc) {
-      this.selectedEvent = null;
-      this.selectedEventInfo = null;
-    }
-
     // Initialize the selected sections array for the course if it doesn't exist
     if (!this.selectedSectionsByCourse[course.code]) {
       this.selectedSectionsByCourse[course.code] = []; // Create a new array for this course
@@ -198,15 +192,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.selectedSectionsByCourse,
         );
         action = "removed";
-
-        // Clear any UI state tied to this course
-        this.clearSelectionStateForCourse(course.code);
       }
-    }
-
-    // If no sections remain at all, clear schedules and calendar events
-    if (!this.hasSelectedSections) {
-      this.resetSchedulesAndCalendar();
     }
 
     // Run the schedule fetch after selection change
@@ -442,13 +428,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
           const endDate = setTime(getDateForDay(baseWeek, dayNum), meeting.end);
           return {
             title: `
-              <div style="font-size:0.95em;">
-                <b>${(section as any).courseCode} - ${
-                  section.sectionId
-                }</b><br><br>
-                <span class = "fc-event-teacher" style="font-size:0.92em; font-weight:400;">${section.professors.join(
-                  ", ",
-                )}</span>
+              <div class="fc-event-content-wrapper">
+                <div class="fc-event-course">
+                  ${(section as any).courseCode} - ${section.sectionId}
+                </div>
+                <div class="fc-event-title">
+                  ${(section as any).courseTitle ?? ""}
+                </div>
               </div>
             `,
             start: startDate.toISOString(),
@@ -550,7 +536,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
   runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
     this.restoreState();
-    this.applyResponsiveDayHeader();
     // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {
       this.updateCalendarEvents();
@@ -661,69 +646,5 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (this.calendarRefreshInterval) {
       clearInterval(this.calendarRefreshInterval);
     }
-  }
-
-  @HostListener("window:resize")
-  onWindowResize(): void {
-    this.applyResponsiveDayHeader();
-  }
-
-  /**
-   * Switches day header format to a narrow variant on small screens to avoid text overlap.
-   */
-  private applyResponsiveDayHeader(): void {
-    const format = this.getResponsiveDayHeaderFormat();
-    const current = this.calendarOptions.dayHeaderFormat;
-    const isSameFormat =
-      typeof current === "object" &&
-      current !== null &&
-      "weekday" in current &&
-      (current as any).weekday === format.weekday;
-
-    if (!isSameFormat) {
-      this.calendarOptions = {
-        ...this.calendarOptions,
-        dayHeaderFormat: format,
-      };
-      this.cdr.detectChanges();
-    }
-  }
-
-  private getResponsiveDayHeaderFormat(): Intl.DateTimeFormatOptions {
-    if (typeof window === "undefined") {
-      return { weekday: "long" };
-    }
-    // Use narrow weekday names on smaller screens to prevent overlap.
-    return window.innerWidth < 1024
-      ? { weekday: "short" }
-      : { weekday: "long" };
-  }
-
-  private clearSelectionStateForCourse(courseCode: string): void {
-    if (
-      this.selectedEvent &&
-      (this.selectedEvent as any).courseCode === courseCode
-    ) {
-      this.selectedEvent = null;
-    }
-    if (
-      this.selectedEventInfo &&
-      this.selectedEventInfo.courseCode === courseCode
-    ) {
-      this.selectedEventInfo = null;
-    }
-    if (this.activeSelectedCourseCode === courseCode) {
-      this.activeSelectedCourseCode = null;
-    }
-  }
-
-  private resetSchedulesAndCalendar(): void {
-    this.scheduleOptions = [];
-    this.selectedScheduleIndex = 0;
-    this.calendarOptions = {
-      ...this.calendarOptions,
-      events: [],
-    };
-    this.cdr.detectChanges();
   }
 }

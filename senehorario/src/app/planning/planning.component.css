@@ -1,8 +1,18 @@
-.shadow {
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10) !important;
+
+
+
+
+
+    .shadow {
+  box-shadow: 0 8px 32px 0 rgba(131, 38, 135, 0.10) !important;
 }
 .rounded-4 {
-  border-radius: 1.5rem !important;
+  border-radius:
+
+    1.5rem
+
+
+    !important;
 }
 .bg-light {
   background-color: #f8f9fa !important;
@@ -14,7 +24,9 @@
   background-color: #ffe066;
   color: #000;
 }
-.badge.bg-warning {
+
+
+    .badge.bg-warning {
   background-color: #ffe066 !important;
   color: #000 !important;
   font-weight: 600;
@@ -36,4 +48,7 @@
 }
 .overflow-auto {
   overflow: auto !important;
-}
+
+
+
+    }1

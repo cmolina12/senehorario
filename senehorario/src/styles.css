@@ -8,11 +8,6 @@
   min-width: 0;
 }
 
-
-
-
-
-
 /* Event container styling */
 .fc .fc-event {
   min-height: 20px !important;
@@ -21,7 +16,7 @@
   font-size: 0.92rem !important;
   display: flex !important;
   flex-direction: column !important;
-  align-items: stretch !important;     /* Stretch children to full width */
+  align-items: stretch !important; /* Stretch children to full width */
   justify-content: center !important;
   box-shadow: 0 2px 8px rgba(30, 144, 255, 0.1);
   border: none !important;
@@ -31,18 +26,21 @@
   overflow: hidden !important;
   min-width: 0 !important;
   cursor: pointer; /* Change cursor to pointer */
-  transition: box-shadow 0.2s, transform 0.2s, background 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s,
+    background 0.2s;
 }
 
 .fc .fc-event:hover {
   z-index: 10;
-  box-shadow: 0 4px 24px 0 rgba(30, 144, 255, 0.25), 0 2px 8px rgba(30, 144, 255, 0.12);
+  box-shadow:
+    0 4px 24px 0 rgba(30, 144, 255, 0.25),
+    0 2px 8px rgba(30, 144, 255, 0.12);
   transform: scale(1.03);
   filter: brightness(1.05);
   cursor: pointer;
 }
-
-
 
 /* === FullCalendar Grid Appearance === */
 
@@ -68,7 +66,13 @@
 
 /* Base font and background */
 body {
-  font-family: "Lato", Arial, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   background: linear-gradient(135deg, #fffbe6 0%, #fffbe6 60%, #ffe066 100%);
   min-height: 100vh;
   margin: 0;
@@ -89,7 +93,10 @@ body {
   font-weight: 700;
   border-radius: 12px;
   box-shadow: 0 4px 24px 0 rgba(255, 214, 10, 0.1);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
   font-size: 1.15rem;
   letter-spacing: 0.5px;
 }
@@ -123,7 +130,7 @@ body {
   max-width: 700px;
   width: 100%;
   margin: 2rem auto;
-  transition: box-shadow 0.3s;
+  transition: box-shadow 0 3s;
 }
 
 /* Glassmorphism card for main content */
@@ -196,4 +203,39 @@ a.modern-link-on-yellow:focus {
     opacity: 1;
     transform: none;
   }
+}
+
+/* Wrapper: vertical layout, fully centered */
+.fc-event-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertically center */
+  align-items: center; /* horizontally center */
+  text-align: center; /* center text lines */
+  width: 100%;
+  height: 100%;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+/* Line 1: course code & section */
+.fc-event-course {
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 2px;
+  color: #111;
+}
+
+/* Line 2: title (wrapped + ellipsis + max 2 lines) */
+.fc-event-title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.1;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* LIMIT TO TWO LINES */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* ALLOW WRAPPING */
 }
