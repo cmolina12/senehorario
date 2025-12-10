@@ -1,25 +1,25 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CourseService } from '../services/course.service';
-import { CourseModel } from '../models/course-model';
-import { ScheduleService } from '../services/schedule.service';
-import { SectionModel } from '../models/section-model';
-import { ChangeDetectorRef } from '@angular/core';
-import { CalendarOptions } from '@fullcalendar/core/index.js';
-import timeGridPlugin from '@fullcalendar/timegrid/index.js';
-import dayGridPlugin from '@fullcalendar/daygrid/index.js';
-import interactionPlugin from '@fullcalendar/interaction/index.js';
+import { Component, HostListener, OnInit, OnDestroy } from "@angular/core";
+import { CourseService } from "../services/course.service";
+import { CourseModel } from "../models/course-model";
+import { ScheduleService } from "../services/schedule.service";
+import { SectionModel } from "../models/section-model";
+import { ChangeDetectorRef } from "@angular/core";
+import { CalendarOptions } from "@fullcalendar/core/index.js";
+import timeGridPlugin from "@fullcalendar/timegrid/index.js";
+import dayGridPlugin from "@fullcalendar/daygrid/index.js";
+import interactionPlugin from "@fullcalendar/interaction/index.js";
 
 @Component({
   standalone: false,
-  selector: 'app-planning',
-  templateUrl: './planning.component.html',
-  styleUrls: ['./planning.component.css'],
+  selector: "app-planning",
+  templateUrl: "./planning.component.html",
+  styleUrls: ["./planning.component.css"],
 })
 export class PlanningComponent implements OnInit, OnDestroy {
   // --- Component state ---
   private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly storageKey = 'planningState';
-  searchQuery: string = ''; // searchQuery: User input for search
+  private readonly storageKey = "planningState";
+  searchQuery: string = ""; // searchQuery: User input for search
   courses: CourseModel[] = []; // courses: courses shown upon successful
 
   // Selected event shown on the side panel
@@ -66,40 +66,40 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   loading = false;
   empty = false;
-  error: string = '';
-  ScheduleError: string = '';
+  error: string = "";
+  ScheduleError: string = "";
   expandedCourses: { [code: string]: boolean } = {};
 
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, interactionPlugin],
-    initialDate: '2025-07-28', // Start date for the calendar
+    initialDate: "2025-07-28", // Start date for the calendar
     height: 600,
     contentHeight: 600,
-    initialView: 'timeGridWeek',
+    initialView: "timeGridWeek",
     headerToolbar: false,
-    slotMinTime: '06:00:00',
-    slotMaxTime: '20:00:00',
+    slotMinTime: "06:00:00",
+    slotMaxTime: "20:00:00",
     allDaySlot: false,
-    dayHeaderFormat: { weekday: 'long' }, // Short weekday format
+    dayHeaderFormat: { weekday: "long" }, // Updated responsively on init/resize
     events: [], // Use the first schedule for initial display
     hiddenDays: [0], // Hide Sunday (0)
-    slotDuration: '00:30:00', // 30-minute slots
-    slotLabelInterval: '00:30', // label every 30 minutes
-    slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: true }, // e.g., 08:00, 08:30
+    slotDuration: "00:30:00", // 30-minute slots
+    slotLabelInterval: "00:30", // label every 30 minutes
+    slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true }, // e.g., 08:00, 08:30
     eventContent: function (arg) {
       return { html: arg.event.title };
     },
     eventClick: (arg) => {
       // Extract data stored on the event for quick detail rendering
       const extended = arg.event.extendedProps as any;
-      this.selectedEvent = extended['section'] as SectionModel;
+      this.selectedEvent = extended["section"] as SectionModel;
       this.selectedEventInfo = {
         courseCode:
-          extended['courseCode'] || (this.selectedEvent as any)?.courseCode,
+          extended["courseCode"] || (this.selectedEvent as any)?.courseCode,
         courseTitle:
-          extended['courseTitle'] || (this.selectedEvent as any)?.courseTitle,
+          extended["courseTitle"] || (this.selectedEvent as any)?.courseTitle,
         courseCredits:
-          extended['courseCredits'] ||
+          extended["courseCredits"] ||
           (this.selectedEvent as any)?.courseCredits,
       };
       if (this.selectedEventInfo?.courseCode) {
@@ -120,7 +120,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       ...this.calendarOptions,
       events,
     };
-    console.log('Updated calendar events:', this.calendarOptions.events);
+    console.log("Updated calendar events:", this.calendarOptions.events);
     this.cdr.detectChanges(); // Ensure view updates
   }
 
@@ -146,8 +146,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   // Toggles a section inside a course and immediately re-checks lab/main requirements
   onSectionClick(course: CourseModel, section: SectionModel): void {
-    console.log('Section selected:', section);
-    let action: string = '';
+    console.log("Section selected:", section);
+    let action: string = "";
 
     // Initialize the selected sections array for the course if it doesn't exist
     if (!this.selectedSectionsByCourse[course.code]) {
@@ -162,25 +162,25 @@ export class PlanningComponent implements OnInit, OnDestroy {
     // Prevent duplicates (using nrc as unique id)
     if (
       !this.selectedSectionsByCourse[course.code].some(
-        (s) => s.nrc === section.nrc
+        (s) => s.nrc === section.nrc,
       )
     ) {
       // s is a section in the array, any of them currently present for that code
       this.selectedSectionsByCourse[course.code].push(section);
       console.log(
         `Section ${section.nrc} added to course ${course.code}.`,
-        this.selectedSectionsByCourse
+        this.selectedSectionsByCourse,
       );
     }
     // Remove if already selected
     else {
       this.selectedSectionsByCourse[course.code] =
         this.selectedSectionsByCourse[course.code].filter(
-          (s) => s.nrc !== section.nrc
+          (s) => s.nrc !== section.nrc,
         );
       console.log(
         `Section ${section.nrc} removed from course ${course.code}.`,
-        this.selectedSectionsByCourse
+        this.selectedSectionsByCourse,
       );
 
       // Remove the whole course if no sections are selected after removal
@@ -189,9 +189,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
         delete this.selectedCoursesMeta[course.code];
         console.log(
           `No sections left for course ${course.code}, removing it from selected sections.`,
-          this.selectedSectionsByCourse
+          this.selectedSectionsByCourse,
         );
-        action = 'removed';
+        action = "removed";
       }
     }
 
@@ -210,7 +210,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   }
 
   private persistState(): void {
-    if (typeof localStorage === 'undefined') return;
+    if (typeof localStorage === "undefined") return;
     try {
       const state = {
         selectedSectionsByCourse: this.selectedSectionsByCourse,
@@ -220,12 +220,12 @@ export class PlanningComponent implements OnInit, OnDestroy {
       };
       localStorage.setItem(this.storageKey, JSON.stringify(state));
     } catch (error) {
-      console.warn('Could not save planning state to localStorage.', error);
+      console.warn("Could not save planning state to localStorage.", error);
     }
   }
 
   private restoreState(): void {
-    if (typeof localStorage === 'undefined') return;
+    if (typeof localStorage === "undefined") return;
     const savedState = localStorage.getItem(this.storageKey);
     if (!savedState) return;
 
@@ -235,7 +235,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       this.selectedCoursesMeta = parsed.selectedCoursesMeta || {};
       this.scheduleOptions = parsed.scheduleOptions || [];
       this.selectedScheduleIndex =
-        typeof parsed.selectedScheduleIndex === 'number'
+        typeof parsed.selectedScheduleIndex === "number"
           ? parsed.selectedScheduleIndex
           : 0;
 
@@ -250,7 +250,10 @@ export class PlanningComponent implements OnInit, OnDestroy {
         this.updateCalendarEvents();
       }
     } catch (error) {
-      console.warn('Could not restore planning state from localStorage.', error);
+      console.warn(
+        "Could not restore planning state from localStorage.",
+        error,
+      );
     }
 
     if (this.hasSelectedSections) {
@@ -262,7 +265,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   constructor(
     private courseService: CourseService,
     private scheduleService: ScheduleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   // Method to handle course selection
@@ -272,14 +275,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
   }
 
   getCicloLabel(section: any): string {
-    if (section.ptrm === '8A') return 'First Cycle';
-    if (section.ptrm === '8B') return 'Second Cycle';
-    if (section.ptrm === '1') return 'Complete Cycle';
+    if (section.ptrm === "8A") return "First Cycle";
+    if (section.ptrm === "8B") return "Second Cycle";
+    if (section.ptrm === "1") return "Complete Cycle";
     return section.ptrm;
   }
 
   getIntersemetral(section: any): string {
-    if (section.term === '202519') return 'Intersemestral';
+    if (section.term === "202519") return "Intersemestral";
     return section.term;
   }
 
@@ -292,9 +295,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.courses = courses;
           this.loading = false; // Reset loading state
           this.empty = false;
-          this.error = '';
+          this.error = "";
           this.cdr.detectChanges(); // Ensure view updates
-          console.log('Courses found:', courses);
+          console.log("Courses found:", courses);
 
           if (courses === null || courses.length === 0) {
             this.empty = true;
@@ -302,9 +305,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.courses = []; // Clear courses on error
-          console.error('Error fetching courses:', error);
+          console.error("Error fetching courses:", error);
           this.error =
-            'The Uniandes database has errors in course values. Please try again later when the university fixes this issue.';
+            "The Uniandes database has errors in course values. Please try again later when the university fixes this issue.";
           this.loading = false;
           this.empty = false; // Reset empty state
           this.cdr.detectChanges(); // Ensure view updates
@@ -312,10 +315,10 @@ export class PlanningComponent implements OnInit, OnDestroy {
       });
     } else {
       this.courses = []; // Clear courses if search query is empty
-      this.error = ''; // Clear any previous error message
+      this.error = ""; // Clear any previous error message
       this.loading = false;
       this.cdr.detectChanges(); // Ensure view updates
-      console.log('Search query is empty, clearing courses.');
+      console.log("Search query is empty, clearing courses.");
     }
   }
 
@@ -324,23 +327,23 @@ export class PlanningComponent implements OnInit, OnDestroy {
   fetchSchedules(): void {
     // Build payload for schedule service: array of sections per course
     const sectionsPerCourse: SectionModel[][] = Object.values(
-      this.selectedSectionsByCourse
+      this.selectedSectionsByCourse,
     );
     const courseCodes = Object.keys(this.selectedSectionsByCourse);
 
     if (sectionsPerCourse.length === 0) {
-      console.warn('No sections selected for scheduling.');
+      console.warn("No sections selected for scheduling.");
       return;
     } else {
-      console.log('Fetching schedules for sections:', sectionsPerCourse);
+      console.log("Fetching schedules for sections:", sectionsPerCourse);
       this.scheduleService.getSchedules(sectionsPerCourse).subscribe({
         next: (schedules: SectionModel[][]) => {
-          console.log('Schedules received:', schedules);
+          console.log("Schedules received:", schedules);
 
           if (!Array.isArray(schedules) || schedules.length === 0) {
-            console.warn('No schedules found for the selected sections.');
+            console.warn("No schedules found for the selected sections.");
             this.ScheduleError =
-              'No compatible schedules found for the selected sections. Please select different sections or check for conflicts.';
+              "No compatible schedules found for the selected sections. Please select different sections or check for conflicts.";
             this.cdr.detectChanges();
             return;
           }
@@ -357,19 +360,19 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
           this.selectedEvent = null; // Reset selected event when new schedules are fetched
           this.selectedEventInfo = null;
-          this.ScheduleError = ''; // Clear any previous error message
+          this.ScheduleError = ""; // Clear any previous error message
           this.scheduleOptions = this.mapSchedulesToCalendarEvents(schedules);
           this.selectedScheduleIndex = 0; // Reset to first schedule
           this.updateCalendarEvents(); // Update calendar with the first schedule
           this.persistState();
           this.cdr.detectChanges(); // Ensure view updates
-          console.log('Schedules fetched successfully:', schedules);
-          console.log('Number of schedules:', schedules.length);
+          console.log("Schedules fetched successfully:", schedules);
+          console.log("Number of schedules:", schedules.length);
         },
         error: (error) => {
-          console.error('Error fetching schedules:', error);
+          console.error("Error fetching schedules:", error);
           this.ScheduleError =
-            'A critical error occurred while generating schedules. Please try again later or message me at contact@camilomolina.dev.';
+            "A critical error occurred while generating schedules. Please try again later or message me at contact@camilomolina.dev.";
         },
       });
     }
@@ -398,19 +401,19 @@ export class PlanningComponent implements OnInit, OnDestroy {
     }
 
     function setTime(date: Date, time: string): Date {
-      const [hours, minutes, seconds] = time.split(':').map(Number);
+      const [hours, minutes, seconds] = time.split(":").map(Number);
       date.setHours(hours, minutes, seconds || 0, 0);
       return date;
     }
 
     // Color palette for different sections
     const colorPalette = [
-      '#ffe066',
-      '#ff8c00',
-      '#32cd32',
-      '#1e90ff',
-      '#ad2121',
-      '#e3bc08',
+      "#ffe066",
+      "#ff8c00",
+      "#32cd32",
+      "#1e90ff",
+      "#ad2121",
+      "#e3bc08",
     ];
 
     // Translate backend schedules into FullCalendar event objects
@@ -420,24 +423,24 @@ export class PlanningComponent implements OnInit, OnDestroy {
           const dayNum = dayMap[meeting.day];
           const startDate = setTime(
             getDateForDay(baseWeek, dayNum),
-            meeting.start
+            meeting.start,
           );
           const endDate = setTime(getDateForDay(baseWeek, dayNum), meeting.end);
           return {
             title: `
               <div style="font-size:0.95em;">
                 <b>${(section as any).courseCode} - ${
-              section.sectionId
-            }</b><br><br>
+                  section.sectionId
+                }</b><br><br>
                 <span class = "fc-event-teacher" style="font-size:0.92em; font-weight:400;">${section.professors.join(
-                  ', '
+                  ", ",
                 )}</span>
               </div>
             `,
             start: startDate.toISOString(),
             end: endDate.toISOString(),
             color: colorPalette[idx % colorPalette.length],
-            textColor: '#222',
+            textColor: "#222",
             extendedProps: {
               section: section,
               courseCode: (section as any).courseCode,
@@ -445,8 +448,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
               courseCredits: (section as any).courseCredits,
             },
           };
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -455,9 +458,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
   checkRequirement(courseCode: string, action: string) {
     console.log(`Checking requirements for course: ${courseCode}`);
     // Labs have a trailing 'T'. Keep track of main vs lab codes to enforce coupling.
-    const isLab = courseCode.endsWith('T');
+    const isLab = courseCode.endsWith("T");
     const baseCourseCode = isLab ? courseCode.slice(0, -1) : courseCode;
-    const labCode = isLab ? courseCode : courseCode + 'T';
+    const labCode = isLab ? courseCode : courseCode + "T";
 
     // Helper: Is main course selected?
     const isMainSelected = !!this.selectedSectionsByCourse[baseCourseCode];
@@ -466,7 +469,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     if (isLab) {
       // LAB CASE
-      if (action !== 'removed') {
+      if (action !== "removed") {
         // Adding lab: main course must be selected
         if (!isMainSelected) {
           this.ScheduleError = `You selected a lab section for ${baseCourseCode}, you must also select the main course.`;
@@ -482,7 +485,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
         }
       }
       // No error, proceed
-      this.ScheduleError = '';
+      this.ScheduleError = "";
       this.cdr.detectChanges();
       this.fetchSchedules();
       return;
@@ -492,7 +495,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
     this.courseService.searchCourses(labCode).subscribe({
       next: (courses: CourseModel[]) => {
         if (!Array.isArray(courses)) {
-          console.log('Is null brother');
+          console.log("Is null brother");
           this.cdr.detectChanges();
           this.fetchSchedules();
           return;
@@ -500,7 +503,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
         const labExists = courses.some((c) => c.code === labCode);
 
         if (labExists) {
-          if (action !== 'removed') {
+          if (action !== "removed") {
             // Adding main: lab must be selected
             if (!isLabSelected) {
               this.ScheduleError = `The course ${courseCode} has an obligatory lab, you must also select a section of ${labCode}.`;
@@ -517,7 +520,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           }
         }
         // No error, proceed
-        this.ScheduleError = '';
+        this.ScheduleError = "";
         this.cdr.detectChanges();
         this.fetchSchedules();
       },
@@ -533,30 +536,31 @@ export class PlanningComponent implements OnInit, OnDestroy {
   runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
     this.restoreState();
+    this.applyResponsiveDayHeader();
     // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {
       this.updateCalendarEvents();
     }, 1000);
 
     if (this.runApiTests) {
-      this.courseService.searchCourses('CONTROL DE PRODUCCION').subscribe({
+      this.courseService.searchCourses("CONTROL DE PRODUCCION").subscribe({
         next: (courses: CourseModel[]) => {
-          console.log('COURSE SERVICE TEST 1 - Courses found:', courses);
+          console.log("COURSE SERVICE TEST 1 - Courses found:", courses);
         },
         error: (error) => {
-          console.error('Error fetching courses:', error);
+          console.error("Error fetching courses:", error);
         },
       });
 
-      this.courseService.getSections('IIND2201').subscribe({
+      this.courseService.getSections("IIND2201").subscribe({
         next: (sections: SectionModel[]) => {
           console.log(
-            'COURSE SERVICE TEST 2 - Sections for IIND2201:',
-            sections
+            "COURSE SERVICE TEST 2 - Sections for IIND2201:",
+            sections,
           );
         },
         error: (error) => {
-          console.error('Error fetching sections:', error);
+          console.error("Error fetching sections:", error);
         },
       });
 
@@ -643,5 +647,41 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (this.calendarRefreshInterval) {
       clearInterval(this.calendarRefreshInterval);
     }
+  }
+
+  @HostListener("window:resize")
+  onWindowResize(): void {
+    this.applyResponsiveDayHeader();
+  }
+
+  /**
+   * Switches day header format to a narrow variant on small screens to avoid text overlap.
+   */
+  private applyResponsiveDayHeader(): void {
+    const format = this.getResponsiveDayHeaderFormat();
+    const current = this.calendarOptions.dayHeaderFormat;
+    const isSameFormat =
+      typeof current === "object" &&
+      current !== null &&
+      "weekday" in current &&
+      (current as any).weekday === format.weekday;
+
+    if (!isSameFormat) {
+      this.calendarOptions = {
+        ...this.calendarOptions,
+        dayHeaderFormat: format,
+      };
+      this.cdr.detectChanges();
+    }
+  }
+
+  private getResponsiveDayHeaderFormat(): Intl.DateTimeFormatOptions {
+    if (typeof window === "undefined") {
+      return { weekday: "long" };
+    }
+    // Use narrow weekday names on smaller screens to prevent overlap.
+    return window.innerWidth < 1024
+      ? { weekday: "short" }
+      : { weekday: "long" };
   }
 }
