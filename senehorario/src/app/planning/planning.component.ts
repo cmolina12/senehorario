@@ -149,6 +149,12 @@ export class PlanningComponent implements OnInit, OnDestroy {
     console.log("Section selected:", section);
     let action: string = "";
 
+    // Clear current selection if it matches the toggled section
+    if (this.selectedEvent?.nrc === section.nrc) {
+      this.selectedEvent = null;
+      this.selectedEventInfo = null;
+    }
+
     // Initialize the selected sections array for the course if it doesn't exist
     if (!this.selectedSectionsByCourse[course.code]) {
       this.selectedSectionsByCourse[course.code] = []; // Create a new array for this course
@@ -192,7 +198,15 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.selectedSectionsByCourse,
         );
         action = "removed";
+
+        // Clear any UI state tied to this course
+        this.clearSelectionStateForCourse(course.code);
       }
+    }
+
+    // If no sections remain at all, clear schedules and calendar events
+    if (!this.hasSelectedSections) {
+      this.resetSchedulesAndCalendar();
     }
 
     // Run the schedule fetch after selection change
@@ -683,5 +697,33 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return window.innerWidth < 1024
       ? { weekday: "short" }
       : { weekday: "long" };
+  }
+
+  private clearSelectionStateForCourse(courseCode: string): void {
+    if (
+      this.selectedEvent &&
+      (this.selectedEvent as any).courseCode === courseCode
+    ) {
+      this.selectedEvent = null;
+    }
+    if (
+      this.selectedEventInfo &&
+      this.selectedEventInfo.courseCode === courseCode
+    ) {
+      this.selectedEventInfo = null;
+    }
+    if (this.activeSelectedCourseCode === courseCode) {
+      this.activeSelectedCourseCode = null;
+    }
+  }
+
+  private resetSchedulesAndCalendar(): void {
+    this.scheduleOptions = [];
+    this.selectedScheduleIndex = 0;
+    this.calendarOptions = {
+      ...this.calendarOptions,
+      events: [],
+    };
+    this.cdr.detectChanges();
   }
 }
