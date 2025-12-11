@@ -408,12 +408,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     // Color palette for different sections
     const colorPalette = [
-      "#ffe066",
-      "#ff8c00",
-      "#32cd32",
-      "#1e90ff",
-      "#ad2121",
-      "#e3bc08",
+      "#67A6D4",
+      "#A05DD4",
+      "#E1A557",
+      "#C78A6B",
+      "#E1628B",
+      "#9595FF",
+      "#81BA6C",
+      "#62E1C9",
     ];
 
     // Translate backend schedules into FullCalendar event objects
