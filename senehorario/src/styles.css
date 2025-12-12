@@ -1,203 +1,267 @@
-/* === FullCalendar Event Appearance === */
-
-/* Event box: compact, centered, no overflow */
-.fc .fc-event,
-.fc .fc-event * {
-  box-sizing: border-box;
-  max-width: 100%;
-  min-width: 0;
-}
-
-/* Event container styling */
-.fc .fc-event {
-  min-height: 20px !important;
-  padding: 1px 2px !important;
-  border-radius: 8px !important;
-  font-size: 0.92rem !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important; /* Stretch children to full width */
-  justify-content: center !important;
-  box-shadow: 0 2px 8px rgba(30, 144, 255, 0.1);
-  border: none !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  text-align: center !important;
-  overflow: hidden !important;
-  min-width: 0 !important;
-  cursor: pointer; /* Change cursor to pointer */
-  transition:
-    box-shadow 0.2s,
-    transform 0.2s,
-    background 0.2s;
-}
-
-.fc .fc-event:hover {
-  z-index: 10;
-  box-shadow:
-    0 4px 24px 0 rgba(30, 144, 255, 0.25),
-    0 2px 8px rgba(30, 144, 255, 0.12);
-  transform: scale(1.03);
-  filter: brightness(1.05);
-  cursor: pointer;
-}
-
-/* === FullCalendar Grid Appearance === */
-
-/* Softer grid background and lines */
-.fc .fc-timegrid-slot {
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1.5px solid #e1e1e1;
-  height: 48px; /* or 40px, adjust as needed */
-}
-
-/* === FullCalendar Day Header Appearance === */
-
-.fc .fc-col-header-cell-cushion {
-  color: black;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: transparent;
-  text-decoration: none !important;
-  font-size: 1.08rem;
-  text-align: center;
-  padding: 6px 0;
-}
-
-/* Base font and background */
+/* ====================================================================== */
+/* Global Theme & Color Tokens */
+/* ====================================================================== */
 body {
   font-family:
-    "Inter",
+    "Manrope",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  background: linear-gradient(135deg, #fffbe6 0%, #fffbe6 60%, #ffe066 100%);
+  background-color: #f5f6f8;
   min-height: 100vh;
   margin: 0;
+  color: #1a1a2e;
 }
 
-/* Uniandes yellow utility */
-.uniandes-yellow {
-  background-color: #ffff00 !important;
-  color: #000 !important;
+:root {
+  --primary: #1a1a2e;
+  --primary-light: #16213e;
+  --accent: #f0c800;
+  --accent-light: #fff8dc;
+  --accent-hover: #d4a800;
+  --surface: #ffffff;
+  --surface-alt: #fafafa;
+  --border: #e0e0e0;
+  --border-light: #eee;
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a5a6e;
+  --text-muted: oklch(0.4 0 264);
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+
+  --bg-dark: oklch(0.92 0 264);
+  --bg: oklch(0.96 0 264);
+  --bg-light: oklch(1 0 264);
+  --text: oklch(0.15 0 264);
+  --text-muted: oklch(0.4 0 264);
 }
 
-/* Modernized Uniandes button */
-.btn-uniandes,
-.get-started-btn {
-  background: linear-gradient(90deg, #fff700 0%, #ffe066 100%);
-  color: #000;
-  border: 2px solid #000;
-  font-weight: 700;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px 0 rgba(255, 214, 10, 0.1);
-  transition:
-    background 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
-  font-size: 1.15rem;
-  letter-spacing: 0.5px;
-}
-
-.btn-uniandes:hover,
-.get-started-btn:hover,
-.btn-uniandes:focus,
-.get-started-btn:focus {
-  background: linear-gradient(90deg, #ffe066 0%, #fff700 100%);
-  color: #111;
-  box-shadow: 0 8px 32px 0 rgba(255, 214, 10, 0.28);
-  transform: translateY(-2px) scale(1.03);
-  text-decoration: none;
-}
-
-/* Logo shadow, modernized */
-.logo,
-.logo-shadow {
-  height: 80px;
-  filter: drop-shadow(0 2px 8px #ffff0080);
-}
-
-/* Glassmorphism card for main content */
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  max-width: 700px;
-  width: 100%;
-  margin: 2rem auto;
-  transition: box-shadow 0 3s;
-}
-
-/* Glassmorphism card for main content */
-.glass-card-main {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  max-width: 1500px;
-  margin: 2rem auto;
-  transition: box-shadow 0.3s;
-}
-
-.glass-card:hover {
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.18);
-}
-
-/* Modern link style */
-a.modern-link {
-  color: #ffd60a;
+/* ====================================================================== */
+/* Typography & Links */
+/* ====================================================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-primary);
   font-weight: 600;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+a.modern-link {
+  color: var(--primary);
+  font-weight: 500;
   text-decoration: underline;
   transition: color 0.2s;
 }
 
 a.modern-link:hover,
 a.modern-link:focus {
-  color: #ffb300;
+  color: var(--accent);
   text-decoration: none;
 }
 
-/* Modern link style for yellow backgrounds */
 a.modern-link-on-yellow {
-  color: #222; /* dark text for contrast */
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 500;
   text-decoration: underline;
-  transition: color 0.2s;
 }
 
-a.modern-link-on-yellow:hover,
-a.modern-link-on-yellow:focus {
-  color: #444;
+a.modern-link-on-yellow:hover {
+  color: #333;
+}
+
+/* ====================================================================== */
+/* Branding & Footer */
+/* ====================================================================== */
+.logo,
+.logo-shadow {
+  height: 70px;
+  filter: none;
+}
+
+.footer-modern {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 400;
+  font-size: 0.9rem;
+  padding: 16px 0;
+}
+
+.footer-modern a {
+  color: #fff !important;
+}
+
+/* ====================================================================== */
+/* Surfaces, Panels & Cards */
+/* ====================================================================== */
+.academic-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.academic-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: var(--surface-alt);
+  border-radius: 8px 8px 0 0;
+}
+
+.academic-panel-body {
+  padding: 20px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.border-end {
+  border-right: 1px solid var(--border) !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* ====================================================================== */
+/* Buttons */
+/* ====================================================================== */
+.btn-uniandes,
+.get-started-btn {
+  background: oklch(1 0 264);
+  color: --var(primary);
+  border: none;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+
+.btn-uniandes:hover,
+.get-started-btn:hover,
+.btn-uniandes:focus,
+.get-started-btn:focus {
+  background: var(--primary-light);
+  color: #fff;
+  transform: translateY(-1px);
   text-decoration: none;
 }
 
-/* Footer with gradient and shadow */
-.footer-modern {
-  background: linear-gradient(90deg, #ffe066 0%, #fffbe6 100%);
-  color: #222;
-  font-weight: 500;
-  box-shadow: 0 -2px 16px 0 rgba(255, 214, 10, 0.1);
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  letter-spacing: 0.5px;
+.btn-uniandes.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
 }
 
-/* Fade-in animation for main card */
+.btn-academic-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.btn-academic-secondary:hover {
+  background: var(--surface-alt);
+  border-color: #ccc;
+}
+
+/* ====================================================================== */
+/* Forms, Lists & Badges */
+/* ====================================================================== */
+.form-control {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.08);
+  outline: none;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 0;
+  background: transparent;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+  background-color: var(--surface-alt);
+  color: var(--text-primary);
+}
+
+.badge {
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.badge.bg-warning {
+  background-color: var(--accent) !important;
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+/* ====================================================================== */
+/* Animations */
+/* ====================================================================== */
 .animate-fadein {
-  animation: fadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: fadeIn 0.6s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -205,37 +269,201 @@ a.modern-link-on-yellow:focus {
   }
 }
 
-/* Wrapper: vertical layout, fully centered */
+/* ====================================================================== */
+/* FullCalendar Academic Theme */
+/* ====================================================================== */
+/* Event container */
+.fc .fc-event,
+.fc .fc-event * {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.fc .fc-event {
+  min-height: 20px !important;
+  padding: 2px 4px !important;
+  border-radius: 6px !important;
+  font-size: 0.8rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  min-width: 0 !important;
+  cursor: pointer;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+
+.fc .fc-event:hover {
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: scale(1.02);
+  cursor: pointer;
+}
+
+/* Calendar grid */
+.fc .fc-timegrid-slot {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-light);
+  height: 56px;
+}
+
+.fc .fc-scrollgrid {
+  border: 1px solid var(--border) !important;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fc .fc-scrollgrid td,
+.fc .fc-scrollgrid th {
+  border-color: var(--border-light) !important;
+}
+
+/* Day headers & time axis */
+.fc .fc-col-header-cell-cushion {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: transparent;
+  text-decoration: none !important;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 14px 0;
+}
+
+.fc .fc-col-header-cell {
+  background: var(--surface-alt);
+}
+
+.fc .fc-timegrid-axis {
+  background: var(--surface-alt);
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Event content */
 .fc-event-content-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* vertically center */
-  align-items: center; /* horizontally center */
-  text-align: center; /* center text lines */
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   width: 100%;
   height: 100%;
-  padding: 2px 4px;
+  padding: 2px 3px;
   box-sizing: border-box;
+  line-height: 1.2;
 }
 
-/* Line 1: course code & section */
 .fc-event-course {
-  font-weight: 700;
-  font-size: 0.82rem;
-  margin-bottom: 2px;
-  color: #111;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-bottom: 1px;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-/* Line 2: title (wrapped + ellipsis + max 2 lines) */
 .fc-event-title {
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.2;
   max-width: 100%;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2; /* LIMIT TO TWO LINES */
+  -webkit-line-clamp: 3;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal; /* ALLOW WRAPPING */
+  white-space: normal;
+  opacity: 0.9;
+}
+
+/* Event color palette */
+.event-color-0 {
+  background-color: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+.event-color-1 {
+  background-color: #f3e5f5 !important;
+  color: #7b1fa2 !important;
+}
+.event-color-2 {
+  background-color: #fff8e1 !important;
+  color: #f57c00 !important;
+}
+.event-color-3 {
+  background-color: #efebe9 !important;
+  color: #5d4037 !important;
+}
+.event-color-4 {
+  background-color: #fce4ec !important;
+  color: #c2185b !important;
+}
+.event-color-5 {
+  background-color: #ede7f6 !important;
+  color: #512da8 !important;
+}
+.event-color-6 {
+  background-color: #e8f5e9 !important;
+  color: #388e3c !important;
+}
+.event-color-7 {
+  background-color: #e0f2f1 !important;
+  color: #00796b !important;
+}
+
+/* ====================================================================== */
+/* Utilities & Misc */
+/* ====================================================================== */
+.text-academic {
+  color: var(--text-primary);
+}
+
+.text-academic-muted {
+  color: var(--text-muted);
+}
+
+.bg-academic {
+  background: var(--surface-alt);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .glass-card,
+  .glass-card-main {
+    margin: 1rem;
+    border-radius: 6px;
+  }
 }

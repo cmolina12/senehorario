@@ -1,439 +1,369 @@
-<a
-  routerLink="/"
-  class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center"
-  style="
-    font-size: 1.1rem;
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 1050;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-  "
-  title="Back to Home"
->
-  <i class="bi bi-arrow-left"></i>
-</a>
-<div class="container-fluid py-4">
-  <!-- Main Content Row -->
-  <div class="glass-card-main">
-    <div class="row align-items-stretch" style="min-height: 80vh">
-      <!-- Left Column: Search and Course List (scrollable) -->
-      <div
-        class="col-4 d-flex flex-column border-end px-4"
-        style="min-width: 320px; flex-shrink: 1"
-      >
-        <div class="border-bottom" style="padding: 1rem 0">
-          <input
-            type="text"
-            class="form-control form-control-lg mb-2"
-            placeholder="Search by NRC, code, or name..."
-            [(ngModel)]="searchQuery"
-            (keyup.enter)="onSearchCourse(searchQuery)"
-            style="text-align: center; font-size: 1.1rem"
-          />
-        </div>
-        @if (loading) {
-          <div
-            class="d-flex flex-column align-items-center justify-content-center flex-grow-1 mt-2"
-            style="min-height: 80px"
+<!-- Top Navigation Bar -->
+<header class="planning-header">
+  <div class="d-flex align-items-center justify-content-between px-4 py-2">
+    <a routerLink="/" class="d-flex align-items-center text-decoration-none">
+      <i class="bi bi-arrow-left me-2 text-muted"></i>
+      <span class="brand-text">Senéhorario</span>
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      @if (scheduleOptions.length > 0) {
+        <span class="schedule-counter">
+          Schedule {{ selectedScheduleIndex + 1 }} of
+          {{ scheduleOptions.length }}
+        </span>
+        <div class="btn-group btn-group-sm">
+          <button
+            class="btn btn-outline-secondary"
+            (click)="goToPrevSchedule()"
+            [disabled]="selectedScheduleIndex === 0"
+            title="Previous schedule"
           >
-            <div class="spinner-border text-warning mb-2" role="status"></div>
-            <span class="ms-0 text-center">Loading courses...</span>
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button
+            class="btn btn-outline-secondary"
+            (click)="goToNextSchedule()"
+            [disabled]="selectedScheduleIndex === scheduleOptions.length - 1"
+            title="Next schedule"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>
+
+<div class="planning-container">
+  <!-- TOP SECTION: Course Search + Selected Courses -->
+  <section class="top-section">
+    <!-- Course Search Panel -->
+    <div class="panel search-panel">
+      <div class="panel-header">
+        <span class="panel-title">Course Search</span>
+      </div>
+      <div class="panel-body">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by NRC, code, or name..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearchCourse(searchQuery)"
+        />
+
+        @if (loading) {
+          <div class="status-message">
+            <div
+              class="spinner-border spinner-border-sm text-secondary"
+              role="status"
+            ></div>
+            <span>Loading courses...</span>
           </div>
         }
-        @if (!loading) {
-          <div class="d-flex flex-column">
-            @if (courses && courses.length > 0) {
-              <ul
-                class="list-group list-group-flush px-3"
-                style="overflow-y: auto; max-height: 68vh"
-              >
-                @for (course of courses; track course.code) {
-                  <li class="list-group-item py-3">
-                    <div
-                      class="fw-semibold d-flex justify-content-between align-items.center"
-                      (click)="toggleCourse(course)"
-                      style="cursor: pointer"
-                    >
-                      <span>{{ course.code }} - {{ course.credits }}</span>
-                      <i
-                        [ngClass]="
-                          expandedCourses[course.code]
-                            ? 'bi bi-chevron-up'
-                            : 'bi bi-chevron-down'
-                        "
-                      ></i>
-                    </div>
-                    <div class="text-muted small">{{ course.title }}</div>
 
-                    @if (expandedCourses[course.code] && course.sections) {
-                      <ul class="list-group mt-2">
-                        @for (section of course.sections; track section.nrc) {
-                          <li
-                            class="list-group-item py-2 d-flex justify-content-between align-items-center"
-                          >
-                            <div>
-                              <div class="fw-semibold mb-1">
-                                NRC: {{ section.nrc }} &mdash; Sección:
-                                {{ section.sectionId }}
-                              </div>
+        @if (!loading && courses && courses.length > 0) {
+          <div class="course-list">
+            @for (course of courses; track course.code) {
+              <div class="course-item">
+                <div class="course-header" (click)="toggleCourse(course)">
+                  <div class="course-info">
+                    <span class="course-code">{{ course.code }}</span>
+                    <span class="course-credits">{{ course.credits }} cr</span>
+                  </div>
+                  <i
+                    class="bi"
+                    [ngClass]="
+                      expandedCourses[course.code]
+                        ? 'bi-chevron-up'
+                        : 'bi-chevron-down'
+                    "
+                  ></i>
+                </div>
+                <div class="course-title">{{ course.title }}</div>
 
-                              <div class="small text-muted mb-1">
-                                Term: {{ getIntersemetral(section) }} | Period:
-                                {{ getCicloLabel(section) }}
-                              </div>
-
-                              <div class="small mb-1">
-                                <span class="fw-semibold">Profesores:</span>
-                                @if (
-                                  section.professors &&
-                                  section.professors.length > 0
-                                ) {
-                                  {{
-                                    section.professors.join(", ") | titlecase
-                                  }}
-                                }
-                                @if (
-                                  !section.professors ||
-                                  section.professors.length === 0
-                                ) {
-                                  N/A
-                                }
-                              </div>
-
-                              <div>
-                                <span class="fw-semibold">Meetings:</span>
-                                <ul class="list-unstyled ms-2 mb-0">
-                                  @for (
-                                    meeting of section.meetings;
-                                    track $index
-                                  ) {
-                                    <li>
-                                      <span class="badge bg-secondary me-1">
-                                        {{
-                                          meeting.day | slice: 0 : 3 | titlecase
-                                        }}
-                                      </span>
-                                      <span
-                                        class="badge bg-warning text-dark me-1"
-                                      >
-                                        {{ meeting.start.slice(0, 5) }}–{{
-                                          meeting.end.slice(0, 5)
-                                        }}
-                                      </span>
-                                    </li>
-                                  }
-                                </ul>
-                              </div>
-                            </div>
-                            <button
-                              class="btn btn-uniandes btn-sm rounded-circle d-flex align-items-center justify-content-center"
-                              (click)="
-                                onSectionClick(course, section);
-                                $event.stopPropagation()
-                              "
-                              title="Seleccionar sección"
-                              style="
-                                width: 32px;
-                                height: 32px;
-                                align-self: center;
-                              "
+                @if (expandedCourses[course.code] && course.sections) {
+                  <div class="sections-list">
+                    @for (section of course.sections; track section.nrc) {
+                      <div class="section-item">
+                        <div class="section-main">
+                          <div class="section-header">
+                            <span class="section-nrc"
+                              >NRC {{ section.nrc }}</span
                             >
-                              <i
-                                [ngClass]="
-                                  isSectionSelected(course.code, section.nrc)
-                                    ? 'bi bi-dash'
-                                    : 'bi bi-plus'
-                                "
-                              ></i>
-                            </button>
-                          </li>
-                        }
-                      </ul>
+                            <span class="section-id"
+                              >Sec. {{ section.sectionId }}</span
+                            >
+                          </div>
+                          <div class="section-meta">
+                            {{ getIntersemetral(section) }} ·
+                            {{ getCicloLabel(section) }}
+                          </div>
+                          @if (
+                            section.professors && section.professors.length > 0
+                          ) {
+                            <div class="section-prof">
+                              {{ section.professors.join(", ") | titlecase }}
+                            </div>
+                          }
+                          <div class="section-meetings">
+                            @for (meeting of section.meetings; track $index) {
+                              <span class="meeting-badge">
+                                {{ meeting.day | slice: 0 : 3 | titlecase }}
+                                {{ meeting.start.slice(0, 5) }}–{{
+                                  meeting.end.slice(0, 5)
+                                }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                        <button
+                          class="btn-section-toggle"
+                          (click)="
+                            onSectionClick(course, section);
+                            $event.stopPropagation()
+                          "
+                          [class.selected]="
+                            isSectionSelected(course.code, section.nrc)
+                          "
+                          title="Toggle section"
+                        >
+                          <i
+                            [ngClass]="
+                              isSectionSelected(course.code, section.nrc)
+                                ? 'bi bi-check'
+                                : 'bi bi-plus'
+                            "
+                          ></i>
+                        </button>
+                      </div>
                     }
-                  </li>
+                  </div>
                 }
-              </ul>
-            }
-            @if (empty) {
-              <div class="text-center text-muted my-4">No courses found.</div>
-            }
-            @if (error) {
-              <div class="alert alert-danger text-center my-4">
-                <img
-                  src="images/sad-pepe.png"
-                  alt="Error"
-                  class="mb-2"
-                  style="max-width: 80px"
-                />
-                <br />
-                {{ error }}
               </div>
             }
           </div>
         }
-      </div>
 
-      <!-- Right Column: Details, Sections -->
-      <div
-        class="col-8 d-flex flex-column p-4"
-        style="min-width: 0; flex-basis: 0; flex-grow: 1; flex-shrink: 1"
-      >
-        <div
-          class="d-flex align-items-center py-2 border-bottom"
-          style="overflow-x: auto; min-height: 48px"
-        >
-          <span class="me-2 fw-bold small">Selected:</span>
-          @if (getSelectedCourseCodes().length === 0) {
-            <span class="text-muted small"> No courses selected yet. </span>
-          }
-          @for (code of getSelectedCourseCodes(); track code) {
-            <span
-              class="badge text-dark me-2 px-2 py-1 small"
-              style="font-size: 0.92rem; cursor: pointer"
-              (click)="activeSelectedCourseCode = code"
-              [ngClass]="
-                activeSelectedCourseCode === code
-                  ? 'bg-warning'
-                  : 'bg-secondary'
-              "
-            >
-              {{ code }}
-              <span
-                class="ms-1 text-secondary"
-                [ngClass]="
-                  activeSelectedCourseCode === code
-                    ? 'text-secondary'
-                    : 'text-white'
+        @if (!loading && empty) {
+          <div class="status-message muted">
+            <i class="bi bi-search"></i>
+            <span>No courses found</span>
+          </div>
+        }
+
+        @if (error) {
+          <div class="status-message error">
+            <i class="bi bi-exclamation-circle"></i>
+            <span>{{ error }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Selected Courses Panel -->
+    <div class="panel selected-panel">
+      <div class="panel-header">
+        <span class="panel-title">Selected Courses</span>
+        @if (getSelectedCourseCodes().length > 0) {
+          <span class="count-badge">{{ getSelectedCourseCodes().length }}</span>
+        }
+      </div>
+      <div class="panel-body">
+        @if (getSelectedCourseCodes().length === 0) {
+          <div class="status-message muted">
+            <i class="bi bi-bookmark"></i>
+            <span>No courses selected yet</span>
+          </div>
+        } @else {
+          <div class="selected-courses-grid">
+            @for (code of getSelectedCourseCodes(); track code) {
+              <div
+                class="selected-course-card"
+                [class.active]="activeSelectedCourseCode === code"
+                (click)="
+                  activeSelectedCourseCode =
+                    activeSelectedCourseCode === code ? null : code
                 "
               >
-                {{ selectedSectionsByCourse[code].length }}
-                {{
-                  selectedSectionsByCourse[code].length === 1
-                    ? "section"
-                    : "sections"
-                }}
-              </span>
-            </span>
-          }
-        </div>
-        <div class="d-flex flex-column overflow-auto py-4">
-          <div class="mb-3">
-            <div class="d-flex flex-wrap align-items-center gap-3">
-              @if (activeSelectedCourseCode) {
-                <div class="w-100 mb-2">
-                  <div class="fw-bold">
-                    {{ activeSelectedCourseCode }} —
+                <div class="selected-card-header">
+                  <span class="selected-code">{{ code }}</span>
+                  <span class="selected-count">
+                    {{ selectedSectionsByCourse[code].length }}
                     {{
-                      selectedCoursesMeta[activeSelectedCourseCode]?.title ||
-                        "Title unavailable"
+                      selectedSectionsByCourse[code].length === 1
+                        ? "section"
+                        : "sections"
                     }}
-                  </div>
-                  <div class="text-muted small">
-                    Credits:
-                    {{
-                      selectedCoursesMeta[activeSelectedCourseCode]?.credits ??
-                        "N/A"
-                    }}
-                  </div>
+                  </span>
                 </div>
-                @for (
-                  section of selectedSectionsByCourse[activeSelectedCourseCode];
-                  track section.nrc
-                ) {
-                  <div
-                    class="card p-2 px-4 border-0 shadow-sm"
-                    style="min-width: 220px; max-width: 300px"
-                  >
-                    <div class="small text-muted mb-1">
-                      Section {{ section.sectionId }}
-                    </div>
-                    <div class="fw-semibold mb-1">NRC: {{ section.nrc }}</div>
-                    <div class="small mb-1">
-                      Prof: {{ section.professors.join(", ") | titlecase }}
-                    </div>
-                    <div>
-                      @for (meeting of section.meetings; track $index) {
-                        <span class="badge bg-secondary me-1">
-                          {{ meeting.day | slice: 0 : 3 | titlecase }}
-                          {{ meeting.start.slice(0, 5) }}–{{
-                            meeting.end.slice(0, 5)
-                          }}
-                        </span>
-                      }
-                    </div>
+                <div class="selected-title">
+                  {{ selectedCoursesMeta[code]?.title || "Title unavailable" }}
+                </div>
+                <div class="selected-credits">
+                  {{ selectedCoursesMeta[code]?.credits ?? "N/A" }} credits
+                </div>
+
+                @if (activeSelectedCourseCode === code) {
+                  <div class="selected-sections">
+                    @for (
+                      section of selectedSectionsByCourse[code];
+                      track section.nrc
+                    ) {
+                      <div class="selected-section-item">
+                        <div class="selected-section-header">
+                          <span class="selected-section-id"
+                            >Section {{ section.sectionId }}</span
+                          >
+                          <span class="selected-section-nrc"
+                            >NRC {{ section.nrc }}</span
+                          >
+                        </div>
+                        @if (
+                          section.professors && section.professors.length > 0
+                        ) {
+                          <div class="selected-section-prof">
+                            {{ section.professors.join(", ") | titlecase }}
+                          </div>
+                        }
+                        <div class="selected-section-meetings">
+                          @for (meeting of section.meetings; track $index) {
+                            <span class="meeting-badge">
+                              {{ meeting.day | slice: 0 : 3 | titlecase }}
+                              {{ meeting.start.slice(0, 5) }}–{{
+                                meeting.end.slice(0, 5)
+                              }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Schedule Preview-->
-  <div class="container-fluid">
-    <div
-      class="row mt-4"
-      style="max-width: 1500px; margin-left: auto; margin-right: auto"
-    >
-      <!-- Schedule Preview (left) -->
-      <div class="col-md-9">
-        <div
-          class="card glass-card-main border-0 shadow-sm"
-          style="max-width: 100%; margin: 0 auto; min-height: 700px"
-        >
-          <div class="card-body d-flex flex-column align-items-center">
-            <h5 class="mb-3 fw-bold text-center">Schedule Preview</h5>
-
-            <!-- Show calendar if no error and schedule has generated-->
-            <div class="mt-3 w-100 position-relative" style="min-height: 400px">
-              @if (!ScheduleError) {
-                <full-calendar [options]="calendarOptions"></full-calendar>
-              }
-
-              <!-- Show schedule error as overlay -->
-              @if (ScheduleError) {
-                <div
-                  class="position-absolute top-50 start-50 translate-middle text-danger text-center"
-                  style="
-                    z-index: 20;
-                    background: rgba(255, 255, 255, 0.95);
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-                  "
-                >
-                  <img
-                    src="images/sad-pepe.png"
-                    alt="Error"
-                    class="mb-2"
-                    style="max-width: 80px"
-                  />
-                  <br />
-                  <span class="fw-bold">{{ ScheduleError }}</span>
-                </div>
-              }
-              @if (!hasSelectedSections && !ScheduleError) {
-                <div
-                  class="position-absolute top-50 start-50 translate-middle text-muted text-center"
-                  style="
-                    z-index: 10;
-                    background: rgba(255, 255, 255, 0.85);
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                  "
-                >
-                  Your generated schedule will appear here after selecting
-                  sections.
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Options Card (right) -->
-      <div class="col-md-3 mt-3 mt-md-0">
-        <div
-          class="card glass-card-main border-0 shadow-sm d-flex flex-column h-100"
-          style="max-width: 1500px; margin: 0 auto; min-height: 700px"
-        >
-          <div class="card-body d-flex flex-column align-items-center">
-            <h5 class="mb-3 fw-bold">Schedule Controls</h5>
-            <!-- Section info card, shown when an event is selected -->
-            @if (selectedEvent) {
-              <div class="card mb-3 w-100 border-0 shadow-sm">
-                <div class="card-body p-3">
-                  <div class="mb-2">
-                    <div class="fw-bold">
-                      {{ selectedEventInfo?.courseCode || "Course" }} —
-                      {{
-                        selectedEventInfo?.courseTitle || "Title unavailable"
-                      }}
-                    </div>
-                    <div class="text-muted small">
-                      Credits: {{ selectedEventInfo?.courseCredits ?? "N/A" }}
-                    </div>
-                  </div>
-                  <h6 class="fw-bold mb-2">
-                    Section {{ selectedEvent.sectionId }}
-                  </h6>
-                  <div class="mb-1">
-                    <span class="fw-semibold">NRC:</span>
-                    {{ selectedEvent.nrc }}
-                  </div>
-                  <div class="mb-1">
-                    <span class="fw-semibold">Term:</span>
-                    {{ getIntersemetral(selectedEvent) }} |
-                    <span class="fw-semibold">Period:</span>
-                    {{ getCicloLabel(selectedEvent) }}
-                  </div>
-                  <div class="mb-1">
-                    <span class="fw-semibold">Campus:</span>
-                    {{ selectedEvent.campus || "N/A" }}
-                  </div>
-                  <div class="mb-1">
-                    <span class="fw-semibold">Professors:</span>
-                    {{ selectedEvent.professors.join(", ") || "N/A" }}
-                  </div>
-                  <div class="mb-1">
-                    <span class="fw-semibold">Meetings:</span>
-                    <ul class="list-unstyled ms-2 mb-0">
-                      @for (meeting of selectedEvent.meetings; track $index) {
-                        <li>
-                          <span class="badge bg-secondary me-1">
-                            {{ meeting.day | slice: 0 : 3 | titlecase }}
-                          </span>
-                          <span class="badge bg-warning text-dark me-1">
-                            {{ meeting.start.slice(0, 5) }}–{{
-                              meeting.end.slice(0, 5)
-                            }}
-                          </span>
-                          <span class="badge bg-light text-dark border">
-                            {{ meeting.location || "No location" }}
-                          </span>
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                </div>
               </div>
             }
-            <div
-              class="d-flex align-items-center justify-content-center mb-3 mt-auto"
-            >
-              @if (scheduleOptions.length > 0) {
-                <div class="d-flex align-items-center">
-                  <button
-                    class="btn btn-outline-secondary me-2"
-                    (click)="goToPrevSchedule()"
-                    [disabled]="selectedScheduleIndex === 0"
-                  >
-                    &larr;
-                  </button>
-                  <span class="fw-bold">
-                    Showing schedule {{ selectedScheduleIndex + 1 }} of
-                    {{ scheduleOptions.length }}
-                  </span>
-                  <button
-                    class="btn btn-outline-secondary ms-2"
-                    (click)="goToNextSchedule()"
-                    [disabled]="
-                      selectedScheduleIndex === scheduleOptions.length - 1
-                    "
-                  >
-                    &rarr;
-                  </button>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM SECTION: Schedule Calendar + Event Details -->
+  <section class="bottom-section">
+    <!-- Calendar Panel -->
+    <div class="panel calendar-panel">
+      <div class="panel-header">
+        <span class="panel-title">Weekly Schedule</span>
+      </div>
+      <div class="calendar-body">
+        @if (!ScheduleError) {
+          <full-calendar [options]="calendarOptions"></full-calendar>
+        }
+
+        @if (ScheduleError) {
+          <div class="calendar-overlay error">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>{{ ScheduleError }}</span>
+          </div>
+        }
+
+        @if (!hasSelectedSections && !ScheduleError) {
+          <div class="calendar-overlay">
+            <i class="bi bi-calendar-plus"></i>
+            <span>Select course sections above to generate a schedule</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Event Details Panel (for clicked calendar events) -->
+    <div class="panel details-panel">
+      <div class="panel-header">
+        <span class="panel-title">Class Details</span>
+      </div>
+      <div class="panel-body">
+        @if (!selectedEvent) {
+          <div class="status-message muted">
+            <i class="bi bi-hand-index"></i>
+            <span>Click on a class in the schedule to view its details</span>
+          </div>
+        } @else {
+          <div class="event-detail">
+            <div class="event-header">
+              <div class="event-code">
+                {{ selectedEventInfo?.courseCode || "Course" }}
+              </div>
+              <div class="event-title">
+                {{ selectedEventInfo?.courseTitle || "Title unavailable" }}
+              </div>
+              <div class="event-credits">
+                {{ selectedEventInfo?.courseCredits ?? "N/A" }} credits
+              </div>
+            </div>
+
+            <div class="event-info-grid">
+              <div class="info-item">
+                <span class="info-label">Section</span>
+                <span class="info-value">{{ selectedEvent.sectionId }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">NRC</span>
+                <span class="info-value">{{ selectedEvent.nrc }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Term</span>
+                <span class="info-value">{{
+                  getIntersemetral(selectedEvent)
+                }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Period</span>
+                <span class="info-value">{{
+                  getCicloLabel(selectedEvent)
+                }}</span>
+              </div>
+              @if (selectedEvent.campus) {
+                <div class="info-item full-width">
+                  <span class="info-label">Campus</span>
+                  <span class="info-value">{{ selectedEvent.campus }}</span>
+                </div>
+              }
+              @if (
+                selectedEvent.professors && selectedEvent.professors.length > 0
+              ) {
+                <div class="info-item full-width">
+                  <span class="info-label">Professors</span>
+                  <span class="info-value">{{
+                    selectedEvent.professors.join(", ")
+                  }}</span>
                 </div>
               }
             </div>
+
+            <div class="event-meetings">
+              <span class="info-label">Meetings</span>
+              <div class="meetings-list">
+                @for (meeting of selectedEvent.meetings; track $index) {
+                  <div class="meeting-item">
+                    <span class="meeting-day">{{
+                      meeting.day | slice: 0 : 3 | titlecase
+                    }}</span>
+                    <span class="meeting-time"
+                      >{{ meeting.start.slice(0, 5) }}–{{
+                        meeting.end.slice(0, 5)
+                      }}</span
+                    >
+                    @if (meeting.location) {
+                      <span class="meeting-location">{{
+                        meeting.location
+                      }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
           </div>
-        </div>
+        }
       </div>
     </div>
-  </div>
+  </section>
 </div>

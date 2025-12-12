@@ -1,80 +1,167 @@
-<div class="main-bg d-flex flex-column min-vh-100">
-  <div
-    class="container-fluid flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center"
-  >
-    <div class="glass-card p-5 mt-4 mb-4 shadow-lg animate-fadein">
-      <!-- Header -->
-      <header>
-        <img
-          src="images/uniandes_logo.png"
-          alt="Uniandes Logo"
-          class="logo mb-3"
-        />
-        <h1 class="display-4 fw-bold mb-2 text-dark">Senéhorario</h1>
-        <h4 class="fw-semibold mb-4 text-secondary">
-          Your perfect Uniandes schedule, made simple.
-        </h4>
-      </header>
-      <!-- Main Content -->
-      <main>
-        <p class="lead text-dark mb-4" style="max-width: 900px; margin: 0 auto">
-          <strong>Senéhorario</strong> is a web tool for Universidad de los
-          Andes' students designed to help users optimize their academic
-          schedule. Its goal is to make it easy to create the perfect class
-          timetable by balancing preferences like course combinations, free
-          time, and availability.
-        </p>
-        <p
-          class="mb-4 text-dark"
-          style="max-width: 700px; margin: 0 auto; font-size: 1.1rem"
-        >
-          Senéhorario is an open source project created and maintained by Camilo
-          Molina. The intention is to provide a free and accessible scheduling
-          tool for the Uniandes community, and contributions or feedback are
-          always welcome. You can find the source code and contribute on GitHub:
-          <br /><br />
-          <strong>Frontend: </strong>
-          <a
-            href="https://github.com/cmolina12/senehorario-frontend"
-            target="_blank"
-            class="modern-link"
-            >GitHub Repository</a
-          >
-          <br />
-          <strong>Backend: </strong>
-          <a
-            href="https://github.com/cmolina12/senehorario-backend"
-            target="_blank"
-            class="modern-link"
-            >GitHub Repository</a
-          >
-          <br />
-          <br />
-          <strong>Contact:</strong><br />
-          <a href="mailto:c.molinap@uniandes.edu.com" class="modern-link"
-            >c.molinap{{ "@" }}uniandes.edu.co</a
-          >
-        </p>
-        <a
-          routerLink="/planning"
-          class="btn btn-lg get-started-btn mt-4 px-5 py-2 fw-bold"
-        >
-          Get Started
-        </a>
-      </main>
+<div class="landing-wrapper">
+  <!-- Header Bar -->
+  <header class="landing-header">
+    <div
+      class="container d-flex align-items-center justify-content-between py-3"
+    >
+      <div class="d-flex align-items-center">
+        <img src="images/peluche.png" alt="Uniandes Logo" class="logo me-3" />
+
+        <div class="brand-stack">
+          <span class="brand-text">Senéhorario</span>
+          <span class="brand-slogan"> Build conflict-free schedules </span>
+        </div>
+      </div>
     </div>
-  </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="landing-main">
+    <div class="container">
+      <div class="row align-items-center py-5">
+        <div class="col-lg-5 animate-fadein">
+          <h1 class="hero-title mb-3">
+            Plan Your Academic Schedule Like the Pros
+          </h1>
+          <p class="hero-subtitle mb-4">
+            A scheduling tool designed for Universidad de los Andes students.
+            <strong>Build your ideal timetable</strong> by exploring course
+            combinations, avoiding conflicts, and optimizing your semester.
+          </p>
+
+          <ul class="list-unstyled text-muted mb-4">
+            <li class="d-flex align-items-start mb-2">
+              <i class="bi bi-check2-circle me-2"></i>
+              Search by NRC, code, or name and inspect sections fast
+            </li>
+            <li class="d-flex align-items-start mb-2">
+              <i class="bi bi-check2-circle me-2"></i>
+              Automatic validation for overlaps and required pairings
+            </li>
+            <li class="d-flex align-items-start">
+              <i class="bi bi-check2-circle me-2"></i>
+              Compare multiple valid schedules with a weekly calendar view
+            </li>
+          </ul>
+          <a routerLink="/planning" class="btn btn-uniandes btn-lg">
+            Get Started
+          </a>
+        </div>
+        <div class="col-lg-7 d-none d-lg-block text-center">
+          <div class="hero-visual">
+            <div class="planner-preview-card">
+              <img
+                src="images/planner-preview.png"
+                alt="Senéhorario planner schedule view"
+                class="planner-preview-img"
+              />
+              <div class="preview-caption text-muted small mt-2">
+                Senéhorario uses your selected sections to generate the best
+                possible schedules.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Features Section -->
+  <section class="features-section py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-item h-100">
+            <div class="feature-icon">
+              <i class="bi bi-search"></i>
+            </div>
+            <h5 class="feature-title">Fast course search</h5>
+            <p class="feature-desc">
+              Find courses by NRC, code, or name and inspect section details and
+              meeting times quickly.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-item h-100">
+            <div class="feature-icon">
+              <i class="bi bi-calendar-week"></i>
+            </div>
+            <h5 class="feature-title">Conflict-free generation</h5>
+            <p class="feature-desc">
+              Automatically generates schedules that avoid overlaps and respect
+              section pairing rules.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="feature-item h-100">
+            <div class="feature-icon">
+              <i class="bi bi-arrows-angle-expand"></i>
+            </div>
+            <h5 class="feature-title">Compare options visually</h5>
+            <p class="feature-desc">
+              Step through valid schedules and compare them side-by-side using a
+              weekly calendar preview.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <h3 class="mb-3">Open Source Project</h3>
+          <p class="text-muted mb-4">
+            Senéhorario is created and maintained by Camilo Molina.
+            Contributions and feedback are welcome.
+          </p>
+
+          <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <a
+              href="https://github.com/cmolina12/senehorario-frontend"
+              target="_blank"
+              rel="noopener"
+              class="modern-link"
+            >
+              <i class="bi bi-github me-1"></i>Frontend Repo
+            </a>
+            <a
+              href="https://github.com/cmolina12/senehorario-backend"
+              target="_blank"
+              rel="noopener"
+              class="modern-link"
+            >
+              <i class="bi bi-github me-1"></i>Backend Repo
+            </a>
+            <a href="mailto:c.molinap@uniandes.edu.co" class="modern-link">
+              <i class="bi bi-envelope me-1"></i>Contact
+            </a>
+          </div>
+
+          <div class="mt-4 text-muted small">
+            Stack: Angular + TypeScript (frontend) · Spring Boot (backend)
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
-  <footer class="footer-modern py-3 text-center w-100">
+  <footer class="footer-modern text-center">
     &copy; 2025 Camilo Molina – Universidad de los Andes
-    <br />
+    <span class="mx-2">|</span>
     <a
       href="https://github.com/cmolina12/senehorario-frontend/blob/main/LICENSE"
       target="_blank"
       rel="noopener"
-      class="modern-link-on-yellow"
-    >
-      MIT Licensed</a
-    >. Use it, break it, improve it.
+      >MIT License
+    </a>
   </footer>
 </div>

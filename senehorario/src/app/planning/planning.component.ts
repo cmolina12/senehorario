@@ -102,9 +102,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
           extended["courseCredits"] ||
           (this.selectedEvent as any)?.courseCredits,
       };
-      if (this.selectedEventInfo?.courseCode) {
-        this.activeSelectedCourseCode = this.selectedEventInfo.courseCode;
-      }
       this.cdr.detectChanges(); // Ensure view updates
     },
   };
@@ -115,10 +112,24 @@ export class PlanningComponent implements OnInit, OnDestroy {
       Array.isArray(this.scheduleOptions[this.selectedScheduleIndex])
         ? this.scheduleOptions[this.selectedScheduleIndex]
         : [];
-    // Replace the events list while keeping other calendar settings intact
+    // Replace the events list while preserving all handlers
     this.calendarOptions = {
       ...this.calendarOptions,
       events,
+      eventClick: (arg) => {
+        const extended = arg.event.extendedProps as any;
+        this.selectedEvent = extended["section"] as SectionModel;
+        this.selectedEventInfo = {
+          courseCode:
+            extended["courseCode"] || (this.selectedEvent as any)?.courseCode,
+          courseTitle:
+            extended["courseTitle"] || (this.selectedEvent as any)?.courseTitle,
+          courseCredits:
+            extended["courseCredits"] ||
+            (this.selectedEvent as any)?.courseCredits,
+        };
+        this.cdr.detectChanges();
+      },
     };
     console.log("Updated calendar events:", this.calendarOptions.events);
     this.cdr.detectChanges(); // Ensure view updates
