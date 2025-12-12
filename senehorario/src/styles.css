@@ -152,8 +152,8 @@ a.modern-link-on-yellow:hover {
 /* ====================================================================== */
 .btn-uniandes,
 .get-started-btn {
-  background: oklch(1 0 264);
-  color: --var(primary);
+  background: var(--primary);
+  color: #fff;
   border: none;
   font-weight: 600;
   border-radius: 6px;

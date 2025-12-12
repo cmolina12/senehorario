@@ -2,16 +2,17 @@
   <!-- Header Bar -->
   <header class="landing-header">
     <div
-      class="container d-flex align-items-center justify-content-between py-3"
+      class="floating-header container d-flex align-items-center justify-content-between"
     >
       <div class="d-flex align-items-center">
-        <img src="images/peluche.png" alt="Uniandes Logo" class="logo me-3" />
-
+        <img src="images/peluche.png" alt="Uniandes Logo" class="logo" />
         <div class="brand-stack">
           <span class="brand-text">Senéhorario</span>
-          <span class="brand-slogan"> Build conflict-free schedules </span>
         </div>
       </div>
+      <a routerLink="/planning" class="btn btn-uniandes btn-sm">
+        Get Started
+      </a>
     </div>
   </header>
 
@@ -19,35 +20,37 @@
   <main class="landing-main">
     <div class="container">
       <div class="row align-items-center py-5">
-        <div class="col-lg-5 animate-fadein">
+        <div class="col-lg-6 animate-fadein">
           <h1 class="hero-title mb-3">
-            Plan Your Academic Schedule Like the Pros
+            Planifica tu horario académico
+            <span style="color: #f0c800">sin conflictos.</span>
           </h1>
           <p class="hero-subtitle mb-4">
-            A scheduling tool designed for Universidad de los Andes students.
-            <strong>Build your ideal timetable</strong> by exploring course
-            combinations, avoiding conflicts, and optimizing your semester.
+            <strong>Senéhorario</strong> es una herramienta de planificación
+            diseñada para estudiantes de la Universidad de los Andes. Construye
+            tu horario ideal explorando combinaciones de cursos, evitando
+            conflictos y optimizando tu semestre.
           </p>
 
           <ul class="list-unstyled text-muted mb-4">
             <li class="d-flex align-items-start mb-2">
               <i class="bi bi-check2-circle me-2"></i>
-              Search by NRC, code, or name and inspect sections fast
+              Busca cursos por NRC, código o nombre y revisa rápidamente sus
+              secciones
             </li>
             <li class="d-flex align-items-start mb-2">
               <i class="bi bi-check2-circle me-2"></i>
-              Automatic validation for overlaps and required pairings
+              Validación automática de cruces de horario y emparejamientos
+              obligatorios
             </li>
             <li class="d-flex align-items-start">
               <i class="bi bi-check2-circle me-2"></i>
-              Compare multiple valid schedules with a weekly calendar view
+              Compara múltiples horarios válidos con una vista semanal del
+              calendario
             </li>
           </ul>
-          <a routerLink="/planning" class="btn btn-uniandes btn-lg">
-            Get Started
-          </a>
         </div>
-        <div class="col-lg-7 d-none d-lg-block text-center">
+        <div class="col-lg-6 d-none d-lg-block text-center">
           <div class="hero-visual">
             <div class="planner-preview-card">
               <img
@@ -75,10 +78,10 @@
             <div class="feature-icon">
               <i class="bi bi-search"></i>
             </div>
-            <h5 class="feature-title">Fast course search</h5>
+            <h5 class="feature-title">Búsqueda rápida de cursos</h5>
             <p class="feature-desc">
-              Find courses by NRC, code, or name and inspect section details and
-              meeting times quickly.
+              Encuentra cursos por NRC, código o nombre y revisa rápidamente los
+              detalles de sus secciones y horarios.
             </p>
           </div>
         </div>
@@ -88,10 +91,10 @@
             <div class="feature-icon">
               <i class="bi bi-calendar-week"></i>
             </div>
-            <h5 class="feature-title">Conflict-free generation</h5>
+            <h5 class="feature-title">Generación sin conflictos</h5>
             <p class="feature-desc">
-              Automatically generates schedules that avoid overlaps and respect
-              section pairing rules.
+              Genera automáticamente horarios que evitan cruces y respetan las
+              reglas de emparejamiento entre secciones.
             </p>
           </div>
         </div>
@@ -101,10 +104,10 @@
             <div class="feature-icon">
               <i class="bi bi-arrows-angle-expand"></i>
             </div>
-            <h5 class="feature-title">Compare options visually</h5>
+            <h5 class="feature-title">Comparación visual de opciones</h5>
             <p class="feature-desc">
-              Step through valid schedules and compare them side-by-side using a
-              weekly calendar preview.
+              Recorre horarios válidos y compáralos de forma visual mediante una
+              vista semanal del calendario.
             </p>
           </div>
         </div>

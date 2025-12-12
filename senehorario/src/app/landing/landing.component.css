@@ -2,15 +2,18 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f6f8;
+  background: #fff;
 }
 
 .landing-header {
-  background: #ffff;
-  border-bottom: 3px solid #000;
   position: sticky;
-  top: 0;
+  top: 18px;
   z-index: 100;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* allow content under; child handles pointer */
 }
 
 .brand-text {
@@ -24,16 +27,38 @@
   height: 45px;
 }
 
+.floating-header .logo {
+  margin-right: 4px;
+}
+
+.floating-header {
+  background: var(--bg-light);
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  padding: 12px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.floating-header .btn-uniandes {
+  padding: 8px 14px;
+  border-radius: 12px;
+}
+
 .landing-main {
   flex: 1;
   display: flex;
   align-items: center;
-  background: var(--bg);
+  background: #fff;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .hero-title {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 700;
   color: var(--text);
   line-height: 1.15;
@@ -108,7 +133,7 @@
 
 /* Features Section */
 .features-section {
-  background: var(--bg-dark);
+  background: var(--primary);
 }
 
 .feature-item {
@@ -127,7 +152,7 @@
 .feature-icon {
   width: 48px;
   height: 48px;
-  background: #ffe41f;
+  background: var(--accent);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -211,14 +236,11 @@
   line-height: 1.1;
 }
 
+.floating-header .brand-stack {
+  margin-left: -4px;
+}
+
 .brand-text {
   font-size: 1.2rem;
   font-weight: 600;
-}
-
-.brand-slogan {
-  font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.6);
-  margin-top: 2px;
-  letter-spacing: 0.02em;
 }
