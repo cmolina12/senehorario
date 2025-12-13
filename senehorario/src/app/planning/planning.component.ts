@@ -8,6 +8,7 @@ import { CalendarOptions } from "@fullcalendar/core/index.js";
 import timeGridPlugin from "@fullcalendar/timegrid/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid/index.js";
 import interactionPlugin from "@fullcalendar/interaction/index.js";
+import esLocale from "@fullcalendar/core/locales/es";
 
 @Component({
   standalone: false,
@@ -72,6 +73,12 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, interactionPlugin],
+    locales: [esLocale],
+    locale: "es",
+    dayHeaderContent: (arg) => {
+      const name = arg.date.toLocaleDateString("es-ES", { weekday: "long" });
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    },
     initialDate: "2025-07-28", // Start date for the calendar
     height: 600,
     contentHeight: 600,
