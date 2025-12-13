@@ -286,9 +286,9 @@ export class PlanningComponent implements OnInit, OnDestroy {
   }
 
   getCicloLabel(section: any): string {
-    if (section.ptrm === "8A") return "First Cycle";
-    if (section.ptrm === "8B") return "Second Cycle";
-    if (section.ptrm === "1") return "Complete Cycle";
+    if (section.ptrm === "8A") return "Primer Ciclo - 8A";
+    if (section.ptrm === "8B") return "Segundo Ciclo - 8B";
+    if (section.ptrm === "1") return "16 Semanas";
     return section.ptrm;
   }
 
@@ -318,7 +318,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.courses = []; // Clear courses on error
           console.error("Error fetching courses:", error);
           this.error =
-            "The Uniandes database has errors in course values. Please try again later when the university fixes this issue.";
+            "La base de datos de la Universidad de los Andes tiene errores en los valores de los cursos. Por favor, inténtalo de nuevo más tarde cuando la universidad corrija este problema.";
           this.loading = false;
           this.empty = false; // Reset empty state
           this.cdr.detectChanges(); // Ensure view updates
@@ -354,7 +354,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           if (!Array.isArray(schedules) || schedules.length === 0) {
             console.warn("No schedules found for the selected sections.");
             this.ScheduleError =
-              "No compatible schedules found for the selected sections. Please select different sections or check for conflicts.";
+              "No se encontraron horarios compatibles para las secciones seleccionadas. Por favor, seleccione secciones diferentes o verifique si hay conflictos.";
             this.cdr.detectChanges();
             return;
           }
@@ -383,7 +383,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error("Error fetching schedules:", error);
           this.ScheduleError =
-            "A critical error occurred while generating schedules. Please try again later or message me at contact@camilomolina.dev.";
+            "Un error crítico ocurrió al generar horarios. Por favor, inténtalo de nuevo más tarde o envíame un mensaje a contact@camilomolina.dev.";
         },
       });
     }
@@ -485,14 +485,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
       if (action !== "removed") {
         // Adding lab: main course must be selected
         if (!isMainSelected) {
-          this.ScheduleError = `You selected a lab section for ${baseCourseCode}, you must also select the main course.`;
+          this.ScheduleError = `Seleccionaste una sección de laboratorio para ${baseCourseCode}, debes seleccionar también el curso principal.`;
           this.cdr.detectChanges();
           return;
         }
       } else {
         // Removing lab: can't remove if main course is still selected
         if (isMainSelected) {
-          this.ScheduleError = `You cannot remove the lab for ${baseCourseCode} while the main course is still selected.`;
+          this.ScheduleError = `No puedes eliminar el laboratorio para ${baseCourseCode} mientras el curso principal sigue seleccionado.`;
           this.cdr.detectChanges();
           return;
         }
@@ -519,14 +519,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
           if (action !== "removed") {
             // Adding main: lab must be selected
             if (!isLabSelected) {
-              this.ScheduleError = `The course ${courseCode} has an obligatory lab, you must also select a section of ${labCode}.`;
+              this.ScheduleError = `La clase ${courseCode} tiene un laboratorio obligatorio, debe seleccionar una sección de ${labCode}.`;
               this.cdr.detectChanges();
               return;
             }
           } else {
             // Removing main: can't remove if lab is still selected
             if (isLabSelected) {
-              this.ScheduleError = `You cannot remove the main course ${courseCode} while the lab is still selected.`;
+              this.ScheduleError = `No puedes eliminar la clase principal ${courseCode} mientras el laboratorio sigue seleccionado.`;
               this.cdr.detectChanges();
               return;
             }
@@ -539,7 +539,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.ScheduleError =
-          "Could not verify lab requirement. Please check if you selected all your courses' respective labs.";
+          "No se pudo verificar el requisito de laboratorio. Por favor, verifica si seleccionaste todas las secciones de laboratorio correspondientes a tus cursos.";
         this.cdr.detectChanges();
         this.fetchSchedules();
       },

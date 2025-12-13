@@ -8,8 +8,7 @@
     <div class="d-flex align-items-center gap-3">
       @if (scheduleOptions.length > 0) {
         <span class="schedule-counter">
-          Schedule {{ selectedScheduleIndex + 1 }} of
-          {{ scheduleOptions.length }}
+          Opción {{ selectedScheduleIndex + 1 }} de {{ scheduleOptions.length }}
         </span>
         <div class="btn-group btn-group-sm">
           <button
@@ -40,13 +39,13 @@
     <!-- Course Search Panel -->
     <div class="panel search-panel">
       <div class="panel-header">
-        <span class="panel-title">Course Search</span>
+        <span class="panel-title">Búsqueda de cursos</span>
       </div>
       <div class="panel-body">
         <input
           type="text"
           class="form-control"
-          placeholder="Search by NRC, code, or name..."
+          placeholder="Buscar por NRC, código o nombre..."
           [(ngModel)]="searchQuery"
           (keyup.enter)="onSearchCourse(searchQuery)"
         />
@@ -57,7 +56,7 @@
               class="spinner-border spinner-border-sm text-secondary"
               role="status"
             ></div>
-            <span>Loading courses...</span>
+            <span>Cargando cursos...</span>
           </div>
         }
 
@@ -91,7 +90,7 @@
                               >NRC {{ section.nrc }}</span
                             >
                             <span class="section-id"
-                              >Sec. {{ section.sectionId }}</span
+                              >Sección {{ section.sectionId }}</span
                             >
                           </div>
                           <div class="section-meta">
@@ -163,7 +162,7 @@
     <!-- Selected Courses Panel -->
     <div class="panel selected-panel">
       <div class="panel-header">
-        <span class="panel-title">Selected Courses</span>
+        <span class="panel-title">Cursos seleccionados</span>
         @if (getSelectedCourseCodes().length > 0) {
           <span class="count-badge">{{ getSelectedCourseCodes().length }}</span>
         }
@@ -172,7 +171,7 @@
         @if (getSelectedCourseCodes().length === 0) {
           <div class="status-message muted">
             <i class="bi bi-bookmark"></i>
-            <span>No courses selected yet</span>
+            <span>No hay cursos seleccionados aun</span>
           </div>
         } @else {
           <div class="selected-courses-grid">
@@ -191,16 +190,16 @@
                     {{ selectedSectionsByCourse[code].length }}
                     {{
                       selectedSectionsByCourse[code].length === 1
-                        ? "section"
-                        : "sections"
+                        ? "sección"
+                        : "secciones"
                     }}
                   </span>
                 </div>
                 <div class="selected-title">
-                  {{ selectedCoursesMeta[code]?.title || "Title unavailable" }}
+                  {{ selectedCoursesMeta[code]?.title || "No disponible" }}
                 </div>
                 <div class="selected-credits">
-                  {{ selectedCoursesMeta[code]?.credits ?? "N/A" }} credits
+                  {{ selectedCoursesMeta[code]?.credits ?? "N/A" }} creditos
                 </div>
 
                 @if (activeSelectedCourseCode === code) {
@@ -212,7 +211,7 @@
                       <div class="selected-section-item">
                         <div class="selected-section-header">
                           <span class="selected-section-id"
-                            >Section {{ section.sectionId }}</span
+                            >Sección {{ section.sectionId }}</span
                           >
                           <span class="selected-section-nrc"
                             >NRC {{ section.nrc }}</span
@@ -252,7 +251,7 @@
     <!-- Calendar Panel -->
     <div class="panel calendar-panel">
       <div class="panel-header">
-        <span class="panel-title">Weekly Schedule</span>
+        <span class="panel-title">Calendario Semanal</span>
       </div>
       <div class="calendar-body">
         @if (!ScheduleError) {
@@ -269,7 +268,7 @@
         @if (!hasSelectedSections && !ScheduleError) {
           <div class="calendar-overlay">
             <i class="bi bi-calendar-plus"></i>
-            <span>Select course sections above to generate a schedule</span>
+            <span>Seleccione secciones de cursos para generar un horario</span>
           </div>
         }
       </div>
@@ -278,13 +277,15 @@
     <!-- Event Details Panel (for clicked calendar events) -->
     <div class="panel details-panel">
       <div class="panel-header">
-        <span class="panel-title">Class Details</span>
+        <span class="panel-title">Detalles de la Clase</span>
       </div>
       <div class="panel-body">
         @if (!selectedEvent) {
           <div class="status-message muted">
             <i class="bi bi-hand-index"></i>
-            <span>Click on a class in the schedule to view its details</span>
+            <span
+              >Haga clic en una clase en el horario para ver sus detalles</span
+            >
           </div>
         } @else {
           <div class="event-detail">
@@ -293,16 +294,16 @@
                 {{ selectedEventInfo?.courseCode || "Course" }}
               </div>
               <div class="event-title">
-                {{ selectedEventInfo?.courseTitle || "Title unavailable" }}
+                {{ selectedEventInfo?.courseTitle || "No disponible" }}
               </div>
               <div class="event-credits">
-                {{ selectedEventInfo?.courseCredits ?? "N/A" }} credits
+                {{ selectedEventInfo?.courseCredits ?? "N/A" }} creditos
               </div>
             </div>
 
             <div class="event-info-grid">
               <div class="info-item">
-                <span class="info-label">Section</span>
+                <span class="info-label">Sección</span>
                 <span class="info-value">{{ selectedEvent.sectionId }}</span>
               </div>
               <div class="info-item">
@@ -310,13 +311,13 @@
                 <span class="info-value">{{ selectedEvent.nrc }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Term</span>
+                <span class="info-label">Periodo</span>
                 <span class="info-value">{{
                   getIntersemetral(selectedEvent)
                 }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Period</span>
+                <span class="info-label">Duración</span>
                 <span class="info-value">{{
                   getCicloLabel(selectedEvent)
                 }}</span>
@@ -331,7 +332,7 @@
                 selectedEvent.professors && selectedEvent.professors.length > 0
               ) {
                 <div class="info-item full-width">
-                  <span class="info-label">Professors</span>
+                  <span class="info-label">Profesores</span>
                   <span class="info-value">{{
                     selectedEvent.professors.join(", ")
                   }}</span>
@@ -340,7 +341,7 @@
             </div>
 
             <div class="event-meetings">
-              <span class="info-label">Meetings</span>
+              <span class="info-label">Días</span>
               <div class="meetings-list">
                 @for (meeting of selectedEvent.meetings; track $index) {
                   <div class="meeting-item">

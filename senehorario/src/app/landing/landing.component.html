@@ -10,9 +10,7 @@
           <span class="brand-text">Senéhorario</span>
         </div>
       </div>
-      <a routerLink="/planning" class="btn btn-uniandes btn-sm">
-        Get Started
-      </a>
+      <a routerLink="/planning" class="btn btn-uniandes btn-sm"> Comienza </a>
     </div>
   </header>
 
@@ -22,8 +20,7 @@
       <div class="row align-items-center py-5">
         <div class="col-lg-6 animate-fadein">
           <h1 class="hero-title mb-3">
-            Planifica tu horario académico
-            <span style="color: #f0c800">sin conflictos.</span>
+            Planifica tu horario académico sin conflictos.
           </h1>
           <p class="hero-subtitle mb-4">
             <strong>Senéhorario</strong> es una herramienta de planificación
@@ -32,19 +29,28 @@
             conflictos y optimizando tu semestre.
           </p>
 
-          <ul class="list-unstyled text-muted mb-4">
+          <ul class="list-unstyled hero-checklist mb-4">
             <li class="d-flex align-items-start mb-2">
-              <i class="bi bi-check2-circle me-2"></i>
+              <i
+                class="bi bi-check2-circle me-2"
+                style="color: var(--primary)"
+              ></i>
               Busca cursos por NRC, código o nombre y revisa rápidamente sus
               secciones
             </li>
             <li class="d-flex align-items-start mb-2">
-              <i class="bi bi-check2-circle me-2"></i>
+              <i
+                class="bi bi-check2-circle me-2"
+                style="color: var(--primary)"
+              ></i>
               Validación automática de cruces de horario y emparejamientos
               obligatorios
             </li>
             <li class="d-flex align-items-start">
-              <i class="bi bi-check2-circle me-2"></i>
+              <i
+                class="bi bi-check2-circle me-2"
+                style="color: var(--primary)"
+              ></i>
               Compara múltiples horarios válidos con una vista semanal del
               calendario
             </li>
@@ -120,36 +126,49 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
-          <h3 class="mb-3">Open Source Project</h3>
-          <p class="text-muted mb-4">
-            Senéhorario is created and maintained by Camilo Molina.
-            Contributions and feedback are welcome.
-          </p>
+          <div class="about-card">
+            <div class="about-eyebrow">Open Source</div>
+            <h3 class="about-title mt-3 mb-3">
+              Desarrollado de forma abierta para estudiantes de Uniandes
+            </h3>
+            <p class="about-desc mb-4">
+              Senéhorario es mantenido por
+              <a
+                href="https://cmolina.xyz"
+                target="_blank"
+                rel="noopener"
+                class="about-inline-link"
+                >Camilo Molina</a
+              >. Las contribuciones y comentarios son bienvenidos.
+            </p>
 
-          <div class="d-flex justify-content-center gap-4 flex-wrap">
-            <a
-              href="https://github.com/cmolina12/senehorario-frontend"
-              target="_blank"
-              rel="noopener"
-              class="modern-link"
+            <div
+              class="about-links d-flex justify-content-center gap-3 flex-wrap"
             >
-              <i class="bi bi-github me-1"></i>Frontend Repo
-            </a>
-            <a
-              href="https://github.com/cmolina12/senehorario-backend"
-              target="_blank"
-              rel="noopener"
-              class="modern-link"
-            >
-              <i class="bi bi-github me-1"></i>Backend Repo
-            </a>
-            <a href="mailto:c.molinap@uniandes.edu.co" class="modern-link">
-              <i class="bi bi-envelope me-1"></i>Contact
-            </a>
-          </div>
+              <a
+                href="https://github.com/cmolina12/senehorario-frontend"
+                target="_blank"
+                rel="noopener"
+                class="about-link"
+              >
+                <i class="bi bi-github me-1"></i>Repo Frontend
+              </a>
+              <a
+                href="https://github.com/cmolina12/senehorario-backend"
+                target="_blank"
+                rel="noopener"
+                class="about-link"
+              >
+                <i class="bi bi-github me-1"></i>Repo Backend
+              </a>
+              <a href="mailto:c.molinap@uniandes.edu.co" class="about-link">
+                <i class="bi bi-envelope me-1"></i>Contacto
+              </a>
+            </div>
 
-          <div class="mt-4 text-muted small">
-            Stack: Angular + TypeScript (frontend) · Spring Boot (backend)
+            <div class="about-stack mt-4">
+              Stack: Angular + TypeScript (frontend) · Spring Boot (backend)
+            </div>
           </div>
         </div>
       </div>
