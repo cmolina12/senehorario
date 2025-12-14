@@ -85,7 +85,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
     initialView: "timeGridWeek",
     headerToolbar: false,
     slotMinTime: "06:00:00",
-    slotMaxTime: "20:00:00",
+    slotMaxTime: "21:00:00",
     allDaySlot: false,
     dayHeaderFormat: { weekday: "long" }, // Short weekday format
     events: [], // Use the first schedule for initial display
@@ -239,6 +239,36 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   getSelectedCourseCodes(): string[] {
     return Object.keys(this.selectedSectionsByCourse);
+  }
+
+  removeSelectedSection(courseCode: string, section: SectionModel): void {
+    const sections = this.selectedSectionsByCourse[courseCode];
+    if (!Array.isArray(sections)) return;
+
+    this.selectedSectionsByCourse[courseCode] = sections.filter(
+      (s) => s.nrc !== section.nrc,
+    );
+
+    if (this.selectedSectionsByCourse[courseCode].length === 0) {
+      delete this.selectedSectionsByCourse[courseCode];
+      delete this.selectedCoursesMeta[courseCode];
+      if (this.activeSelectedCourseCode === courseCode) {
+        this.activeSelectedCourseCode = null;
+      }
+    }
+
+    this.persistState();
+
+    if (!this.hasSelectedSections) {
+      this.scheduleOptions = [];
+      this.selectedEvent = null;
+      this.selectedEventInfo = null;
+      this.selectedScheduleIndex = 0;
+      this.updateCalendarEvents();
+      return;
+    }
+
+    this.checkRequirement(courseCode, "removed");
   }
 
   private persistState(): void {

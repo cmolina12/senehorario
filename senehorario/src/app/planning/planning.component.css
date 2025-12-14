@@ -354,8 +354,14 @@
 .selected-section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 4px;
+}
+
+.selected-section-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .selected-section-id {
@@ -379,6 +385,33 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.remove-section-btn {
+  border: 1px solid #e0e0e0;
+  background: #f8f8fb;
+  color: #1a1a2e;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.remove-section-btn:hover,
+.remove-section-btn:focus {
+  background: #ffe3e3;
+  color: #b00020;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 /* === Calendar Panel === */

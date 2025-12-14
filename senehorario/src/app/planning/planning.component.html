@@ -210,12 +210,25 @@
                     ) {
                       <div class="selected-section-item">
                         <div class="selected-section-header">
-                          <span class="selected-section-id"
-                            >Sección {{ section.sectionId }}</span
+                          <div class="selected-section-meta">
+                            <span class="selected-section-id"
+                              >Sección {{ section.sectionId }}</span
+                            >
+                            <span class="selected-section-nrc"
+                              >NRC {{ section.nrc }}</span
+                            >
+                          </div>
+                          <button
+                            type="button"
+                            class="remove-section-btn"
+                            (click)="
+                              removeSelectedSection(code, section);
+                              $event.stopPropagation()
+                            "
+                            aria-label="Eliminar sección"
                           >
-                          <span class="selected-section-nrc"
-                            >NRC {{ section.nrc }}</span
-                          >
+                            <i class="bi bi-x"></i>
+                          </button>
                         </div>
                         @if (
                           section.professors && section.professors.length > 0
@@ -227,7 +240,7 @@
                         <div class="selected-section-meetings">
                           @for (meeting of section.meetings; track $index) {
                             <span class="meeting-badge">
-                              {{ meeting.day | slice: 0 : 3 | titlecase }}
+                              {{ getDayLabel(meeting.day) }}
                               {{ meeting.start.slice(0, 5) }}–{{
                                 meeting.end.slice(0, 5)
                               }}
