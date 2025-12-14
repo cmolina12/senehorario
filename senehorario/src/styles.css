@@ -3,16 +3,21 @@
 /* ====================================================================== */
 body {
   font-family:
-    "Manrope",
+    "Plus Jakarta Sans",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  background-color: #f5f6f8;
+  background-color: #fff;
   min-height: 100vh;
   margin: 0;
   color: #1a1a2e;
+}
+
+:root ::selection {
+  background: var(--primary);
+  color: #fff;
 }
 
 :root {
@@ -52,43 +57,10 @@ h6 {
   font-weight: 600;
 }
 
-.section-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-}
-
-a.modern-link {
-  color: var(--primary);
-  font-weight: 500;
-  text-decoration: underline;
-  transition: color 0.2s;
-}
-
-a.modern-link:hover,
-a.modern-link:focus {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-a.modern-link-on-yellow {
-  color: var(--primary);
-  font-weight: 500;
-  text-decoration: underline;
-}
-
-a.modern-link-on-yellow:hover {
-  color: #333;
-}
-
 /* ====================================================================== */
 /* Branding & Footer */
 /* ====================================================================== */
-.logo,
-.logo-shadow {
+.logo {
   height: 70px;
   filter: none;
 }
@@ -106,52 +78,9 @@ a.modern-link-on-yellow:hover {
 }
 
 /* ====================================================================== */
-/* Surfaces, Panels & Cards */
-/* ====================================================================== */
-.academic-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.academic-panel-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  background: var(--surface-alt);
-  border-radius: 8px 8px 0 0;
-}
-
-.academic-panel-body {
-  padding: 20px;
-}
-
-.card {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: none;
-}
-
-.card.shadow-sm {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.border-end {
-  border-right: 1px solid var(--border) !important;
-}
-
-.border-bottom {
-  border-bottom: 1px solid var(--border) !important;
-}
-
-/* ====================================================================== */
 /* Buttons */
 /* ====================================================================== */
-.btn-uniandes,
-.get-started-btn {
+.btn-uniandes {
   background: var(--primary);
   color: #fff;
   border: none;
@@ -166,9 +95,7 @@ a.modern-link-on-yellow:hover {
 }
 
 .btn-uniandes:hover,
-.get-started-btn:hover,
-.btn-uniandes:focus,
-.get-started-btn:focus {
+.btn-uniandes:focus {
   background: var(--primary-light);
   color: #fff;
   transform: translateY(-1px);
@@ -178,24 +105,6 @@ a.modern-link-on-yellow:hover {
 .btn-uniandes.btn-sm {
   padding: 6px 12px;
   font-size: 0.85rem;
-}
-
-.btn-academic-secondary {
-  background: var(--surface);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-
-.btn-academic-secondary:hover {
-  background: var(--surface-alt);
-  border-color: #ccc;
 }
 
 /* ====================================================================== */
@@ -215,40 +124,6 @@ a.modern-link-on-yellow:hover {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.08);
   outline: none;
-}
-
-.list-group-item {
-  border: none;
-  border-bottom: 1px solid var(--border-light);
-  padding: 14px 0;
-  background: transparent;
-}
-
-.list-group-item:last-child {
-  border-bottom: none;
-}
-
-.list-group-item-action:hover,
-.list-group-item-action:focus {
-  background-color: var(--surface-alt);
-  color: var(--text-primary);
-}
-
-.badge {
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.badge.bg-warning {
-  background-color: var(--accent) !important;
-  color: var(--primary) !important;
-  font-weight: 600;
-}
-
-.badge.bg-secondary {
-  background-color: #6c757d !important;
 }
 
 /* ====================================================================== */
@@ -390,56 +265,6 @@ a.modern-link-on-yellow:hover {
   white-space: normal;
   opacity: 0.9;
 }
-
-/* Event color palette */
-.event-color-0 {
-  background-color: #e3f2fd !important;
-  color: #1565c0 !important;
-}
-.event-color-1 {
-  background-color: #f3e5f5 !important;
-  color: #7b1fa2 !important;
-}
-.event-color-2 {
-  background-color: #fff8e1 !important;
-  color: #f57c00 !important;
-}
-.event-color-3 {
-  background-color: #efebe9 !important;
-  color: #5d4037 !important;
-}
-.event-color-4 {
-  background-color: #fce4ec !important;
-  color: #c2185b !important;
-}
-.event-color-5 {
-  background-color: #ede7f6 !important;
-  color: #512da8 !important;
-}
-.event-color-6 {
-  background-color: #e8f5e9 !important;
-  color: #388e3c !important;
-}
-.event-color-7 {
-  background-color: #e0f2f1 !important;
-  color: #00796b !important;
-}
-
-/* ====================================================================== */
-/* Utilities & Misc */
-/* ====================================================================== */
-.text-academic {
-  color: var(--text-primary);
-}
-
-.text-academic-muted {
-  color: var(--text-muted);
-}
-
-.bg-academic {
-  background: var(--surface-alt);
-}
-
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -457,13 +282,4 @@ a.modern-link-on-yellow:hover {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #aaa;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .glass-card,
-  .glass-card-main {
-    margin: 1rem;
-    border-radius: 6px;
-  }
 }

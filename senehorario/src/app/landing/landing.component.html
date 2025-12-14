@@ -10,7 +10,21 @@
           <span class="brand-text">Senéhorario</span>
         </div>
       </div>
-      <a routerLink="/planning" class="btn btn-uniandes btn-sm"> Comienza </a>
+
+      <div class="header-actions d-flex align-items-center gap-2">
+        <a
+          class="header-link"
+          href="https://ofertadecursos.uniandes.edu.co/"
+          target="_blank"
+          rel="noopener"
+        >
+          Oferta de cursos
+        </a>
+        <a class="header-link" href="#faq" (click)="scrollToFaq($event)">
+          Ayuda / FAQ
+        </a>
+        <a routerLink="/planning" class="btn btn-uniandes btn-sm">Comienza</a>
+      </div>
     </div>
   </header>
 
@@ -24,37 +38,10 @@
           </h1>
           <p class="hero-subtitle mb-4">
             <strong>Senéhorario</strong> es una herramienta de planificación
-            diseñada para estudiantes de la Universidad de los Andes. Construye
-            tu horario ideal explorando combinaciones de cursos, evitando
-            conflictos y optimizando tu semestre.
+            diseñada para estudiantes de la Universidad de los Andes.
+            <strong>Construye tu horario ideal</strong> explorando combinaciones
+            de cursos, evitando conflictos y optimizando tu semestre.
           </p>
-
-          <ul class="list-unstyled hero-checklist mb-4">
-            <li class="d-flex align-items-start mb-2">
-              <i
-                class="bi bi-check2-circle me-2"
-                style="color: var(--primary)"
-              ></i>
-              Busca cursos por NRC, código o nombre y revisa rápidamente sus
-              secciones
-            </li>
-            <li class="d-flex align-items-start mb-2">
-              <i
-                class="bi bi-check2-circle me-2"
-                style="color: var(--primary)"
-              ></i>
-              Validación automática de cruces de horario y emparejamientos
-              obligatorios
-            </li>
-            <li class="d-flex align-items-start">
-              <i
-                class="bi bi-check2-circle me-2"
-                style="color: var(--primary)"
-              ></i>
-              Compara múltiples horarios válidos con una vista semanal del
-              calendario
-            </li>
-          </ul>
         </div>
         <div class="col-lg-6 d-none d-lg-block text-center">
           <div class="hero-visual">
@@ -65,8 +52,8 @@
                 class="planner-preview-img"
               />
               <div class="preview-caption text-muted small mt-2">
-                Senéhorario uses your selected sections to generate the best
-                possible schedules.
+                Senéhorario utiliza tus secciones seleccionadas para generar el
+                mejor horario posible.
               </div>
             </div>
           </div>
@@ -168,6 +155,74 @@
 
             <div class="about-stack mt-4">
               Stack: Angular + TypeScript (frontend) · Spring Boot (backend)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="section-title text-uppercase text-muted mb-3">
+            Ayuda y preguntas frecuentes
+          </div>
+          <h3 class="faq-heading mb-4">
+            Resolvemos las dudas más comunes para que arranques rápido.
+          </h3>
+          <div class="faq-list">
+            <div class="faq-item">
+              <div class="faq-question">¿Cómo uso Senéhorario?</div>
+              <div class="faq-answer">
+                Ingresa a <strong>Comienza</strong>, busca tus cursos por NRC o
+                código y agrega las secciones. El generador arma combinaciones
+                sin choques y puedes revisar cada horario en el calendario.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">
+                ¿De dónde salen los datos de cursos y horarios?
+              </div>
+              <div class="faq-answer">
+                Los datos provienen de la <strong>oferta oficial</strong> de la
+                universidad. Usa el enlace “Oferta de cursos” para validar
+                cualquier cambio reciente.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">
+                ¿Qué pasa si hay cambios de salón u horario?
+              </div>
+              <div class="faq-answer">
+                Actualizamos la información con los ajustes publicados. Si ves
+                algo desactualizado, escríbenos en el correo de contacto y lo
+                revisamos de inmediato.
+              </div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question">
+                Tengo una idea o sugerencia, ¿qué hago?
+              </div>
+              <div class="faq-answer">
+                Si sabes programar, abre un pull request en los repos de
+                <a
+                  href="https://github.com/cmolina12/senehorario-frontend"
+                  target="_blank"
+                  rel="noopener"
+                  
+                  >frontend</a
+                >
+                o
+                <a
+                  href="https://github.com/cmolina12/senehorario-backend"
+                  target="_blank"
+                  rel="noopener"
+                  >backend</a
+                >. Si no, escríbeme un correo y lo revisamos juntos.
+              </div>
             </div>
           </div>
         </div>
