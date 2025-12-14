@@ -104,7 +104,7 @@
 
 .hero-subtitle {
   font-size: 1.15rem;
-  color: var(--primary-muted);
+  color: var(--primary-light);
   line-height: 1.6;
   max-width: 520px;
   font-weight: 200;
@@ -154,7 +154,7 @@
 
 .feature-desc {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: var(--primary-light);
   margin-bottom: 0;
   line-height: 1.5;
 }
@@ -198,7 +198,7 @@
 }
 
 .about-desc {
-  color: var(--text-muted);
+  color: var(--primary-light);
   font-size: 0.98rem;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .about-stack {
-  color: var(--text-muted);
+  color: var(--primary-light);
   font-size: 0.92rem;
 }
 
@@ -285,7 +285,7 @@
 }
 
 .faq-answer {
-  color: var(--text-muted);
+  color: var(--primary-light);
   line-height: 1.55;
   font-size: 0.97rem;
 }

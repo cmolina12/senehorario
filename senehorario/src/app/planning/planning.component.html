@@ -346,7 +346,7 @@
                 @for (meeting of selectedEvent.meetings; track $index) {
                   <div class="meeting-item">
                     <span class="meeting-day">{{
-                      meeting.day | slice: 0 : 3 | titlecase
+                      getDayLabel(meeting.day)
                     }}</span>
                     <span class="meeting-time"
                       >{{ meeting.start.slice(0, 5) }}–{{

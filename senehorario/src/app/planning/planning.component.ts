@@ -162,6 +162,20 @@ export class PlanningComponent implements OnInit, OnDestroy {
     }
   }
 
+  getDayLabel(day: string): string {
+    const key = (day || "").toLowerCase().slice(0, 3);
+    const map: { [abbr: string]: string } = {
+      mon: "Lun",
+      tue: "Mar",
+      wed: "Mie",
+      thu: "Jue",
+      fri: "Vie",
+      sat: "Sab",
+      sun: "Dom",
+    };
+    return map[key] ?? day?.slice(0, 3) ?? "";
+  }
+
   // Toggles a section inside a course and immediately re-checks lab/main requirements
   onSectionClick(course: CourseModel, section: SectionModel): void {
     console.log("Section selected:", section);
