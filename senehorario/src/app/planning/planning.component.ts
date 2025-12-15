@@ -257,17 +257,17 @@ export class PlanningComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.persistState();
-
     if (!this.hasSelectedSections) {
       this.scheduleOptions = [];
       this.selectedEvent = null;
       this.selectedEventInfo = null;
       this.selectedScheduleIndex = 0;
+      this.persistState();
       this.updateCalendarEvents();
       return;
     }
 
+    this.persistState();
     this.checkRequirement(courseCode, "removed");
   }
 
