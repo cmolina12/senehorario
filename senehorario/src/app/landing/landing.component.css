@@ -31,10 +31,6 @@
   height: 45px;
 }
 
-.floating-header .logo {
-  margin-right: 4px;
-}
-
 .floating-header {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
@@ -355,9 +351,4 @@
 
 .floating-header .brand-stack {
   margin-left: -4px;
-}
-
-.brand-text {
-  font-size: 1.2rem;
-  font-weight: 600;
 }

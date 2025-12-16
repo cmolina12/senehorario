@@ -29,28 +29,28 @@ export class PlanningComponent implements OnInit, OnDestroy {
   sections: SectionModel[] = []; // Sections for each of the courses
   selectedSections: SectionModel[] = []; // Sectios manually selected by the user for their schedule
   scheduleOptions: any[] = []; // Schedule options generated
-  /* scheduleOptionsTest = [
+  scheduleOptionsTest = [
     // Schedule 1
     [
       {
-        title: 'Class 1',
-        start: '2025-07-28T11:00:00',
-        end: '2025-07-28T12:00:00',
-        color: '#ffe066',
-        textColor: '#222',
+        title: "Class 1",
+        start: "2025-07-28T11:00:00",
+        end: "2025-07-28T12:00:00",
+        color: "#ffe066",
+        textColor: "#222",
       },
     ],
     // Schedule 2
     [
       {
-        title: 'Class 2',
-        start: '2025-07-29T16:00:00',
-        end: '2025-07-29T17:00:00',
-        color: '#ff8c00',
-        textColor: '#222',
+        title: "Class 2",
+        start: "2025-07-29T16:00:00",
+        end: "2025-07-29T17:00:00",
+        color: "#ff8c00",
+        textColor: "#222",
       },
     ],
-  ]; */
+  ];
 
   selectedScheduleIndex = 0; // Start with the first schedule
 
@@ -629,14 +629,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
       // --- SCHEDULE SERVICE TEST ---
 
-      /*
-      this.courseService.getSections('IIND2201').subscribe({
+      this.courseService.getSections("IIND2201").subscribe({
         next: (sections1: SectionModel[]) => {
           const SectionOne_CourseOne = sections1.find(
-            (section) => section.nrc === '10876'
+            (section) => section.nrc === "10876",
           );
           const SectionTwo_CourseOne = sections1.find(
-            (section) => section.nrc === '10742'
+            (section) => section.nrc === "10742",
           );
           let sectionsForCourse1: SectionModel[] = [];
           if (SectionOne_CourseOne)
@@ -644,18 +643,18 @@ export class PlanningComponent implements OnInit, OnDestroy {
           if (SectionTwo_CourseOne)
             sectionsForCourse1.push(SectionTwo_CourseOne);
           console.log(
-            'SCHEDULE SERVICE TEST 1 - Sections for IIND2201:',
-            sectionsForCourse1
+            "SCHEDULE SERVICE TEST 1 - Sections for IIND2201:",
+            sectionsForCourse1,
           );
 
           // Now fetch the second course's sections
-          this.courseService.getSections('IIND3400').subscribe({
+          this.courseService.getSections("IIND3400").subscribe({
             next: (sections2: SectionModel[]) => {
               const SectionOne_CourseTwo = sections2.find(
-                (section) => section.nrc === '10752'
+                (section) => section.nrc === "10752",
               );
               const SectionTwo_CourseTwo = sections2.find(
-                (section) => section.nrc === '77779'
+                (section) => section.nrc === "77779",
               );
               let sectionsForCourse2: SectionModel[] = [];
               if (SectionOne_CourseTwo)
@@ -663,8 +662,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
               if (SectionTwo_CourseTwo)
                 sectionsForCourse2.push(SectionTwo_CourseTwo);
               console.log(
-                'SCHEDULE SERVICE TEST 2 - Sections for IIND3400:',
-                sectionsForCourse2
+                "SCHEDULE SERVICE TEST 2 - Sections for IIND3400:",
+                sectionsForCourse2,
               );
 
               // Now both arrays are ready, build the payload and call the schedule service
@@ -674,35 +673,35 @@ export class PlanningComponent implements OnInit, OnDestroy {
               ];
 
               console.log(
-                'SCHEDULE SERVICE TEST 3 - All sections per course:',
-                sectionsPerCourse
+                "SCHEDULE SERVICE TEST 3 - All sections per course:",
+                sectionsPerCourse,
               );
 
               this.scheduleService.getSchedules(sectionsPerCourse).subscribe({
                 next: (schedules: SectionModel[][]) => {
                   console.log(
-                    'SCHEDULE SERVICE TEST 4 - Schedules:',
-                    schedules
+                    "SCHEDULE SERVICE TEST 4 - Schedules:",
+                    schedules,
                   );
                   console.log(
-                    'SCHEDULE SERVICE TEST 5 - Number of schedules:',
-                    schedules.length
+                    "SCHEDULE SERVICE TEST 5 - Number of schedules:",
+                    schedules.length,
                   );
                 },
                 error: (error) => {
-                  console.error('Error fetching schedules:', error);
+                  console.error("Error fetching schedules:", error);
                 },
               });
             },
             error: (error) => {
-              console.error('Error fetching sections for IIND3400:', error);
+              console.error("Error fetching sections for IIND3400:", error);
             },
           });
         },
         error: (error) => {
-          console.error('Error fetching sections for IIND2201:', error);
+          console.error("Error fetching sections for IIND2201:", error);
         },
-      }); */
+      });
     }
   }
 
