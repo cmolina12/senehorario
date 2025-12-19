@@ -97,6 +97,11 @@
                             {{ getIntersemetral(section) }} ·
                             {{ getCicloLabel(section) }}
                           </div>
+                          <div class="section-seats">
+                            Cupos: {{ section.availableSeats }}/{{
+                              section.totalSeats
+                            }}
+                          </div>
                           @if (
                             section.professors && section.professors.length > 0
                           ) {
@@ -341,6 +346,14 @@
                   <span class="info-value">{{ selectedEvent.campus }}</span>
                 </div>
               }
+              <div class="info-item full-width">
+                <span class="info-label">Cupos</span>
+                <span class="info-value"
+                  >{{ selectedEvent.availableSeats }}/{{
+                    selectedEvent.totalSeats
+                  }}</span
+                >
+              </div>
               @if (
                 selectedEvent.professors && selectedEvent.professors.length > 0
               ) {

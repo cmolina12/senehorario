@@ -231,6 +231,12 @@
   margin-bottom: 4px;
 }
 
+.section-seats {
+  font-size: 0.78rem;
+  color: #8a8a9a;
+  margin-bottom: 8px;
+}
+
 .section-prof {
   font-size: 0.82rem;
   color: #5a5a6e;

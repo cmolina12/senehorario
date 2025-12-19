@@ -1,4 +1,4 @@
-import { MeetingModel } from './meeting-model';
+import { MeetingModel } from "./meeting-model";
 
 export interface SectionModel {
   nrc: string; // Unique identifier for the section
@@ -8,4 +8,6 @@ export interface SectionModel {
   campus: string; // Campus where the section is held
   meetings: MeetingModel[]; // List of meetings for this section
   professors: string[]; // List of professors teaching this section
+  availableSeats: number; // Number of available seats
+  totalSeats: number; // Total number of seats
 }
