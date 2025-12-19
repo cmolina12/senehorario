@@ -348,6 +348,11 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return section.term;
   }
 
+  searchForCourse(courseCode: string): void {
+    this.searchQuery = courseCode;
+    this.onSearchCourse(courseCode);
+  }
+
   // Method to handle course search input
   onSearchCourse(searchQuery: string): void {
     if (this.searchQuery.trim().length > 0) {

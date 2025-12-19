@@ -598,3 +598,19 @@
     gap: 16px;
   }
 }
+
+.selected-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-icon {
+  color: #8a8a9a;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.search-icon:hover {
+  color: #1a1a2e;
+}

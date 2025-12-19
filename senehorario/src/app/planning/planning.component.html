@@ -191,14 +191,21 @@
               >
                 <div class="selected-card-header">
                   <span class="selected-code">{{ code }}</span>
-                  <span class="selected-count">
-                    {{ selectedSectionsByCourse[code].length }}
-                    {{
-                      selectedSectionsByCourse[code].length === 1
-                        ? "sección"
-                        : "secciones"
-                    }}
-                  </span>
+                  <div class="selected-card-meta">
+                    <span class="selected-count">
+                      {{ selectedSectionsByCourse[code].length }}
+                      {{
+                        selectedSectionsByCourse[code].length === 1
+                          ? "sección"
+                          : "secciones"
+                      }}
+                    </span>
+                    <i
+                      class="bi bi-search search-icon"
+                      (click)="searchForCourse(code); $event.stopPropagation()"
+                      title="Buscar este curso"
+                    ></i>
+                  </div>
                 </div>
                 <div class="selected-title">
                   {{ selectedCoursesMeta[code]?.title || "No disponible" }}
