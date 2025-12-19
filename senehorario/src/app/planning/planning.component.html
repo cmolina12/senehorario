@@ -67,7 +67,9 @@
                 <div class="course-header" (click)="toggleCourse(course)">
                   <div class="course-info">
                     <span class="course-code">{{ course.code }}</span>
-                    <span class="course-credits">{{ course.credits }} cr</span>
+                    <span class="course-credits"
+                      >{{ course.credits }} creditos</span
+                    >
                   </div>
                   <i
                     class="bi"
@@ -98,9 +100,16 @@
                             {{ getCicloLabel(section) }}
                           </div>
                           <div class="section-seats">
-                            Cupos: {{ section.availableSeats }}/{{
-                              section.totalSeats
-                            }}
+                            Cupos:
+                            <strong
+                              >{{ section.availableSeats }}
+                              {{
+                                section.availableSeats === 1
+                                  ? "cupo disponible"
+                                  : "cupos disponibles"
+                              }}
+                            </strong>
+                            de {{ section.totalSeats }}
                           </div>
                           @if (
                             section.professors && section.professors.length > 0
