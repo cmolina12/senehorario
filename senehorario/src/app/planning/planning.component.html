@@ -112,7 +112,7 @@
                           <div class="section-meetings">
                             @for (meeting of section.meetings; track $index) {
                               <span class="meeting-badge">
-                                {{ meeting.day | slice: 0 : 3 | titlecase }}
+                                {{ getDayLabel(meeting.day) }}
                                 {{ meeting.start.slice(0, 5) }}–{{
                                   meeting.end.slice(0, 5)
                                 }}
