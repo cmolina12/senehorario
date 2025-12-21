@@ -99,10 +99,14 @@
 
 .hero-subtitle {
   font-size: 1.15rem;
-  color: var(--text-secondary);
+  color: var(--primary-light);
   line-height: 1.6;
   max-width: 520px;
   font-weight: 200;
+}
+
+:host-context([data-theme="dark"]) .hero-subtitle {
+  color: var(--text-secondary);
 }
 
 /* Schedule Preview Mock */
@@ -150,9 +154,13 @@
 
 .feature-desc {
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: var(--primary-light);
   margin-bottom: 0;
   line-height: 1.5;
+}
+
+:host-context([data-theme="dark"]) .feature-desc {
+  color: var(--text-secondary);
 }
 
 /* About Section */
@@ -194,8 +202,12 @@
 }
 
 .about-desc {
-  color: var(--text-secondary);
+  color: var(--primary-light);
   font-size: 0.98rem;
+}
+
+:host-context([data-theme="dark"]) .about-desc {
+  color: var(--text-secondary);
 }
 
 .about-links {
@@ -280,9 +292,13 @@
 }
 
 .faq-answer {
-  color: var(--text-secondary);
+  color: var(--primary-light);
   line-height: 1.55;
   font-size: 0.97rem;
+}
+
+:host-context([data-theme="dark"]) .faq-answer {
+  color: var(--text-secondary);
 }
 
 .faq-answer a {
@@ -337,7 +353,7 @@
 }
 
 .preview-caption {
-  color: var(--text-muted);
+  color: var(--primary-light);
   text-align: center;
 }
 
