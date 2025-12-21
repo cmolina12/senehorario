@@ -12,6 +12,19 @@
       </div>
 
       <div class="header-actions d-flex align-items-center gap-2">
+        <button
+          type="button"
+          class="theme-toggle"
+          (click)="toggleTheme()"
+          [attr.aria-label]="themeLabel()"
+        >
+          <i
+            class="bi"
+            [ngClass]="
+              theme() === 'dark' ? 'bi-brightness-high' : 'bi-moon-stars'
+            "
+          ></i>
+        </button>
         <a
           class="header-link"
           href="https://ofertadecursos.uniandes.edu.co/"
@@ -51,7 +64,7 @@
                 alt="Senéhorario planner schedule view"
                 class="planner-preview-img"
               />
-              <div class="preview-caption text-muted small mt-2">
+              <div class="preview-caption small mt-2">
                 Senéhorario utiliza tus secciones seleccionadas para generar el
                 mejor horario posible.
               </div>

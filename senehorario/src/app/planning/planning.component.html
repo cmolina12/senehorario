@@ -2,32 +2,45 @@
 <header class="planning-header">
   <div class="d-flex align-items-center justify-content-between px-4 py-2">
     <a routerLink="/" class="d-flex align-items-center text-decoration-none">
-      <i class="bi bi-arrow-left me-2 text-muted"></i>
+      <i class="bi bi-arrow-left me-2 brand-text"></i>
       <span class="brand-text">Senéhorario</span>
     </a>
     <div class="d-flex align-items-center gap-3">
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="themeLabel()"
+      >
+        <i
+          class="bi"
+          [ngClass]="
+            theme() === 'dark' ? 'bi-brightness-high' : 'bi-moon-stars'
+          "
+        ></i>
+      </button>
       @if (scheduleOptions.length > 0) {
-        <span class="schedule-counter">
-          Opción {{ selectedScheduleIndex + 1 }} de {{ scheduleOptions.length }}
-        </span>
-        <div class="btn-group btn-group-sm">
-          <button
-            class="btn btn-outline-secondary"
-            (click)="goToPrevSchedule()"
-            [disabled]="selectedScheduleIndex === 0"
-            title="Previous schedule"
-          >
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            (click)="goToNextSchedule()"
-            [disabled]="selectedScheduleIndex === scheduleOptions.length - 1"
-            title="Next schedule"
-          >
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </div>
+      <span class="schedule-counter">
+        Opción {{ selectedScheduleIndex + 1 }} de {{ scheduleOptions.length }}
+      </span>
+      <div class="btn-group btn-group-sm">
+        <button
+          class="btn btn-outline-secondary"
+          (click)="goToPrevSchedule()"
+          [disabled]="selectedScheduleIndex === 0"
+          title="Previous schedule"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          (click)="goToNextSchedule()"
+          [disabled]="selectedScheduleIndex === scheduleOptions.length - 1"
+          title="Next schedule"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
       }
     </div>
   </div>
@@ -51,124 +64,111 @@
         />
 
         @if (loading) {
-          <div class="status-message">
-            <div
-              class="spinner-border spinner-border-sm text-secondary"
-              role="status"
-            ></div>
-            <span>Cargando cursos...</span>
-          </div>
-        }
+        <div class="status-message">
+          <div
+            class="spinner-border spinner-border-sm text-secondary"
+            role="status"
+          ></div>
+          <span>Cargando cursos...</span>
+        </div>
+        } @if (!loading && courses && courses.length > 0) {
+        <div class="course-list">
+          @for (course of courses; track course.code) {
+          <div class="course-item">
+            <div class="course-header" (click)="toggleCourse(course)">
+              <div class="course-info">
+                <span class="course-code">{{ course.code }}</span>
+                <span class="course-credits"
+                  >{{ course.credits }} creditos</span
+                >
+              </div>
+              <i
+                class="bi"
+                [ngClass]="
+                  expandedCourses[course.code]
+                    ? 'bi-chevron-up'
+                    : 'bi-chevron-down'
+                "
+              ></i>
+            </div>
+            <div class="course-title">{{ course.title }}</div>
 
-        @if (!loading && courses && courses.length > 0) {
-          <div class="course-list">
-            @for (course of courses; track course.code) {
-              <div class="course-item">
-                <div class="course-header" (click)="toggleCourse(course)">
-                  <div class="course-info">
-                    <span class="course-code">{{ course.code }}</span>
-                    <span class="course-credits"
-                      >{{ course.credits }} creditos</span
+            @if (expandedCourses[course.code] && course.sections) {
+            <div class="sections-list">
+              @for (section of course.sections; track section.nrc) {
+              <div class="section-item">
+                <div class="section-main">
+                  <div class="section-header">
+                    <span class="section-nrc">NRC {{ section.nrc }}</span>
+                    <span class="section-id"
+                      >Sección {{ section.sectionId }}</span
                     >
                   </div>
-                  <i
-                    class="bi"
-                    [ngClass]="
-                      expandedCourses[course.code]
-                        ? 'bi-chevron-up'
-                        : 'bi-chevron-down'
-                    "
-                  ></i>
-                </div>
-                <div class="course-title">{{ course.title }}</div>
-
-                @if (expandedCourses[course.code] && course.sections) {
-                  <div class="sections-list">
-                    @for (section of course.sections; track section.nrc) {
-                      <div class="section-item">
-                        <div class="section-main">
-                          <div class="section-header">
-                            <span class="section-nrc"
-                              >NRC {{ section.nrc }}</span
-                            >
-                            <span class="section-id"
-                              >Sección {{ section.sectionId }}</span
-                            >
-                          </div>
-                          <div class="section-meta">
-                            {{ getIntersemetral(section) }} ·
-                            {{ getCicloLabel(section) }}
-                          </div>
-                          <div class="section-seats">
-                            Cupos:
-                            <strong
-                              >{{ section.availableSeats }}
-                              {{
-                                section.availableSeats === 1
-                                  ? "cupo disponible"
-                                  : "cupos disponibles"
-                              }}
-                            </strong>
-                            de {{ section.totalSeats }}
-                          </div>
-                          @if (
-                            section.professors && section.professors.length > 0
-                          ) {
-                            <div class="section-prof">
-                              {{ section.professors.join(", ") | titlecase }}
-                            </div>
-                          }
-                          <div class="section-meetings">
-                            @for (meeting of section.meetings; track $index) {
-                              <span class="meeting-badge">
-                                {{ getDayLabel(meeting.day) }}
-                                {{ meeting.start.slice(0, 5) }}–{{
-                                  meeting.end.slice(0, 5)
-                                }}
-                              </span>
-                            }
-                          </div>
-                        </div>
-                        <button
-                          class="btn-section-toggle"
-                          (click)="
-                            onSectionClick(course, section);
-                            $event.stopPropagation()
-                          "
-                          [class.selected]="
-                            isSectionSelected(course.code, section.nrc)
-                          "
-                          title="Toggle section"
-                        >
-                          <i
-                            [ngClass]="
-                              isSectionSelected(course.code, section.nrc)
-                                ? 'bi bi-check'
-                                : 'bi bi-plus'
-                            "
-                          ></i>
-                        </button>
-                      </div>
+                  <div class="section-meta">
+                    {{ getIntersemetral(section) }} ·
+                    {{ getCicloLabel(section) }}
+                  </div>
+                  <div class="section-seats">
+                    Cupos:
+                    <strong
+                      >{{ section.availableSeats }}
+                      {{
+                        section.availableSeats === 1
+                          ? "cupo disponible"
+                          : "cupos disponibles"
+                      }}
+                    </strong>
+                    de {{ section.totalSeats }}
+                  </div>
+                  @if ( section.professors && section.professors.length > 0 ) {
+                  <div class="section-prof">
+                    {{ section.professors.join(", ") | titlecase }}
+                  </div>
+                  }
+                  <div class="section-meetings">
+                    @for (meeting of section.meetings; track $index) {
+                    <span class="meeting-badge">
+                      {{ getDayLabel(meeting.day) }}
+                      {{ meeting.start.slice(0, 5) }}–{{
+                        meeting.end.slice(0, 5)
+                      }}
+                    </span>
                     }
                   </div>
-                }
+                </div>
+                <button
+                  class="btn-section-toggle"
+                  (click)="
+                    onSectionClick(course, section); $event.stopPropagation()
+                  "
+                  [class.selected]="isSectionSelected(course.code, section.nrc)"
+                  title="Toggle section"
+                >
+                  <i
+                    [ngClass]="
+                      isSectionSelected(course.code, section.nrc)
+                        ? 'bi bi-check'
+                        : 'bi bi-plus'
+                    "
+                  ></i>
+                </button>
               </div>
+              }
+            </div>
             }
           </div>
-        }
-
-        @if (!loading && empty) {
-          <div class="status-message muted">
-            <i class="bi bi-search"></i>
-            <span>No courses found</span>
-          </div>
-        }
-
-        @if (error) {
-          <div class="status-message error">
-            <i class="bi bi-exclamation-circle"></i>
-            <span>{{ error }}</span>
-          </div>
+          }
+        </div>
+        } @if (!loading && empty) {
+        <div class="status-message muted">
+          <i class="bi bi-search"></i>
+          <span>No courses found</span>
+        </div>
+        } @if (error) {
+        <div class="status-message error">
+          <i class="bi bi-exclamation-circle"></i>
+          <span>{{ error }}</span>
+        </div>
         }
       </div>
     </div>
@@ -178,103 +178,99 @@
       <div class="panel-header">
         <span class="panel-title">Cursos seleccionados</span>
         @if (getSelectedCourseCodes().length > 0) {
-          <span class="count-badge">{{ getSelectedCourseCodes().length }}</span>
+        <span class="count-badge">{{ getSelectedCourseCodes().length }}</span>
         }
       </div>
       <div class="panel-body">
         @if (getSelectedCourseCodes().length === 0) {
-          <div class="status-message muted">
-            <i class="bi bi-bookmark"></i>
-            <span>No hay cursos seleccionados aun</span>
-          </div>
+        <div class="status-message muted">
+          <i class="bi bi-bookmark"></i>
+          <span>No hay cursos seleccionados aun</span>
+        </div>
         } @else {
-          <div class="selected-courses-grid">
-            @for (code of getSelectedCourseCodes(); track code) {
-              <div
-                class="selected-course-card"
-                [class.active]="activeSelectedCourseCode === code"
-                (click)="
-                  activeSelectedCourseCode =
-                    activeSelectedCourseCode === code ? null : code
-                "
-              >
-                <div class="selected-card-header">
-                  <span class="selected-code">{{ code }}</span>
-                  <div class="selected-card-meta">
-                    <span class="selected-count">
-                      {{ selectedSectionsByCourse[code].length }}
-                      {{
-                        selectedSectionsByCourse[code].length === 1
-                          ? "sección"
-                          : "secciones"
-                      }}
-                    </span>
-                    <i
-                      class="bi bi-search search-icon"
-                      (click)="searchForCourse(code); $event.stopPropagation()"
-                      title="Buscar este curso"
-                    ></i>
-                  </div>
-                </div>
-                <div class="selected-title">
-                  {{ selectedCoursesMeta[code]?.title || "No disponible" }}
-                </div>
-                <div class="selected-credits">
-                  {{ selectedCoursesMeta[code]?.credits ?? "N/A" }} creditos
-                </div>
-
-                @if (activeSelectedCourseCode === code) {
-                  <div class="selected-sections">
-                    @for (
-                      section of selectedSectionsByCourse[code];
-                      track section.nrc
-                    ) {
-                      <div class="selected-section-item">
-                        <div class="selected-section-header">
-                          <div class="selected-section-meta">
-                            <span class="selected-section-id"
-                              >Sección {{ section.sectionId }}</span
-                            >
-                            <span class="selected-section-nrc"
-                              >NRC {{ section.nrc }}</span
-                            >
-                          </div>
-                          <button
-                            type="button"
-                            class="remove-section-btn"
-                            (click)="
-                              removeSelectedSection(code, section);
-                              $event.stopPropagation()
-                            "
-                            aria-label="Eliminar sección"
-                          >
-                            <i class="bi bi-x"></i>
-                          </button>
-                        </div>
-                        @if (
-                          section.professors && section.professors.length > 0
-                        ) {
-                          <div class="selected-section-prof">
-                            {{ section.professors.join(", ") | titlecase }}
-                          </div>
-                        }
-                        <div class="selected-section-meetings">
-                          @for (meeting of section.meetings; track $index) {
-                            <span class="meeting-badge">
-                              {{ getDayLabel(meeting.day) }}
-                              {{ meeting.start.slice(0, 5) }}–{{
-                                meeting.end.slice(0, 5)
-                              }}
-                            </span>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
+        <div class="selected-courses-grid">
+          @for (code of getSelectedCourseCodes(); track code) {
+          <div
+            class="selected-course-card"
+            [class.active]="activeSelectedCourseCode === code"
+            (click)="
+              activeSelectedCourseCode =
+                activeSelectedCourseCode === code ? null : code
+            "
+          >
+            <div class="selected-card-header">
+              <span class="selected-code">{{ code }}</span>
+              <div class="selected-card-meta">
+                <span class="selected-count">
+                  {{ selectedSectionsByCourse[code].length }}
+                  {{
+                    selectedSectionsByCourse[code].length === 1
+                      ? "sección"
+                      : "secciones"
+                  }}
+                </span>
+                <i
+                  class="bi bi-search search-icon"
+                  (click)="searchForCourse(code); $event.stopPropagation()"
+                  title="Buscar este curso"
+                ></i>
               </div>
+            </div>
+            <div class="selected-title">
+              {{ selectedCoursesMeta[code]?.title || "No disponible" }}
+            </div>
+            <div class="selected-credits">
+              {{ selectedCoursesMeta[code]?.credits ?? "N/A" }} creditos
+            </div>
+
+            @if (activeSelectedCourseCode === code) {
+            <div class="selected-sections">
+              @for ( section of selectedSectionsByCourse[code]; track
+              section.nrc ) {
+              <div class="selected-section-item">
+                <div class="selected-section-header">
+                  <div class="selected-section-meta">
+                    <span class="selected-section-id"
+                      >Sección {{ section.sectionId }}</span
+                    >
+                    <span class="selected-section-nrc"
+                      >NRC {{ section.nrc }}</span
+                    >
+                  </div>
+                  <button
+                    type="button"
+                    class="remove-section-btn"
+                    (click)="
+                      removeSelectedSection(code, section);
+                      $event.stopPropagation()
+                    "
+                    aria-label="Eliminar sección"
+                  >
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+                @if ( section.professors && section.professors.length > 0 ) {
+                <div class="selected-section-prof">
+                  {{ section.professors.join(", ") | titlecase }}
+                </div>
+                }
+                <div class="selected-section-meetings">
+                  @for (meeting of section.meetings; track $index) {
+                  <span class="meeting-badge">
+                    {{ getDayLabel(meeting.day) }}
+                    {{ meeting.start.slice(0, 5) }}–{{
+                      meeting.end.slice(0, 5)
+                    }}
+                  </span>
+                  }
+                </div>
+              </div>
+              }
+            </div>
             }
           </div>
+          }
+        </div>
         }
       </div>
     </div>
@@ -289,21 +285,17 @@
       </div>
       <div class="calendar-body">
         @if (!ScheduleError) {
-          <full-calendar [options]="calendarOptions"></full-calendar>
-        }
-
-        @if (ScheduleError) {
-          <div class="calendar-overlay error">
-            <i class="bi bi-exclamation-triangle"></i>
-            <span>{{ ScheduleError }}</span>
-          </div>
-        }
-
-        @if (!hasSelectedSections && !ScheduleError) {
-          <div class="calendar-overlay">
-            <i class="bi bi-calendar-plus"></i>
-            <span>Seleccione secciones de cursos para generar un horario</span>
-          </div>
+        <full-calendar [options]="calendarOptions"></full-calendar>
+        } @if (ScheduleError) {
+        <div class="calendar-overlay error">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span>{{ ScheduleError }}</span>
+        </div>
+        } @if (!hasSelectedSections && !ScheduleError) {
+        <div class="calendar-overlay">
+          <i class="bi bi-calendar-plus"></i>
+          <span>Seleccione secciones de cursos para generar un horario</span>
+        </div>
         }
       </div>
     </div>
@@ -315,96 +307,89 @@
       </div>
       <div class="panel-body">
         @if (!selectedEvent) {
-          <div class="status-message muted">
-            <i class="bi bi-hand-index"></i>
-            <span
-              >Haga clic en una clase en el horario para ver sus detalles</span
-            >
-          </div>
+        <div class="status-message muted">
+          <i class="bi bi-hand-index"></i>
+          <span
+            >Haga clic en una clase en el horario para ver sus detalles</span
+          >
+        </div>
         } @else {
-          <div class="event-detail">
-            <div class="event-header">
-              <div class="event-code">
-                {{ selectedEventInfo?.courseCode || "Course" }}
-              </div>
-              <div class="event-title">
-                {{ selectedEventInfo?.courseTitle || "No disponible" }}
-              </div>
-              <div class="event-credits">
-                {{ selectedEventInfo?.courseCredits ?? "N/A" }} creditos
-              </div>
+        <div class="event-detail">
+          <div class="event-header">
+            <div class="event-code">
+              {{ selectedEventInfo?.courseCode || "Course" }}
             </div>
+            <div class="event-title">
+              {{ selectedEventInfo?.courseTitle || "No disponible" }}
+            </div>
+            <div class="event-credits">
+              {{ selectedEventInfo?.courseCredits ?? "N/A" }} creditos
+            </div>
+          </div>
 
-            <div class="event-info-grid">
-              <div class="info-item">
-                <span class="info-label">Sección</span>
-                <span class="info-value">{{ selectedEvent.sectionId }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">NRC</span>
-                <span class="info-value">{{ selectedEvent.nrc }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Periodo</span>
-                <span class="info-value">{{
-                  getIntersemetral(selectedEvent)
-                }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Duración</span>
-                <span class="info-value">{{
-                  getCicloLabel(selectedEvent)
-                }}</span>
-              </div>
-              @if (selectedEvent.campus) {
-                <div class="info-item full-width">
-                  <span class="info-label">Campus</span>
-                  <span class="info-value">{{ selectedEvent.campus }}</span>
-                </div>
-              }
-              <div class="info-item full-width">
-                <span class="info-label">Cupos</span>
-                <span class="info-value"
-                  >{{ selectedEvent.availableSeats }}/{{
-                    selectedEvent.totalSeats
+          <div class="event-info-grid">
+            <div class="info-item">
+              <span class="info-label">Sección</span>
+              <span class="info-value">{{ selectedEvent.sectionId }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">NRC</span>
+              <span class="info-value">{{ selectedEvent.nrc }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Periodo</span>
+              <span class="info-value">{{
+                getIntersemetral(selectedEvent)
+              }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Duración</span>
+              <span class="info-value">{{ getCicloLabel(selectedEvent) }}</span>
+            </div>
+            @if (selectedEvent.campus) {
+            <div class="info-item full-width">
+              <span class="info-label">Campus</span>
+              <span class="info-value">{{ selectedEvent.campus }}</span>
+            </div>
+            }
+            <div class="info-item full-width">
+              <span class="info-label">Cupos</span>
+              <span class="info-value"
+                >{{ selectedEvent.availableSeats }}/{{
+                  selectedEvent.totalSeats
+                }}</span
+              >
+            </div>
+            @if ( selectedEvent.professors && selectedEvent.professors.length >
+            0 ) {
+            <div class="info-item full-width">
+              <span class="info-label">Profesores</span>
+              <span class="info-value">{{
+                selectedEvent.professors.join(", ")
+              }}</span>
+            </div>
+            }
+          </div>
+
+          <div class="event-meetings">
+            <span class="info-label">Días</span>
+            <div class="meetings-list">
+              @for (meeting of selectedEvent.meetings; track $index) {
+              <div class="meeting-item">
+                <span class="meeting-day">{{ getDayLabel(meeting.day) }}</span>
+                <span class="meeting-time"
+                  >{{ meeting.start.slice(0, 5) }}–{{
+                    meeting.end.slice(0, 5)
                   }}</span
                 >
-              </div>
-              @if (
-                selectedEvent.professors && selectedEvent.professors.length > 0
-              ) {
-                <div class="info-item full-width">
-                  <span class="info-label">Profesores</span>
-                  <span class="info-value">{{
-                    selectedEvent.professors.join(", ")
-                  }}</span>
-                </div>
-              }
-            </div>
-
-            <div class="event-meetings">
-              <span class="info-label">Días</span>
-              <div class="meetings-list">
-                @for (meeting of selectedEvent.meetings; track $index) {
-                  <div class="meeting-item">
-                    <span class="meeting-day">{{
-                      getDayLabel(meeting.day)
-                    }}</span>
-                    <span class="meeting-time"
-                      >{{ meeting.start.slice(0, 5) }}–{{
-                        meeting.end.slice(0, 5)
-                      }}</span
-                    >
-                    @if (meeting.location) {
-                      <span class="meeting-location">{{
-                        meeting.location
-                      }}</span>
-                    }
-                  </div>
+                @if (meeting.location) {
+                <span class="meeting-location">{{ meeting.location }}</span>
                 }
               </div>
+              }
             </div>
           </div>
+        </div>
         }
       </div>
     </div>

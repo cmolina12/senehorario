@@ -2,7 +2,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f5f6f8;
+  background: var(--bg);
 }
 
 /* === Header === */
@@ -17,7 +17,7 @@
 .brand-text {
   font-weight: 600;
   font-size: 1.1rem;
-  color: var(--primary);
+  color: var(--text-primary);
 }
 
 .schedule-counter {
@@ -85,6 +85,10 @@
   border-radius: 10px;
 }
 
+:host-context([data-theme="dark"]) .count-badge {
+  color: var(--primary);
+}
+
 .panel-body {
   padding: 20px;
   overflow-y: auto;
@@ -116,16 +120,16 @@
   justify-content: center;
   gap: 10px;
   padding: 32px 16px;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .status-message.muted {
-  color: #8a8a9a;
+  color: var(--actual-grey);
 }
 
 .status-message.error {
-  color: #dc3545;
+  color: var(--danger);
 }
 
 .status-message i {
@@ -165,7 +169,7 @@
 .course-code {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
 .course-credits {
@@ -174,6 +178,10 @@
   background: var(--bg);
   padding: 2px 8px;
   border-radius: 4px;
+}
+
+:host-context([data-theme="dark"]) .course-credits {
+  background: var(--surface-alt);
 }
 
 .course-title {
@@ -276,8 +284,8 @@
 }
 
 .btn-section-toggle:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--accent);
+  color: var(--accent-hover);
 }
 
 .btn-section-toggle.selected {
@@ -322,7 +330,7 @@
 .selected-code {
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--primary);
+  color: var(--text-primary);
 }
 
 .selected-count {
@@ -374,7 +382,7 @@
 .selected-section-id {
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--primary);
+  color: var(--text-primary);
 }
 
 .selected-section-nrc {
@@ -397,7 +405,7 @@
 .remove-section-btn {
   border: 1px solid var(--border);
   background: var(--surface-alt);
-  color: var(--primary);
+  color: var(--text-primary);
   width: 30px;
   height: 30px;
   border-radius: 8px;
@@ -406,17 +414,14 @@
   justify-content: center;
   padding: 0;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease,
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease,
     box-shadow 0.15s ease;
 }
 
 .remove-section-btn:hover,
 .remove-section-btn:focus {
-  background: #ffe3e3;
-  color: #b00020;
+  background: rgba(255, 77, 79, 0.15);
+  color: var(--danger);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
@@ -442,16 +447,16 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  color: #8a8a9a;
+  color: var(--text-secondary);
   text-align: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--overlay);
   padding: 32px 40px;
   border-radius: 8px;
   z-index: 10;
 }
 
 .calendar-overlay.error {
-  color: #dc3545;
+  color: var(--danger);
 }
 
 .calendar-overlay i {
@@ -475,13 +480,13 @@
 
 .event-header {
   padding-bottom: 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .event-code {
   font-weight: 600;
   font-size: 1.1rem;
-  color: var(--primary);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
@@ -523,7 +528,7 @@
 
 .info-value {
   font-size: 0.9rem;
-  color: var(--primary);
+  color: var(--text-primary);
 }
 
 .event-meetings {
@@ -553,7 +558,7 @@
 
 .meeting-day {
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text-primary);
   min-width: 36px;
 }
 
@@ -614,4 +619,9 @@
 
 .search-icon:hover {
   color: var(--primary);
+}
+
+/* Dark mode tweak for search input placeholder */
+:host-context([data-theme="dark"]) .search-panel .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }

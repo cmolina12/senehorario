@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, computed, inject } from "@angular/core";
+import { ThemeService } from "../services/theme.service";
 
 @Component({
   standalone: false,
@@ -7,9 +8,17 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./landing.component.css"],
 })
 export class LandingComponent implements OnInit {
-  constructor() {}
+  private readonly themeService = inject(ThemeService);
+  protected readonly theme = this.themeService.theme;
+  protected readonly themeLabel = computed(() =>
+    this.themeService.theme() === "dark" ? "Modo claro" : "Modo oscuro",
+  );
 
   ngOnInit() {}
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
 
   scrollToFaq(event: Event) {
     event.preventDefault();

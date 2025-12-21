@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, computed, inject } from "@angular/core";
 import { CourseService } from "../services/course.service";
 import { CourseModel } from "../models/course-model";
 import { ScheduleService } from "../services/schedule.service";
@@ -9,6 +9,7 @@ import timeGridPlugin from "@fullcalendar/timegrid/index.js";
 import dayGridPlugin from "@fullcalendar/daygrid/index.js";
 import interactionPlugin from "@fullcalendar/interaction/index.js";
 import esLocale from "@fullcalendar/core/locales/es";
+import { ThemeService } from "../services/theme.service";
 
 @Component({
   standalone: false,
@@ -17,6 +18,12 @@ import esLocale from "@fullcalendar/core/locales/es";
   styleUrls: ["./planning.component.css"],
 })
 export class PlanningComponent implements OnInit, OnDestroy {
+  private readonly themeService = inject(ThemeService);
+  protected readonly theme = this.themeService.theme;
+  protected readonly themeLabel = computed(() =>
+    this.themeService.theme() === "dark" ? "Modo claro" : "Modo oscuro",
+  );
+
   // --- Component state ---
   private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
   private readonly storageKey = "planningState";
@@ -329,6 +336,10 @@ export class PlanningComponent implements OnInit, OnDestroy {
     private scheduleService: ScheduleService,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
   // Method to handle course selection
   toggleCourse(course: CourseModel): void {
