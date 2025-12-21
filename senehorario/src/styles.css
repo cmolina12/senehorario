@@ -23,25 +23,31 @@ body {
 :root {
   --primary: #1a1a2e;
   --primary-light: #16213e;
+  --actual-grey: #8a8a9a;
   --accent: #f0c800;
-  --accent-light: #fff8dc;
   --accent-hover: #d4a800;
+
+  /* Calendar */
   --surface: #ffffff;
   --surface-alt: #fafafa;
-  --border: #e0e0e0;
-  --border-light: #eee;
+  --border-light: #e0e0e0;
+
+  --text: oklch(0.15 0 264);
   --text-primary: #1a1a2e;
   --text-secondary: #5a5a6e;
   --text-muted: oklch(0.4 0 264);
-  --success: #28a745;
-  --warning: #ffc107;
-  --danger: #dc3545;
+
+  --meeting-badges: #e8e8e8;
+  --nice-gray: #b0b0b0;
+  --transparent-gray: #fffef5;
+  --main: #fff;
+  --border: #d6d6d6;
 
   --bg-dark: oklch(0.92 0 264);
   --bg: oklch(0.96 0 264);
   --bg-light: oklch(1 0 264);
-  --text: oklch(0.15 0 264);
-  --text-muted: oklch(0.4 0 264);
+
+  --danger: #ff4d4f;
 }
 
 /* ====================================================================== */

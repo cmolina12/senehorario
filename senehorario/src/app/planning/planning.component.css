@@ -7,8 +7,8 @@
 
 /* === Header === */
 .planning-header {
-  background: #fff;
-  border-bottom: 3px solid #f0c800;
+  background: var(--main);
+  border-bottom: 3px solid var(--accent);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -17,12 +17,12 @@
 .brand-text {
   font-weight: 600;
   font-size: 1.1rem;
-  color: #1a1a2e;
+  color: var(--primary);
 }
 
 .schedule-counter {
   font-size: 0.9rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -51,8 +51,8 @@
 
 /* === Panel Base === */
 .panel {
-  background: #fff;
-  border: 1px solid #d6d6d6;
+  background: var(--main);
+  border: 1px solid var(--border);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -60,8 +60,8 @@
 
 .panel-header {
   padding: 16px 20px;
-  border-bottom: 1px solid #d6d6d6;
-  background: #fafafa;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
   border-radius: 8px 8px 0 0;
   display: flex;
   align-items: center;
@@ -73,12 +73,12 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #5a5a6e;
+  color: var(--text-secondary);
 }
 
 .count-badge {
-  background: #f0c800;
-  color: #1a1a2e;
+  background: var(--accent);
+  color: var(--text-primary);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 3px 10px;
@@ -142,8 +142,8 @@
 }
 
 .course-item {
-  background: #fff;
-  border: 1px solid #d6d6d6;
+  background: var(--main);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 14px 16px;
 }
@@ -170,15 +170,15 @@
 
 .course-credits {
   font-size: 0.78rem;
-  color: #8a8a9a;
-  background: #f5f5f5;
+  color: var(--text-secondary);
+  background: var(--bg);
   padding: 2px 8px;
   border-radius: 4px;
 }
 
 .course-title {
   font-size: 0.88rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -186,7 +186,7 @@
 .sections-list {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid #d6d6d6;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -197,10 +197,10 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 12px;
-  background: #fafafa;
+  background: var(--surface-alt);
   border-radius: 6px;
   gap: 12px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--border);
 }
 
 .section-main {
@@ -218,29 +218,29 @@
 .section-nrc {
   font-weight: 600;
   font-size: 0.88rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
 .section-id {
   font-size: 0.78rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
 }
 
 .section-meta {
   font-size: 0.78rem;
-  color: #8a8a9a;
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .section-seats {
   font-size: 0.78rem;
-  color: #8a8a9a;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .section-prof {
   font-size: 0.82rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
@@ -252,8 +252,8 @@
 
 .meeting-badge {
   font-size: 0.75rem;
-  background: #e8e8e8;
-  color: #1a1a2e;
+  background: var(--meeting-badges);
+  color: var(--text-secondary);
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -263,9 +263,9 @@
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  border: 1px solid #d6d6d6;
-  background: #fff;
-  color: #5a5a6e;
+  border: 1px solid var(--border);
+  background: var(--main);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,14 +276,14 @@
 }
 
 .btn-section-toggle:hover {
-  border-color: #1a1a2e;
-  color: #1a1a2e;
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .btn-section-toggle.selected {
-  background: #f0c800;
-  border-color: #f0c800;
-  color: #1a1a2e;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--primary);
 }
 
 /* === Selected Courses Grid === */
@@ -294,8 +294,8 @@
 }
 
 .selected-course-card {
-  background: #fafafa;
-  border: 1px solid #d6d6d6;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 14px 16px;
   cursor: pointer;
@@ -303,13 +303,13 @@
 }
 
 .selected-course-card:hover {
-  border-color: #b0b0b0;
+  border-color: var(--nice-gray);
 }
 
 .selected-course-card.active {
-  border-color: #f0c800;
+  border-color: var(--accent);
   border-width: 2px;
-  background: #fffef5;
+  background: var(--transparent-gray);
 }
 
 .selected-card-header {
@@ -322,38 +322,38 @@
 .selected-code {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #1a1a2e;
+  color: var(--primary);
 }
 
 .selected-count {
   font-size: 0.78rem;
-  color: #8a8a9a;
+  color: var(--actual-grey);
 }
 
 .selected-title {
   font-size: 0.85rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 2px;
 }
 
 .selected-credits {
   font-size: 0.78rem;
-  color: #8a8a9a;
+  color: var(--actual-grey);
 }
 
 .selected-sections {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #d6d6d6;
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .selected-section-item {
-  background: #fff;
-  border: 1px solid #d6d6d6;
+  background: var(--main);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px 12px;
 }
@@ -374,17 +374,17 @@
 .selected-section-id {
   font-weight: 600;
   font-size: 0.85rem;
-  color: #1a1a2e;
+  color: var(--primary);
 }
 
 .selected-section-nrc {
   font-size: 0.78rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
 }
 
 .selected-section-prof {
   font-size: 0.8rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 
@@ -395,9 +395,9 @@
 }
 
 .remove-section-btn {
-  border: 1px solid #d6d6d6;
-  background: #f8f8fb;
-  color: #1a1a2e;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--primary);
   width: 30px;
   height: 30px;
   border-radius: 8px;
@@ -481,20 +481,20 @@
 .event-code {
   font-weight: 600;
   font-size: 1.1rem;
-  color: #1a1a2e;
+  color: var(--primary);
   margin-bottom: 4px;
 }
 
 .event-title {
   font-size: 0.9rem;
-  color: #5a5a6e;
+  color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 4px;
 }
 
 .event-credits {
   font-size: 0.82rem;
-  color: #8a8a9a;
+  color: var(--text-secondary);
 }
 
 .event-info-grid {
@@ -516,19 +516,19 @@
 .info-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #8a8a9a;
+  color: var(--actual-grey);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .info-value {
   font-size: 0.9rem;
-  color: #1a1a2e;
+  color: var(--primary);
 }
 
 .event-meetings {
   padding-top: 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-light);
 }
 
 .event-meetings .info-label {
@@ -546,23 +546,23 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: #fafafa;
+  background: var(--surface-alt);
   border-radius: 6px;
   font-size: 0.88rem;
 }
 
 .meeting-day {
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--primary);
   min-width: 36px;
 }
 
 .meeting-time {
-  color: #5a5a6e;
+  color: var(--text-secondary);
 }
 
 .meeting-location {
-  color: #8a8a9a;
+  color: var(--actual-grey);
   font-size: 0.82rem;
   margin-left: auto;
 }
@@ -607,11 +607,11 @@
 }
 
 .search-icon {
-  color: #8a8a9a;
+  color: var(--actual-grey);
   cursor: pointer;
   transition: color 0.15s;
 }
 
 .search-icon:hover {
-  color: #1a1a2e;
+  color: var(--primary);
 }
