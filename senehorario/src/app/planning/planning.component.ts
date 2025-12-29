@@ -26,6 +26,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   // --- Component state ---
   private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
+  private resizeListener: (() => void) | null = null;
   private readonly storageKey = "planningState";
   searchQuery: string = ""; // searchQuery: User input for search
   courses: CourseModel[] = []; // courses: courses shown upon successful
@@ -83,8 +84,30 @@ export class PlanningComponent implements OnInit, OnDestroy {
     locales: [esLocale],
     locale: "es",
     dayHeaderContent: (arg) => {
-      const name = arg.date.toLocaleDateString("es-ES", { weekday: "long" });
-      return name.charAt(0).toUpperCase() + name.slice(1);
+      const fullName = arg.date.toLocaleDateString("es-ES", {
+        weekday: "long",
+      });
+      const capitalizedName =
+        fullName.charAt(0).toUpperCase() + fullName.slice(1);
+
+      // Check if we're on a small screen
+      const isSmallScreen = window.innerWidth <= 768;
+
+      if (isSmallScreen) {
+        // Return abbreviated day names for small screens
+        const abbreviations: { [key: string]: string } = {
+          Lunes: "L",
+          Martes: "M",
+          Miércoles: "I",
+          Jueves: "J",
+          Viernes: "V",
+          Sábado: "S",
+          Domingo: "D",
+        };
+        return abbreviations[capitalizedName] || capitalizedName.charAt(0);
+      }
+
+      return capitalizedName;
     },
     initialDate: "2025-07-28", // Start date for the calendar
     height: 600,
@@ -616,6 +639,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
     this.restoreState();
+    this.setupResizeListener();
     // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {
       this.updateCalendarEvents();
@@ -725,5 +749,21 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (this.calendarRefreshInterval) {
       clearInterval(this.calendarRefreshInterval);
     }
+    if (this.resizeListener) {
+      window.removeEventListener("resize", this.resizeListener);
+    }
+  }
+
+  private setupResizeListener() {
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    this.resizeListener = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        // Force calendar to re-render headers by updating the options
+        this.calendarOptions = { ...this.calendarOptions };
+        this.cdr.detectChanges();
+      }, 150);
+    };
+    window.addEventListener("resize", this.resizeListener);
   }
 }
