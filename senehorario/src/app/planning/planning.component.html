@@ -55,13 +55,22 @@
         <span class="panel-title">Búsqueda de cursos</span>
       </div>
       <div class="panel-body">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar por NRC, código o nombre..."
-          [(ngModel)]="searchQuery"
-          (keyup.enter)="onSearchCourse(searchQuery)"
-        />
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar por NRC, código o nombre..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearchCourse(searchQuery)"
+          />
+          <button
+            class="btn-search"
+            (click)="onSearchCourse(searchQuery)"
+            [disabled]="loading"
+          >
+            Buscar
+          </button>
+        </div>
 
         @if (loading) {
           <div class="status-message">
