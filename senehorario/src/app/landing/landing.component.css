@@ -381,6 +381,53 @@
   .brand-text {
     font-size: 1.2rem;
   }
+
+  .floating-header {
+    padding: 8px 12px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .floating-header .logo {
+    height: 40px;
+  }
+
+  .header-actions {
+    gap: 12px;
+  }
+
+  .header-link {
+    display: none;
+  }
+
+  .floating-header .btn-uniandes {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .floating-header .theme-toggle {
+    padding: 2px 4px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .floating-header {
+    padding: 6px 10px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .floating-header .logo {
+    height: 32px;
+  }
+
+  .floating-header .btn-uniandes {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
 }
 
 .brand-stack {
