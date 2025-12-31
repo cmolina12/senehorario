@@ -56,6 +56,12 @@
   padding: 4px 8px;
   box-shadow: none;
   cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 :host-context([data-theme="dark"]) .btn-toggle {
