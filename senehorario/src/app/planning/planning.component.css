@@ -22,8 +22,44 @@
 
 .schedule-counter {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-weight: 500;
+}
+
+:host-context([data-theme="dark"]) .schedule-counter {
+  color: var(--text-primary);
+}
+
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 1rem;
+  width: auto;
+  height: auto;
+  padding: 4px 8px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+:host-context([data-theme="dark"]) .theme-toggle {
+  color: var(--text-primary);
+}
+
+.btn-toggle {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 1rem;
+  width: auto;
+  height: auto;
+  padding: 4px 8px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+:host-context([data-theme="dark"]) .btn-toggle {
+  color: var(--text-primary);
 }
 
 /* === Main Container === */
@@ -384,7 +420,7 @@
 .selected-sections {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--nice-gray);
   display: flex;
   flex-direction: column;
   gap: 10px;

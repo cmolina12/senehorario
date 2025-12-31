@@ -49,33 +49,46 @@
 .floating-header .btn-uniandes {
   padding: 8px 14px;
   border-radius: 12px;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 0.95rem;
 }
 
 .header-actions {
-  gap: 10px;
+  gap: 16px;
 }
 
 .header-link {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--chip-bg);
-  color: var(--chip-color);
-  font-weight: 600;
-  font-size: 0.95rem;
+  padding: 4px 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
   text-decoration: none;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+  transition: color 0.2s ease;
 }
 
 .header-link:hover,
 .header-link:focus {
-  background: var(--chip-bg-hover);
-  color: var(--chip-color-strong);
-  transform: translateY(-1px);
+  color: var(--text-primary);
+}
+
+.floating-header .theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  width: auto;
+  height: auto;
+  padding: 4px 8px;
+  box-shadow: none;
+}
+
+.floating-header .theme-toggle:hover,
+.floating-header .theme-toggle:focus-visible {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  box-shadow: none;
+  transform: none;
 }
 
 .floating-header .logo {
