@@ -68,8 +68,8 @@ body {
   --surface-alt: #141a2b;
   --border-light: #1e2536;
 
-  --text-primary: #e8eaf5;
-  --text-secondary: #c5cadc;
+  --text-primary: #eef0f8;
+  --text-secondary: #d0d4e4;
 
   --feature-band-bg: #0d111c;
   --footer-bg: #0b0f1a;
@@ -295,7 +295,7 @@ h6 {
 }
 
 .fc-event-course {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.75rem;
   margin-bottom: 1px;
   color: inherit;
@@ -307,7 +307,7 @@ h6 {
 
 .fc-event-title {
   font-size: 0.68rem;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.2;
   max-width: 100%;
   display: -webkit-box;
