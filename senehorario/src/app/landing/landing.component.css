@@ -111,6 +111,7 @@
   color: var(--text-primary);
   line-height: 1.15;
   letter-spacing: -1px;
+  max-width: 630px;
 }
 
 .highlight {
@@ -123,8 +124,8 @@
   font-size: 1.2rem;
   color: var(--text-secondary);
   line-height: 1.6;
-  max-width: 560px;
-  font-weight: 200;
+  font-weight: 300;
+  max-width: 600px;
 }
 
 .hero-subtitle strong {
