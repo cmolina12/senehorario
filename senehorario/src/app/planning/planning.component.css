@@ -26,30 +26,11 @@
   font-weight: 500;
 }
 
-:host-context([data-theme="dark"]) .schedule-counter {
-  color: var(--text-primary);
-}
-
-.theme-toggle {
-  background: transparent;
-  border: none;
-  color: var(--primary);
-  font-size: 1rem;
-  width: auto;
-  height: auto;
-  padding: 4px 8px;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-:host-context([data-theme="dark"]) .theme-toggle {
-  color: var(--text-primary);
-}
-
+.theme-toggle,
 .btn-toggle {
   background: transparent;
   border: none;
-  color: var(--primary);
+  color: var(--text-primary);
   font-size: 1rem;
   width: auto;
   height: auto;
@@ -62,10 +43,6 @@
 .btn-toggle:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-}
-
-:host-context([data-theme="dark"]) .btn-toggle {
-  color: var(--text-primary);
 }
 
 /* === Main Container === */
@@ -125,10 +102,6 @@
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 10px;
-}
-
-:host-context([data-theme="dark"]) .count-badge {
-  color: var(--primary);
 }
 
 .panel-body {
@@ -251,10 +224,6 @@
   background: var(--bg);
   padding: 2px 8px;
   border-radius: 4px;
-}
-
-:host-context([data-theme="dark"]) .course-credits {
-  background: var(--surface-alt);
 }
 
 .course-title {
@@ -695,9 +664,4 @@
 
 .search-icon:hover {
   color: var(--primary);
-}
-
-/* Dark mode tweak for search input placeholder */
-:host-context([data-theme="dark"]) .search-panel .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.7);
 }
