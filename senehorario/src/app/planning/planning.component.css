@@ -221,7 +221,7 @@
 .course-credits {
   font-size: 0.78rem;
   color: var(--text-secondary);
-  background: var(--bg);
+  background: rgba(128, 128, 128, 0.12);
   padding: 2px 8px;
   border-radius: 4px;
 }
@@ -395,7 +395,7 @@
 .selected-sections {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--nice-gray);
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 10px;
