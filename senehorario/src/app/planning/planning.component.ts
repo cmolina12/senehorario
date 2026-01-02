@@ -184,6 +184,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return Object.keys(this.selectedSectionsByCourse).length > 0;
   }
 
+  get totalCredits(): number {
+    return Object.values(this.selectedCoursesMeta).reduce(
+      (sum, meta) => sum + (meta.credits || 0),
+      0,
+    );
+  }
+
   goToNextSchedule() {
     if (this.selectedScheduleIndex < this.scheduleOptions.length - 1) {
       this.selectedScheduleIndex++;

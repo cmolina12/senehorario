@@ -196,7 +196,16 @@
       <div class="panel-header">
         <span class="panel-title">Cursos seleccionados</span>
         @if (getSelectedCourseCodes().length > 0) {
-          <span class="count-badge">{{ getSelectedCourseCodes().length }}</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="count-badge">
+              {{ getSelectedCourseCodes().length }}
+              {{ getSelectedCourseCodes().length > 1 ? "cursos" : "curso" }}
+            </span>
+            <span class="credits-badge"
+              >{{ totalCredits }}
+              {{ totalCredits > 1 ? "créditos" : "crédito" }}</span
+            >
+          </div>
         }
       </div>
       <div class="panel-body">
