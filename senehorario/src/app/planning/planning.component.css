@@ -121,8 +121,7 @@
 
 /* === Search Panel === */
 .search-panel {
-  min-height: 480px;
-  max-height: 540px;
+  height: 540px;
 }
 
 .search-panel .panel-body {
@@ -164,8 +163,7 @@
 
 /* === Selected Panel === */
 .selected-panel {
-  min-height: 480px;
-  max-height: 540px;
+  height: 540px;
 }
 
 /* === Status Messages === */
@@ -366,7 +364,7 @@
 }
 
 .seats-fill.fill-low {
-  background: #d48806;
+  background: #faad14;
 }
 
 .seats-fill.fill-full {
@@ -383,7 +381,7 @@
 }
 
 .seats-count.count-low {
-  color: #d48806;
+  color: #faad14;
 }
 
 .seats-count.count-full {
@@ -737,7 +735,7 @@
 
   .search-panel,
   .selected-panel {
-    max-height: 350px;
+    height: 350px;
   }
 
   .details-panel {
