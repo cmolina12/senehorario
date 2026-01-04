@@ -341,6 +341,55 @@
   margin-bottom: 8px;
 }
 
+.seats-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seats-bar {
+  width: 100px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.seats-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.seats-fill.fill-available {
+  background: #52c41a;
+}
+
+.seats-fill.fill-low {
+  background: #d48806;
+}
+
+.seats-fill.fill-full {
+  background: #ff4d4f;
+}
+
+.seats-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.seats-count.count-available {
+  color: #52c41a;
+}
+
+.seats-count.count-low {
+  color: #d48806;
+}
+
+.seats-count.count-full {
+  color: #ff4d4f;
+}
+
 .section-prof {
   font-size: 0.82rem;
   color: var(--text-secondary);

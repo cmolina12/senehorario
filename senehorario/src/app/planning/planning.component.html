@@ -143,16 +143,59 @@
                             {{ getCicloLabel(section) }}
                           </div>
                           <div class="section-seats">
-                            Cupos:
-                            <strong
-                              >{{ section.availableSeats }}
-                              {{
-                                section.availableSeats === 1
-                                  ? "cupo disponible"
-                                  : "cupos disponibles"
-                              }}
-                            </strong>
-                            de {{ section.totalSeats }}
+                            <div class="seats-display">
+                              <div class="seats-bar">
+                                <div
+                                  class="seats-fill"
+                                  [ngClass]="{
+                                    'fill-available':
+                                      section.availableSeats /
+                                        section.totalSeats >
+                                      0.5,
+                                    'fill-low':
+                                      section.availableSeats /
+                                        section.totalSeats <=
+                                        0.5 &&
+                                      section.availableSeats /
+                                        section.totalSeats >
+                                        0.1,
+                                    'fill-full':
+                                      section.availableSeats /
+                                        section.totalSeats <=
+                                      0.1,
+                                  }"
+                                  [style.width]="
+                                    (section.availableSeats /
+                                      section.totalSeats) *
+                                      100 +
+                                    '%'
+                                  "
+                                ></div>
+                              </div>
+                              <span
+                                class="seats-count"
+                                [ngClass]="{
+                                  'count-available':
+                                    section.availableSeats /
+                                      section.totalSeats >
+                                    0.5,
+                                  'count-low':
+                                    section.availableSeats /
+                                      section.totalSeats <=
+                                      0.5 &&
+                                    section.availableSeats /
+                                      section.totalSeats >
+                                      0.1,
+                                  'count-full':
+                                    section.availableSeats /
+                                      section.totalSeats <=
+                                    0.1,
+                                }"
+                              >
+                                <strong>{{ section.availableSeats }}</strong> /
+                                {{ section.totalSeats }} cupos disponibles
+                              </span>
+                            </div>
                           </div>
                           @if (
                             section.professors && section.professors.length > 0
