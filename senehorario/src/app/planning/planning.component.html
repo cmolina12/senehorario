@@ -104,6 +104,29 @@
 
                 @if (expandedCourses[course.code] && course.sections) {
                   <div class="sections-list">
+                    <div class="course-actions-menu">
+                      <button
+                        class="btn-action-menu"
+                        (click)="addAllSectionsFromCourse(course)"
+                      >
+                        <i class="bi bi-plus-circle"></i>
+                        Agregar todas las secciones
+                      </button>
+                      <button
+                        class="btn-action-menu"
+                        (click)="addAvailableSectionsFromCourse(course)"
+                      >
+                        <i class="bi bi-plus-circle-dotted"></i>
+                        Agregar secciones con cupos
+                      </button>
+                      <button
+                        class="btn-action-menu btn-action-danger"
+                        (click)="removeAllSectionsFromCourse(course)"
+                      >
+                        <i class="bi bi-dash-circle"></i>
+                        Eliminar todas las secciones
+                      </button>
+                    </div>
                     @for (section of course.sections; track section.nrc) {
                       <div class="section-item">
                         <div class="section-main">

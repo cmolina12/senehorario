@@ -274,6 +274,112 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return Array.isArray(arr) && arr.some((s) => s.nrc === sectionNrc);
   }
 
+  addAllSectionsFromCourse(course: CourseModel): void {
+    if (!course.sections || course.sections.length === 0) return;
+
+    // Initialize the selected sections array for the course if it doesn't exist
+    if (!this.selectedSectionsByCourse[course.code]) {
+      this.selectedSectionsByCourse[course.code] = [];
+      this.selectedCoursesMeta[course.code] = {
+        title: course.title,
+        credits: course.credits,
+      };
+    }
+
+    // Add all sections that are not already selected
+    for (const section of course.sections) {
+      if (
+        !this.selectedSectionsByCourse[course.code].some(
+          (s) => s.nrc === section.nrc,
+        )
+      ) {
+        this.selectedSectionsByCourse[course.code].push(section);
+      }
+    }
+
+    console.log(
+      `Added all sections from course ${course.code}.`,
+      this.selectedSectionsByCourse,
+    );
+
+    this.checkRequirement(course.code, "");
+    this.persistState();
+  }
+
+  addAvailableSectionsFromCourse(course: CourseModel): void {
+    if (!course.sections || course.sections.length === 0) return;
+
+    // Filter sections that have available seats
+    const availableSections = course.sections.filter(
+      (section) => section.availableSeats > 0,
+    );
+
+    if (availableSections.length === 0) {
+      console.log(
+        `No sections with available seats for course ${course.code}.`,
+      );
+      return;
+    }
+
+    // Initialize the selected sections array for the course if it doesn't exist
+    if (!this.selectedSectionsByCourse[course.code]) {
+      this.selectedSectionsByCourse[course.code] = [];
+      this.selectedCoursesMeta[course.code] = {
+        title: course.title,
+        credits: course.credits,
+      };
+    }
+
+    // Add all available sections that are not already selected
+    for (const section of availableSections) {
+      if (
+        !this.selectedSectionsByCourse[course.code].some(
+          (s) => s.nrc === section.nrc,
+        )
+      ) {
+        this.selectedSectionsByCourse[course.code].push(section);
+      }
+    }
+
+    console.log(
+      `Added all available sections from course ${course.code}.`,
+      this.selectedSectionsByCourse,
+    );
+
+    this.checkRequirement(course.code, "");
+    this.persistState();
+  }
+
+  removeAllSectionsFromCourse(course: CourseModel): void {
+    if (!this.selectedSectionsByCourse[course.code]) return;
+
+    // Remove all sections for this course
+    delete this.selectedSectionsByCourse[course.code];
+    delete this.selectedCoursesMeta[course.code];
+
+    if (this.activeSelectedCourseCode === course.code) {
+      this.activeSelectedCourseCode = null;
+    }
+
+    console.log(
+      `Removed all sections from course ${course.code}.`,
+      this.selectedSectionsByCourse,
+    );
+
+    if (!this.hasSelectedSections) {
+      this.scheduleOptions = [];
+      this.selectedEvent = null;
+      this.selectedEventInfo = null;
+      this.selectedScheduleIndex = 0;
+      this.persistState();
+      this.updateCalendarEvents();
+      return;
+    }
+
+    this.persistState();
+    this.checkRequirement(course.code, "removed");
+  }
+
   getSelectedCourseCodes(): string[] {
     return Object.keys(this.selectedSectionsByCourse);
   }

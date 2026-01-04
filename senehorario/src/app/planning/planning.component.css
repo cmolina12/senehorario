@@ -251,6 +251,50 @@
   gap: 10px;
 }
 
+/* === Course Actions Menu === */
+.course-actions-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface-alt);
+  border-radius: 6px;
+  border: 1px dashed var(--border);
+  margin-bottom: 4px;
+}
+
+.btn-action-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-action-menu:hover {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+  background: var(--transparent-gray);
+}
+
+.btn-action-menu i {
+  font-size: 0.9rem;
+}
+
+.btn-action-menu.btn-action-danger:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(255, 77, 79, 0.08);
+}
+
 .section-item {
   display: flex;
   align-items: flex-start;
