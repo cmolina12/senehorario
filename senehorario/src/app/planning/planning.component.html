@@ -384,13 +384,19 @@
         @if (!ScheduleError) {
           <full-calendar [options]="calendarOptions"></full-calendar>
         }
-        @if (ScheduleError) {
+        @if (loadingSchedules) {
+          <div class="calendar-overlay">
+            <div class="spinner"></div>
+            <span>Generando horarios...</span>
+          </div>
+        }
+        @if (ScheduleError && !loadingSchedules) {
           <div class="calendar-overlay error">
             <i class="bi bi-exclamation-triangle"></i>
             <span>{{ ScheduleError }}</span>
           </div>
         }
-        @if (!hasSelectedSections && !ScheduleError) {
+        @if (!hasSelectedSections && !ScheduleError && !loadingSchedules) {
           <div class="calendar-overlay">
             <i class="bi bi-calendar-plus"></i>
             <span>Seleccione secciones de cursos para generar un horario</span>

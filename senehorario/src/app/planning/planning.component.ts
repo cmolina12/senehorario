@@ -74,6 +74,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   activeSelectedCourseCode: string | null = null;
 
   loading = false;
+  loadingSchedules = false;
   empty = false;
   error: string = "";
   ScheduleError: string = "";
@@ -463,6 +464,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     if (this.hasSelectedSections) {
       // Refresh schedules so restored sections always re-sync with backend data
+      this.loadingSchedules = true;
       this.fetchSchedules();
     }
   }
@@ -547,9 +549,11 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     if (sectionsPerCourse.length === 0) {
       console.warn("No sections selected for scheduling.");
+      this.loadingSchedules = false;
       return;
     } else {
       console.log("Fetching schedules for sections:", sectionsPerCourse);
+      this.loadingSchedules = true;
       this.scheduleService.getSchedules(sectionsPerCourse).subscribe({
         next: (schedules: SectionModel[][]) => {
           console.log("Schedules received:", schedules);
@@ -558,6 +562,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
             console.warn("No schedules found for the selected sections.");
             this.ScheduleError =
               "No se encontraron horarios compatibles para las secciones seleccionadas. Por favor, seleccione secciones diferentes o verifique si hay conflictos.";
+            this.loadingSchedules = false;
             this.cdr.detectChanges();
             return;
           }
@@ -579,6 +584,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.selectedScheduleIndex = 0; // Reset to first schedule
           this.updateCalendarEvents(); // Update calendar with the first schedule
           this.persistState();
+          this.loadingSchedules = false;
           this.cdr.detectChanges(); // Ensure view updates
           console.log("Schedules fetched successfully:", schedules);
           console.log("Number of schedules:", schedules.length);
@@ -587,6 +593,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
           console.error("Error fetching schedules:", error);
           this.ScheduleError =
             "Un error crítico ocurrió al generar horarios. Por favor, inténtalo de nuevo más tarde o envíame un mensaje a contact@camilomolina.dev.";
+          this.loadingSchedules = false;
+          this.cdr.detectChanges();
         },
       });
     }
@@ -672,16 +680,18 @@ export class PlanningComponent implements OnInit, OnDestroy {
   // Method to check requirements before calling schedule service
 
   checkRequirement(courseCode: string, action: string) {
+    this.loadingSchedules = true;
     console.log(`Checking requirements for course: ${courseCode}`);
     // Labs have a trailing 'T'. Keep track of main vs lab codes to enforce coupling.
     const isLab = courseCode.endsWith("T");
     const baseCourseCode = isLab ? courseCode.slice(0, -1) : courseCode;
     const labCode = isLab ? courseCode : courseCode + "T";
 
-    // Helper: Is main course selected?
-    const isMainSelected = !!this.selectedSectionsByCourse[baseCourseCode];
-    // Helper: Is lab selected?
-    const isLabSelected = !!this.selectedSectionsByCourse[labCode];
+    // Helper: Is main course selected? (has at least one section)
+    const isMainSelected =
+      this.selectedSectionsByCourse[baseCourseCode]?.length > 0;
+    // Helper: Is lab selected? (has at least one section)
+    const isLabSelected = this.selectedSectionsByCourse[labCode]?.length > 0;
 
     if (isLab) {
       // LAB CASE
@@ -689,13 +699,15 @@ export class PlanningComponent implements OnInit, OnDestroy {
         // Adding lab: main course must be selected
         if (!isMainSelected) {
           this.ScheduleError = `Seleccionaste una sección de laboratorio para ${baseCourseCode}, debes seleccionar también el curso principal.`;
+          this.loadingSchedules = false;
           this.cdr.detectChanges();
           return;
         }
       } else {
-        // Removing lab: can't remove if main course is still selected
-        if (isMainSelected) {
+        // Removing lab: can't remove if main course is still selected AND no lab sections remain
+        if (isMainSelected && !isLabSelected) {
           this.ScheduleError = `No puedes eliminar el laboratorio para ${baseCourseCode} mientras el curso principal sigue seleccionado.`;
+          this.loadingSchedules = false;
           this.cdr.detectChanges();
           return;
         }
@@ -723,13 +735,15 @@ export class PlanningComponent implements OnInit, OnDestroy {
             // Adding main: lab must be selected
             if (!isLabSelected) {
               this.ScheduleError = `La clase ${courseCode} tiene un laboratorio obligatorio, debe seleccionar una sección de ${labCode}.`;
+              this.loadingSchedules = false;
               this.cdr.detectChanges();
               return;
             }
           } else {
-            // Removing main: can't remove if lab is still selected
-            if (isLabSelected) {
+            // Removing main: can't remove if lab is still selected AND no main sections remain
+            if (isLabSelected && !isMainSelected) {
               this.ScheduleError = `No puedes eliminar la clase principal ${courseCode} mientras el laboratorio sigue seleccionado.`;
+              this.loadingSchedules = false;
               this.cdr.detectChanges();
               return;
             }
