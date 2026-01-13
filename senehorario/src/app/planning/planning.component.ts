@@ -385,6 +385,25 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return Object.keys(this.selectedSectionsByCourse);
   }
 
+  // Color palette for courses (matches university's official platform)
+  private readonly colorPalette = [
+    "#67A6D4",
+    "#A05DD4",
+    "#E1A557",
+    "#C78A6B",
+    "#E1628B",
+    "#9595FF",
+    "#81BA6C",
+    "#62E1C9",
+  ];
+
+  // Get color for a course code by its index in selected courses (used in template for color indicators)
+  getCourseColor(courseCode: string): string {
+    const courseCodes = this.getSelectedCourseCodes();
+    const idx = courseCodes.indexOf(courseCode);
+    return this.colorPalette[idx % this.colorPalette.length];
+  }
+
   removeSelectedSection(courseCode: string, section: SectionModel): void {
     const sections = this.selectedSectionsByCourse[courseCode];
     if (!Array.isArray(sections)) return;
@@ -628,7 +647,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
       return date;
     }
 
-    // Color palette for different sections
+    // Color palette for different sections (matches university's official platform)
     const colorPalette = [
       "#67A6D4",
       "#A05DD4",
@@ -642,8 +661,11 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
     // Translate backend schedules into FullCalendar event objects
     return schedules.map((schedule: SectionModel[]) =>
-      schedule.flatMap((section: SectionModel, idx: number) =>
-        section.meetings.map((meeting) => {
+      schedule.flatMap((section: SectionModel, idx: number) => {
+        const courseCode = (section as any).courseCode;
+        const bgColor = colorPalette[idx % colorPalette.length];
+
+        return section.meetings.map((meeting) => {
           const dayNum = dayMap[meeting.day];
           const startDate = setTime(
             getDateForDay(baseWeek, dayNum),
@@ -654,7 +676,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
             title: `
               <div class="fc-event-content-wrapper">
                 <div class="fc-event-course">
-                  ${(section as any).courseCode} - ${section.sectionId}
+                  ${courseCode} - ${section.sectionId}
                 </div>
                 <div class="fc-event-title">
                   ${(section as any).courseTitle ?? ""}
@@ -663,17 +685,17 @@ export class PlanningComponent implements OnInit, OnDestroy {
             `,
             start: startDate.toISOString(),
             end: endDate.toISOString(),
-            color: colorPalette[idx % colorPalette.length],
-            textColor: "#222",
+            color: bgColor,
+            textColor: "rgb(34, 34, 34)",
             extendedProps: {
               section: section,
-              courseCode: (section as any).courseCode,
+              courseCode: courseCode,
               courseTitle: (section as any).courseTitle,
               courseCredits: (section as any).courseCredits,
             },
           };
-        }),
-      ),
+        });
+      }),
     );
   }
 
