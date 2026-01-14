@@ -29,7 +29,6 @@
 
 .logo {
   height: 45px;
-  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
