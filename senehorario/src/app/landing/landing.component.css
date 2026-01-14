@@ -29,6 +29,37 @@
 
 .logo {
   height: 45px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  animation: wiggle 0.8s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-12deg) scale(1.1);
+  }
+  30% {
+    transform: rotate(10deg) scale(1.1);
+  }
+  45% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  60% {
+    transform: rotate(6deg) scale(1.05);
+  }
+  75% {
+    transform: rotate(-4deg) scale(1.02);
+  }
+  90% {
+    transform: rotate(2deg);
+  }
 }
 
 .floating-header {
