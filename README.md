@@ -17,6 +17,17 @@ You can use Senéhorario directly in your browser:
 - Interactive weekly calendar preview (FullCalendar) with color-coded classes; click a class to view section details.
 - Planner state persists in your browser so you can resume later.
 
+## Roadmap
+
+Planned features and ideas (not yet implemented):
+
+- [ ] Search by professor, or by department / field of interest.
+- [ ] Suggest CBUs that fit into the current gaps in your schedule.
+- [ ] Mark selected classes as "options" rather than required — so two overlapping classes can both be considered when you only intend to take one of them (and don't care which).
+- [ ] Save, view, and switch between multiple plans.
+- [ ] Manually-added time blocks (e.g. to reserve slots for non-class commitments).
+- [ ] Some kind of database to show professor ratings from Los Estudiantes directly within the app.
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
