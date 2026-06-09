@@ -208,7 +208,15 @@
                             section.professors && section.professors.length > 0
                           ) {
                             <div class="section-prof">
-                              {{ section.professors.join(", ") | titlecase }}
+                              @for (prof of section.professors; track $index) {
+                                <a
+                                  [href]="getProfessorUrl(prof)"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="prof-link"
+                                  title="Ver en Los Estudiantes (puede no estar disponible)"
+                                >{{ prof | titlecase }}</a>@if ($index < section.professors.length - 1) {<span>, </span>}
+                              }
                             </div>
                           }
                           <div class="section-meetings">

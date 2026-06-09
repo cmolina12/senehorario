@@ -505,6 +505,17 @@ export class PlanningComponent implements OnInit, OnDestroy {
     // Using truthy toggle also initializes the key the first time we open a course
   } 
 
+  getProfessorUrl(name: string): string {
+    const slug = name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+    return `https://losestudiantes.com/uniandes/professors/${slug}`;
+  }
+
   getCicloLabel(section: any): string {
     if (section.ptrm === "8A") return "Primer Ciclo - 8A";
     if (section.ptrm === "8B") return "Segundo Ciclo - 8B";
