@@ -16,13 +16,14 @@ export class CourseService {
   constructor(private http: HttpClient) {}
 
   // Search for courses by name
-  searchCourses(query: string): Observable<CourseModel[]> {
+  searchCourses(query: string, professor: string = ''): Observable<CourseModel[]> {
     const wildcarded = query.trim().replace(/\s+/g, '%');
-    // URL-encode the result
     const encoded = encodeURIComponent(wildcarded);
-    return this.http.get<CourseModel[]>(
-      `${this.apiUrl}/domain?nameInput=${encodeURIComponent(encoded)}`
-    );
+    let url = `${this.apiUrl}/domain?nameInput=${encodeURIComponent(encoded)}`;
+    if (professor.trim().length > 0) {
+      url += `&profesorName=${encodeURIComponent(professor.trim())}`;
+    }
+    return this.http.get<CourseModel[]>(url);
   }
 
   // Get sections for a specific course once the course is known by complete code (e.g., "IIND2201")

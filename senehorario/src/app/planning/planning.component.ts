@@ -28,7 +28,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
   private calendarRefreshInterval: ReturnType<typeof setInterval> | null = null;
   private resizeListener: (() => void) | null = null;
   private readonly storageKey = "planningState";
-  searchQuery: string = ""; // searchQuery: User input for search
+  searchQuery: string = "";
+  profesorQuery: string = "";
   courses: CourseModel[] = []; // courses: courses shown upon successful
 
   // Selected event shown on the side panel
@@ -502,7 +503,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
   toggleCourse(course: CourseModel): void {
     this.expandedCourses[course.code] = !this.expandedCourses[course.code];
     // Using truthy toggle also initializes the key the first time we open a course
-  }
+  } 
 
   getCicloLabel(section: any): string {
     if (section.ptrm === "8A") return "Primer Ciclo - 8A";
@@ -513,6 +514,7 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   getIntersemetral(section: any): string {
     if (section.term === "202519") return "Intersemestral";
+    if (section.term === "202619") return "Intersemestral";
     return section.term;
   }
 
@@ -521,39 +523,39 @@ export class PlanningComponent implements OnInit, OnDestroy {
     this.onSearchCourse(courseCode);
   }
 
-  // Method to handle course search input
-  onSearchCourse(searchQuery: string): void {
-    if (this.searchQuery.trim().length > 0) {
-      this.loading = true; // Set loading state
-      this.courseService.searchCourses(this.searchQuery).subscribe({
+  onSearchCourse(_searchQuery?: string): void {
+    const hasName = this.searchQuery.trim().length > 0;
+    const hasProfesor = this.profesorQuery.trim().length > 0;
+
+    if (hasName || hasProfesor) {
+      this.loading = true;
+      this.courseService.searchCourses(this.searchQuery, this.profesorQuery).subscribe({
         next: (courses: CourseModel[]) => {
           this.courses = courses;
-          this.loading = false; // Reset loading state
+          this.loading = false;
           this.empty = false;
           this.error = "";
-          this.cdr.detectChanges(); // Ensure view updates
-          console.log("Courses found:", courses);
+          this.cdr.detectChanges();
 
           if (courses === null || courses.length === 0) {
             this.empty = true;
           }
         },
         error: (error) => {
-          this.courses = []; // Clear courses on error
+          this.courses = [];
           console.error("Error fetching courses:", error);
           this.error =
             "La base de datos de la Universidad de los Andes tiene errores en los valores de los cursos. Por favor, inténtalo de nuevo más tarde cuando la universidad corrija este problema.";
           this.loading = false;
-          this.empty = false; // Reset empty state
-          this.cdr.detectChanges(); // Ensure view updates
+          this.empty = false;
+          this.cdr.detectChanges();
         },
       });
     } else {
-      this.courses = []; // Clear courses if search query is empty
-      this.error = ""; // Clear any previous error message
+      this.courses = [];
+      this.error = "";
       this.loading = false;
-      this.cdr.detectChanges(); // Ensure view updates
-      console.log("Search query is empty, clearing courses.");
+      this.cdr.detectChanges();
     }
   }
 

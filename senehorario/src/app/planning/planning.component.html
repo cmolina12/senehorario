@@ -58,13 +58,20 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Buscar por NRC, código o nombre..."
+            placeholder="NRC, código o nombre..."
             [(ngModel)]="searchQuery"
-            (keyup.enter)="onSearchCourse(searchQuery)"
+            (keyup.enter)="onSearchCourse()"
+          />
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Profesor (opcional)..."
+            [(ngModel)]="profesorQuery"
+            (keyup.enter)="onSearchCourse()"
           />
           <button
             class="btn-search"
-            (click)="onSearchCourse(searchQuery)"
+            (click)="onSearchCourse()"
             [disabled]="loading"
           >
             Buscar
