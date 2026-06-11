@@ -152,21 +152,16 @@ export class PlanningComponent implements OnInit, OnDestroy {
     eventContent: function (arg) {
       return { html: arg.event.title };
     },
-    eventClick: (arg) => {
-      // Extract data stored on the event for quick detail rendering
-      const extended = arg.event.extendedProps as any;
-      this.selectedEvent = extended["section"] as SectionModel;
-      this.selectedEventInfo = {
-        courseCode:
-          extended["courseCode"] || (this.selectedEvent as any)?.courseCode,
-        courseTitle:
-          extended["courseTitle"] || (this.selectedEvent as any)?.courseTitle,
-        courseCredits:
-          extended["courseCredits"] ||
-          (this.selectedEvent as any)?.courseCredits,
-      };
-      this.cdr.detectChanges(); // Ensure view updates
+    eventDidMount: (info) => {
+      const colorA = info.event.extendedProps["splitColorA"] as string | undefined;
+      const colorB = info.event.extendedProps["splitColorB"] as string | undefined;
+      if (colorA && colorB) {
+        const el = info.el as HTMLElement;
+        el.style.background = `linear-gradient(to right, ${colorA} 50%, ${colorB} 50%)`;
+        el.style.borderColor = colorA;
+      }
     },
+    eventClick: (arg) => this.handleCalendarEventClick(arg),
   };
 
   updateCalendarEvents() {
@@ -179,23 +174,38 @@ export class PlanningComponent implements OnInit, OnDestroy {
     this.calendarOptions = {
       ...this.calendarOptions,
       events,
-      eventClick: (arg) => {
-        const extended = arg.event.extendedProps as any;
-        this.selectedEvent = extended["section"] as SectionModel;
-        this.selectedEventInfo = {
-          courseCode:
-            extended["courseCode"] || (this.selectedEvent as any)?.courseCode,
-          courseTitle:
-            extended["courseTitle"] || (this.selectedEvent as any)?.courseTitle,
-          courseCredits:
-            extended["courseCredits"] ||
-            (this.selectedEvent as any)?.courseCredits,
-        };
-        this.cdr.detectChanges();
-      },
+      eventClick: (arg) => this.handleCalendarEventClick(arg),
     };
     console.log("Updated calendar events:", this.calendarOptions.events);
     this.cdr.detectChanges(); // Ensure view updates
+  }
+
+  private handleCalendarEventClick(arg: any): void {
+    const ext = arg.event.extendedProps as any;
+    let section = ext["section"] as SectionModel;
+    let courseCode = ext["courseCode"] as string;
+    let courseTitle = ext["courseTitle"];
+    let courseCredits = ext["courseCredits"];
+
+    // For split events, check which half was clicked and show that course's details
+    const splitSectionB = ext["splitSectionB"] as SectionModel | undefined;
+    if (splitSectionB) {
+      const rect = (arg.el as HTMLElement).getBoundingClientRect();
+      if ((arg.jsEvent as MouseEvent).clientX > rect.left + rect.width / 2) {
+        section = splitSectionB;
+        courseCode = ext["splitCourseCodeB"];
+        courseTitle = (splitSectionB as any).courseTitle;
+        courseCredits = (splitSectionB as any).courseCredits;
+      }
+    }
+
+    this.selectedEvent = section;
+    this.selectedEventInfo = {
+      courseCode: courseCode || (section as any)?.courseCode,
+      courseTitle: courseTitle || (section as any)?.courseTitle,
+      courseCredits: courseCredits ?? (section as any)?.courseCredits,
+    };
+    this.cdr.detectChanges();
   }
 
   goToPrevSchedule() {
@@ -709,27 +719,21 @@ export class PlanningComponent implements OnInit, OnDestroy {
 
   private mapSchedulesToCalendarEvents(schedules: SectionModel[][]): any[][] {
     const dayMap: { [key: string]: number } = {
-      SUNDAY: 0,
-      MONDAY: 1,
-      TUESDAY: 2,
-      WEDNESDAY: 3,
-      THURSDAY: 4,
-      FRIDAY: 5,
-      SATURDAY: 6,
+      SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3,
+      THURSDAY: 4, FRIDAY: 5, SATURDAY: 6,
     };
 
     const baseWeek = new Date(2025, 6, 28);
 
     function getDateForDay(baseDate: Date, dayOfWeek: number): Date {
       const date = new Date(baseDate);
-      const diff = dayOfWeek - date.getDay();
-      date.setDate(date.getDate() + diff);
+      date.setDate(date.getDate() + (dayOfWeek - date.getDay()));
       return date;
     }
 
     function setTime(date: Date, time: string): Date {
-      const [hours, minutes, seconds] = time.split(":").map(Number);
-      date.setHours(hours, minutes, seconds || 0, 0);
+      const [h, m, s] = time.split(":").map(Number);
+      date.setHours(h, m, s || 0, 0);
       return date;
     }
 
@@ -738,39 +742,37 @@ export class PlanningComponent implements OnInit, OnDestroy {
       "#E1628B", "#9595FF", "#81BA6C", "#62E1C9",
     ];
 
-    const buildEvents = (
+    const makeEvent = (
       section: SectionModel,
+      meeting: MeetingModel,
       courseCode: string,
       bgColor: string,
       titleHtml: string,
       extraClasses: string[],
-    ) =>
-      section.meetings.map((meeting) => {
-        const dayNum = dayMap[meeting.day];
-        const startDate = setTime(getDateForDay(baseWeek, dayNum), meeting.start);
-        const endDate = setTime(getDateForDay(baseWeek, dayNum), meeting.end);
-        return {
-          title: titleHtml,
-          start: startDate.toISOString(),
-          end: endDate.toISOString(),
-          color: bgColor,
-          textColor: "rgb(34, 34, 34)",
-          classNames: extraClasses,
-          extendedProps: {
-            section,
-            courseCode,
-            courseTitle: (section as any).courseTitle,
-            courseCredits: (section as any).courseCredits,
-          },
-        };
-      });
+      extra: Record<string, unknown> = {},
+    ) => {
+      const dayNum = dayMap[meeting.day];
+      return {
+        title: titleHtml,
+        start: setTime(getDateForDay(baseWeek, dayNum), meeting.start).toISOString(),
+        end: setTime(getDateForDay(baseWeek, dayNum), meeting.end).toISOString(),
+        color: bgColor,
+        textColor: "rgb(34, 34, 34)",
+        classNames: extraClasses,
+        extendedProps: {
+          section, courseCode,
+          courseTitle: (section as any).courseTitle,
+          courseCredits: (section as any).courseCredits,
+          ...extra,
+        },
+      };
+    };
 
     return schedules.map((schedule: SectionModel[]) => {
       const uniqueCourses = [
         ...new Set(schedule.map((s) => (s as any).courseCode as string)),
       ];
 
-      // Group sections by course to detect same-course 8A+8B pairs
       const sectionsByCourse = new Map<string, SectionModel[]>();
       for (const sec of schedule) {
         const code = (sec as any).courseCode as string;
@@ -779,64 +781,91 @@ export class PlanningComponent implements OnInit, OnDestroy {
       }
 
       const allEvents: any[] = [];
+      const handledNrcs = new Set<string>();
 
+      // Pass 1: same-course 8A+8B → one combined event per meeting
       for (const [courseCode, sections] of sectionsByCourse) {
-        const bgColor =
-          colorPalette[uniqueCourses.indexOf(courseCode) % colorPalette.length];
-
+        const bgColor = colorPalette[uniqueCourses.indexOf(courseCode) % colorPalette.length];
         const s8A = sections.find((s) => s.ptrm === "8A");
         const s8B = sections.find((s) => s.ptrm === "8B");
-
         if (s8A && s8B) {
-          // Same course, two ciclos → one combined event so they don't render side-by-side
-          const combinedTitle = `
+          handledNrcs.add(s8A.nrc);
+          handledNrcs.add(s8B.nrc);
+          const title = `
             <div class="fc-event-content-wrapper">
               <div class="fc-event-course">
                 ${courseCode}
                 <span class="event-ptrm-badge event-ptrm-8a">8A</span><span class="event-ptrm-badge event-ptrm-8b">8B</span>
               </div>
               <div class="fc-event-title">${(s8A as any).courseTitle ?? ""}</div>
-            </div>
-          `;
-          allEvents.push(
-            ...buildEvents(s8A, courseCode, bgColor, combinedTitle, ["ptrm-combined"]),
-          );
-
-          // Render any other sections of this course (e.g. ptrm='1') normally
-          for (const sec of sections.filter((s) => s !== s8A && s !== s8B)) {
-            const badge = `<span class="event-ptrm-badge">${sec.ptrm}</span>`;
-            const title = `
-              <div class="fc-event-content-wrapper">
-                <div class="fc-event-course">${courseCode} - ${sec.sectionId}${badge}</div>
-                <div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div>
-              </div>
-            `;
-            allEvents.push(...buildEvents(sec, courseCode, bgColor, title, []));
+            </div>`;
+          for (const m of s8A.meetings) {
+            allEvents.push(makeEvent(s8A, m, courseCode, bgColor, title, ["ptrm-combined"]));
           }
-        } else {
-          // No same-course pair — render each section individually
-          for (const sec of sections) {
-            const ptrmBadge =
-              sec.ptrm === "8A" || sec.ptrm === "8B"
-                ? `<span class="event-ptrm-badge event-ptrm-${sec.ptrm.toLowerCase()}">${sec.ptrm}</span>`
-                : "";
-            const eventClasses =
-              sec.ptrm === "8A"
-                ? ["ptrm-8a"]
-                : sec.ptrm === "8B"
-                  ? ["ptrm-8b"]
-                  : [];
-            const title = `
-              <div class="fc-event-content-wrapper">
-                <div class="fc-event-course">${courseCode} - ${sec.sectionId}${ptrmBadge}</div>
-                <div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div>
-              </div>
-            `;
-            allEvents.push(
-              ...buildEvents(sec, courseCode, bgColor, title, eventClasses),
-            );
+          for (const sec of sections.filter((s) => s !== s8A && s !== s8B)) {
+            handledNrcs.add(sec.nrc);
+            const t = `<div class="fc-event-content-wrapper"><div class="fc-event-course">${courseCode} - ${sec.sectionId}</div><div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div></div>`;
+            for (const m of sec.meetings) allEvents.push(makeEvent(sec, m, courseCode, bgColor, t, []));
           }
         }
+      }
+
+      // Pass 2: flat meeting list for remaining sections
+      type ME = { sec: SectionModel; meeting: MeetingModel; courseCode: string; bgColor: string };
+      const entries: ME[] = [];
+      for (const [courseCode, sections] of sectionsByCourse) {
+        const bgColor = colorPalette[uniqueCourses.indexOf(courseCode) % colorPalette.length];
+        for (const sec of sections) {
+          if (handledNrcs.has(sec.nrc)) continue;
+          for (const meeting of sec.meetings) entries.push({ sec, meeting, courseCode, bgColor });
+        }
+      }
+
+      // Pass 3: cross-course 8A+8B overlapping meetings → split event
+      const used = new Set<number>();
+      for (let i = 0; i < entries.length; i++) {
+        if (used.has(i)) continue;
+        const eA = entries[i];
+        if (eA.sec.ptrm !== "8A") continue;
+        for (let j = 0; j < entries.length; j++) {
+          if (i === j || used.has(j)) continue;
+          const eB = entries[j];
+          if (eB.sec.ptrm !== "8B" || eA.courseCode === eB.courseCode) continue;
+          if (!this.meetingsOverlap(eA.meeting, eB.meeting)) continue;
+          used.add(i); used.add(j);
+          const splitTitle = `
+            <div class="fc-event-split-wrapper">
+              <div class="fc-event-split-half">
+                <div class="fc-event-course">${eA.courseCode} - ${eA.sec.sectionId} <span class="event-ptrm-badge event-ptrm-8a">8A</span></div>
+                <div class="fc-event-title">${(eA.sec as any).courseTitle ?? ""}</div>
+              </div>
+              <div class="fc-event-split-divider"></div>
+              <div class="fc-event-split-half">
+                <div class="fc-event-course">${eB.courseCode} - ${eB.sec.sectionId} <span class="event-ptrm-badge event-ptrm-8b">8B</span></div>
+                <div class="fc-event-title">${(eB.sec as any).courseTitle ?? ""}</div>
+              </div>
+            </div>`;
+          // Use the longer of the two end times so neither section gets cut off
+          const longerEnd = eA.meeting.end >= eB.meeting.end ? eA.meeting : { ...eA.meeting, end: eB.meeting.end };
+          allEvents.push(makeEvent(eA.sec, longerEnd, eA.courseCode, eA.bgColor, splitTitle, ["ptrm-split"], {
+            splitColorA: eA.bgColor,
+            splitColorB: eB.bgColor,
+            splitSectionB: eB.sec,
+            splitCourseCodeB: eB.courseCode,
+          }));
+          break;
+        }
+      }
+
+      // Pass 4: remaining meetings rendered normally
+      for (let i = 0; i < entries.length; i++) {
+        if (used.has(i)) continue;
+        const { sec, meeting, courseCode, bgColor } = entries[i];
+        const badge = sec.ptrm === "8A" || sec.ptrm === "8B"
+          ? `<span class="event-ptrm-badge event-ptrm-${sec.ptrm.toLowerCase()}">${sec.ptrm}</span>` : "";
+        const cls = sec.ptrm === "8A" ? ["ptrm-8a"] : sec.ptrm === "8B" ? ["ptrm-8b"] : [];
+        const title = `<div class="fc-event-content-wrapper"><div class="fc-event-course">${courseCode} - ${sec.sectionId}${badge}</div><div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div></div>`;
+        allEvents.push(makeEvent(sec, meeting, courseCode, bgColor, title, cls));
       }
 
       return allEvents;
@@ -993,26 +1022,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
         }),
       }))
       .filter((course) => course.sections.length > 0);
-  }
-
-  get currentScheduleHasMergedSections(): boolean {
-    const schedule = this.rawScheduleOptions[this.selectedScheduleIndex];
-    if (!schedule || schedule.length < 2) return false;
-    for (let i = 0; i < schedule.length; i++) {
-      for (let j = i + 1; j < schedule.length; j++) {
-        const sA = schedule[i];
-        const sB = schedule[j];
-        if ((sA as any).courseCode === (sB as any).courseCode) continue;
-        const ptrmSet = new Set([sA.ptrm, sB.ptrm]);
-        if (!ptrmSet.has("8A") || !ptrmSet.has("8B")) continue;
-        for (const m1 of sA.meetings) {
-          for (const m2 of sB.meetings) {
-            if (this.meetingsOverlap(m1, m2)) return true;
-          }
-        }
-      }
-    }
-    return false;
   }
 
   toggleCbuFilter(attr: string): void {

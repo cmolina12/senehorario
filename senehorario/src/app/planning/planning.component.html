@@ -405,18 +405,6 @@
         @if (!ScheduleError) {
           <full-calendar [options]="calendarOptions"></full-calendar>
         }
-        @if (currentScheduleHasMergedSections) {
-          <div class="half-semester-notice">
-            <i class="bi bi-layers"></i>
-            <div>
-              Este horario combina secciones de
-              <span class="ptrm-label-8a">Primer Ciclo (8A)</span>
-              y
-              <span class="ptrm-label-8b">Segundo Ciclo (8B)</span>
-              para el mismo curso — las clases que se superponen en el calendario son en diferentes mitades del semestre.
-            </div>
-          </div>
-        }
         @if (loadingSchedules) {
           <div class="calendar-overlay">
             <div class="spinner"></div>
