@@ -3,6 +3,7 @@ import { CourseService } from "../services/course.service";
 import { CourseModel } from "../models/course-model";
 import { ScheduleService } from "../services/schedule.service";
 import { SectionModel } from "../models/section-model";
+import { MeetingModel } from "../models/meeting-model";
 import { ChangeDetectorRef } from "@angular/core";
 import { CalendarOptions } from "@fullcalendar/core/index.js";
 import timeGridPlugin from "@fullcalendar/timegrid/index.js";
@@ -80,6 +81,29 @@ export class PlanningComponent implements OnInit, OnDestroy {
   error: string = "";
   ScheduleError: string = "";
   expandedCourses: { [code: string]: boolean } = {};
+
+  // --- CBU state ---
+  allCbus: CourseModel[] = [];
+  rawScheduleOptions: SectionModel[][] = [];
+  loadingCbus = false;
+  cbuError = "";
+  cbuActiveFilters: string[] = [];
+  cbuPtrmFilter = "";
+  expandedCbuCourses: { [code: string]: boolean } = {};
+
+  readonly cbuAttrFilters = [
+    { code: "ECUR", label: "Tipo E" },
+    { code: "EPSI", label: "Epsilon" },
+    { code: "INGL", label: "Inglés" },
+    { code: "VIRT", label: "Virtual" },
+    { code: "SEMP", label: "Semi-presencial" },
+  ];
+
+  readonly cbuPtrmFilters = [
+    { value: "8A", label: "Primer Ciclo" },
+    { value: "8B", label: "Segundo Ciclo" },
+    { value: "1", label: "16 Semanas" },
+  ];
 
   calendarOptions: CalendarOptions = {
     plugins: [timeGridPlugin, dayGridPlugin, interactionPlugin],
@@ -612,8 +636,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
           this.selectedEvent = null; // Reset selected event when new schedules are fetched
           this.selectedEventInfo = null;
           this.ScheduleError = ""; // Clear any previous error message
-          this.scheduleOptions = this.mapSchedulesToCalendarEvents(schedules);
+          const mergedSchedules = this.mergeHalfSemesterPairs(schedules);
+          this.rawScheduleOptions = mergedSchedules;
+          this.scheduleOptions = this.mapSchedulesToCalendarEvents(mergedSchedules);
           this.selectedScheduleIndex = 0; // Reset to first schedule
+          if (this.allCbus.length === 0 && !this.loadingCbus) {
+            this.loadCBUs();
+          }
           this.updateCalendarEvents(); // Update calendar with the first schedule
           this.persistState();
           this.loadingSchedules = false;
@@ -632,6 +661,52 @@ export class PlanningComponent implements OnInit, OnDestroy {
     }
   }
 
+  private mergeHalfSemesterPairs(schedules: SectionModel[][]): SectionModel[][] {
+    const result: SectionModel[][] = [];
+    const used = new Set<number>();
+
+    for (let i = 0; i < schedules.length; i++) {
+      if (used.has(i)) continue;
+
+      let mergedOption: SectionModel[] | null = null;
+
+      for (let j = i + 1; j < schedules.length; j++) {
+        if (used.has(j)) continue;
+        const merged = this.tryMergeScheduleOptions(schedules[i], schedules[j]);
+        if (merged) {
+          mergedOption = merged;
+          used.add(j);
+          break;
+        }
+      }
+
+      result.push(mergedOption ?? schedules[i]);
+      used.add(i);
+    }
+
+    return result;
+  }
+
+  private tryMergeScheduleOptions(
+    a: SectionModel[],
+    b: SectionModel[],
+  ): SectionModel[] | null {
+    const inANotB = a.filter((s) => !b.some((t) => t.nrc === s.nrc));
+    const inBNotA = b.filter((s) => !a.some((t) => t.nrc === s.nrc));
+
+    if (inANotB.length !== 1 || inBNotA.length !== 1) return null;
+
+    const sA = inANotB[0];
+    const sB = inBNotA[0];
+
+    if ((sA as any).courseCode !== (sB as any).courseCode) return null;
+
+    const ptrmSet = new Set([sA.ptrm, sB.ptrm]);
+    if (!ptrmSet.has("8A") || !ptrmSet.has("8B")) return null;
+
+    return [...a, sB];
+  }
+
   private mapSchedulesToCalendarEvents(schedules: SectionModel[][]): any[][] {
     const dayMap: { [key: string]: number } = {
       SUNDAY: 0,
@@ -643,13 +718,11 @@ export class PlanningComponent implements OnInit, OnDestroy {
       SATURDAY: 6,
     };
 
-    // Base week starts on July 28, 2025 (FullCalendar uses absolute dates)
-    const baseWeek = new Date(2025, 6, 28); // July 28, 2025 (month is 0-based)
+    const baseWeek = new Date(2025, 6, 28);
 
     function getDateForDay(baseDate: Date, dayOfWeek: number): Date {
       const date = new Date(baseDate);
-      const currentDay = date.getDay();
-      const diff = dayOfWeek - currentDay;
+      const diff = dayOfWeek - date.getDay();
       date.setDate(date.getDate() + diff);
       return date;
     }
@@ -660,56 +733,114 @@ export class PlanningComponent implements OnInit, OnDestroy {
       return date;
     }
 
-    // Color palette for different sections (matches university's official platform)
     const colorPalette = [
-      "#67A6D4",
-      "#A05DD4",
-      "#E1A557",
-      "#C78A6B",
-      "#E1628B",
-      "#9595FF",
-      "#81BA6C",
-      "#62E1C9",
+      "#67A6D4", "#A05DD4", "#E1A557", "#C78A6B",
+      "#E1628B", "#9595FF", "#81BA6C", "#62E1C9",
     ];
 
-    // Translate backend schedules into FullCalendar event objects
-    return schedules.map((schedule: SectionModel[]) =>
-      schedule.flatMap((section: SectionModel, idx: number) => {
-        const courseCode = (section as any).courseCode;
-        const bgColor = colorPalette[idx % colorPalette.length];
+    const buildEvents = (
+      section: SectionModel,
+      courseCode: string,
+      bgColor: string,
+      titleHtml: string,
+      extraClasses: string[],
+    ) =>
+      section.meetings.map((meeting) => {
+        const dayNum = dayMap[meeting.day];
+        const startDate = setTime(getDateForDay(baseWeek, dayNum), meeting.start);
+        const endDate = setTime(getDateForDay(baseWeek, dayNum), meeting.end);
+        return {
+          title: titleHtml,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          color: bgColor,
+          textColor: "rgb(34, 34, 34)",
+          classNames: extraClasses,
+          extendedProps: {
+            section,
+            courseCode,
+            courseTitle: (section as any).courseTitle,
+            courseCredits: (section as any).courseCredits,
+          },
+        };
+      });
 
-        return section.meetings.map((meeting) => {
-          const dayNum = dayMap[meeting.day];
-          const startDate = setTime(
-            getDateForDay(baseWeek, dayNum),
-            meeting.start,
-          );
-          const endDate = setTime(getDateForDay(baseWeek, dayNum), meeting.end);
-          return {
-            title: `
-              <div class="fc-event-content-wrapper">
-                <div class="fc-event-course">
-                  ${courseCode} - ${section.sectionId}
-                </div>
-                <div class="fc-event-title">
-                  ${(section as any).courseTitle ?? ""}
-                </div>
+    return schedules.map((schedule: SectionModel[]) => {
+      const uniqueCourses = [
+        ...new Set(schedule.map((s) => (s as any).courseCode as string)),
+      ];
+
+      // Group sections by course to detect same-course 8A+8B pairs
+      const sectionsByCourse = new Map<string, SectionModel[]>();
+      for (const sec of schedule) {
+        const code = (sec as any).courseCode as string;
+        if (!sectionsByCourse.has(code)) sectionsByCourse.set(code, []);
+        sectionsByCourse.get(code)!.push(sec);
+      }
+
+      const allEvents: any[] = [];
+
+      for (const [courseCode, sections] of sectionsByCourse) {
+        const bgColor =
+          colorPalette[uniqueCourses.indexOf(courseCode) % colorPalette.length];
+
+        const s8A = sections.find((s) => s.ptrm === "8A");
+        const s8B = sections.find((s) => s.ptrm === "8B");
+
+        if (s8A && s8B) {
+          // Same course, two ciclos → one combined event so they don't render side-by-side
+          const combinedTitle = `
+            <div class="fc-event-content-wrapper">
+              <div class="fc-event-course">
+                ${courseCode}
+                <span class="event-ptrm-badge event-ptrm-8a">8A</span><span class="event-ptrm-badge event-ptrm-8b">8B</span>
               </div>
-            `,
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
-            color: bgColor,
-            textColor: "rgb(34, 34, 34)",
-            extendedProps: {
-              section: section,
-              courseCode: courseCode,
-              courseTitle: (section as any).courseTitle,
-              courseCredits: (section as any).courseCredits,
-            },
-          };
-        });
-      }),
-    );
+              <div class="fc-event-title">${(s8A as any).courseTitle ?? ""}</div>
+            </div>
+          `;
+          allEvents.push(
+            ...buildEvents(s8A, courseCode, bgColor, combinedTitle, ["ptrm-combined"]),
+          );
+
+          // Render any other sections of this course (e.g. ptrm='1') normally
+          for (const sec of sections.filter((s) => s !== s8A && s !== s8B)) {
+            const badge = `<span class="event-ptrm-badge">${sec.ptrm}</span>`;
+            const title = `
+              <div class="fc-event-content-wrapper">
+                <div class="fc-event-course">${courseCode} - ${sec.sectionId}${badge}</div>
+                <div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div>
+              </div>
+            `;
+            allEvents.push(...buildEvents(sec, courseCode, bgColor, title, []));
+          }
+        } else {
+          // No same-course pair — render each section individually
+          for (const sec of sections) {
+            const ptrmBadge =
+              sec.ptrm === "8A" || sec.ptrm === "8B"
+                ? `<span class="event-ptrm-badge event-ptrm-${sec.ptrm.toLowerCase()}">${sec.ptrm}</span>`
+                : "";
+            const eventClasses =
+              sec.ptrm === "8A"
+                ? ["ptrm-8a"]
+                : sec.ptrm === "8B"
+                  ? ["ptrm-8b"]
+                  : [];
+            const title = `
+              <div class="fc-event-content-wrapper">
+                <div class="fc-event-course">${courseCode} - ${sec.sectionId}${ptrmBadge}</div>
+                <div class="fc-event-title">${(sec as any).courseTitle ?? ""}</div>
+              </div>
+            `;
+            allEvents.push(
+              ...buildEvents(sec, courseCode, bgColor, title, eventClasses),
+            );
+          }
+        }
+      }
+
+      return allEvents;
+    });
   }
 
   // Method to check requirements before calling schedule service
@@ -796,6 +927,124 @@ export class PlanningComponent implements OnInit, OnDestroy {
         this.fetchSchedules();
       },
     });
+  }
+
+  // --- CBU methods ---
+
+  loadCBUs(): void {
+    this.loadingCbus = true;
+    this.cbuError = "";
+    this.courseService.getCBUs().subscribe({
+      next: (courses) => {
+        this.allCbus = courses || [];
+        this.loadingCbus = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cbuError =
+          "No se pudieron cargar los CBUs. Por favor, intenta de nuevo.";
+        this.loadingCbus = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private ptrmConflicts(ptrm1: string, ptrm2: string): boolean {
+    if (ptrm1 === "1" || ptrm2 === "1") return true;
+    return ptrm1 === ptrm2;
+  }
+
+  private meetingsOverlap(m1: MeetingModel, m2: MeetingModel): boolean {
+    if (m1.day !== m2.day) return false;
+    return m1.start < m2.end && m2.start < m1.end;
+  }
+
+  private isCbuSectionFitting(cbuSection: SectionModel): boolean {
+    const schedule = this.rawScheduleOptions[this.selectedScheduleIndex];
+    if (!schedule) return false;
+    if (cbuSection.meetings.length === 0) return true;
+
+    for (const schedSection of schedule) {
+      if (!this.ptrmConflicts(cbuSection.ptrm, schedSection.ptrm)) continue;
+      for (const m1 of cbuSection.meetings) {
+        for (const m2 of schedSection.meetings) {
+          if (this.meetingsOverlap(m1, m2)) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  get filteredFittingCBUs(): CourseModel[] {
+    if (!this.rawScheduleOptions[this.selectedScheduleIndex]) return [];
+
+    return this.allCbus
+      .map((course) => ({
+        ...course,
+        sections: course.sections.filter((s) => {
+          if (!this.isCbuSectionFitting(s)) return false;
+          if (
+            this.cbuActiveFilters.length > 0 &&
+            !this.cbuActiveFilters.some((f) => s.attrs?.includes(f))
+          )
+            return false;
+          if (this.cbuPtrmFilter && s.ptrm !== this.cbuPtrmFilter) return false;
+          return true;
+        }),
+      }))
+      .filter((course) => course.sections.length > 0);
+  }
+
+  get currentScheduleHasMergedSections(): boolean {
+    const schedule = this.rawScheduleOptions[this.selectedScheduleIndex];
+    if (!schedule || schedule.length < 2) return false;
+    for (let i = 0; i < schedule.length; i++) {
+      for (let j = i + 1; j < schedule.length; j++) {
+        const sA = schedule[i];
+        const sB = schedule[j];
+        if ((sA as any).courseCode === (sB as any).courseCode) continue;
+        const ptrmSet = new Set([sA.ptrm, sB.ptrm]);
+        if (!ptrmSet.has("8A") || !ptrmSet.has("8B")) continue;
+        for (const m1 of sA.meetings) {
+          for (const m2 of sB.meetings) {
+            if (this.meetingsOverlap(m1, m2)) return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  toggleCbuFilter(attr: string): void {
+    const idx = this.cbuActiveFilters.indexOf(attr);
+    if (idx >= 0) {
+      this.cbuActiveFilters = this.cbuActiveFilters.filter((f) => f !== attr);
+    } else {
+      this.cbuActiveFilters = [...this.cbuActiveFilters, attr];
+    }
+  }
+
+  setCbuPtrmFilter(ptrm: string): void {
+    this.cbuPtrmFilter = this.cbuPtrmFilter === ptrm ? "" : ptrm;
+  }
+
+  toggleCbuCourse(course: CourseModel): void {
+    this.expandedCbuCourses[course.code] = !this.expandedCbuCourses[course.code];
+  }
+
+  addCbuSection(course: CourseModel, section: SectionModel): void {
+    this.onSectionClick(course, section);
+  }
+
+  getCbuAttrLabel(attr: string): string {
+    const labels: { [key: string]: string } = {
+      ECUR: "Tipo E",
+      EPSI: "Epsilon",
+      INGL: "Inglés",
+      VIRT: "Virtual",
+      SEMP: "Semi-presencial",
+    };
+    return labels[attr] || attr;
   }
 
   runApiTests = false; // Enable to run local API sanity checks on init

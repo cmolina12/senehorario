@@ -794,6 +794,243 @@
   color: var(--primary);
 }
 
+/* === CBU Section === */
+.cbu-section {
+  width: 100%;
+}
+
+.cbu-panel {
+  min-height: 200px;
+}
+
+.cbu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* === CBU Filters === */
+.cbu-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-alt);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--actual-grey);
+  white-space: nowrap;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-chip {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--main);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.btn-clear-filters {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--actual-grey);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.btn-clear-filters:hover {
+  color: var(--danger);
+}
+
+/* === CBU Courses Grid === */
+.cbu-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+/* === CBU Section Count Badge === */
+.cbu-section-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: rgba(128, 128, 128, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* === Attr Badges === */
+.attr-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.attr-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+}
+
+.attr-ecur {
+  background: rgba(103, 166, 212, 0.18);
+  color: #3b8dc4;
+}
+
+.attr-epsi {
+  background: rgba(160, 93, 212, 0.18);
+  color: #9040c4;
+}
+
+.attr-ingl {
+  background: rgba(129, 186, 108, 0.18);
+  color: #4d9a2b;
+}
+
+.attr-virt {
+  background: rgba(98, 225, 201, 0.18);
+  color: #1a9e80;
+}
+
+.attr-semp {
+  background: rgba(225, 165, 87, 0.18);
+  color: #c07d20;
+}
+
+/* === Half-semester (8A/8B merged) UX === */
+
+/* Ptrm badge inside calendar event titles */
+.event-ptrm-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.event-ptrm-8a {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.event-ptrm-8b {
+  background: rgba(0, 0, 0, 0.15);
+  color: #fff;
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+  margin-left: 2px;
+}
+
+/* Standalone 8B event (not merged) — dashed border to distinguish */
+:host ::ng-deep .fc-event.ptrm-8b {
+  border-style: dashed !important;
+  opacity: 0.88;
+}
+
+/* Combined 8A+8B event — subtle diagonal stripe shows it spans both ciclos */
+:host ::ng-deep .fc-event.ptrm-combined {
+  position: relative;
+  overflow: hidden;
+}
+
+:host ::ng-deep .fc-event.ptrm-combined::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 7px,
+    rgba(255, 255, 255, 0.14) 7px,
+    rgba(255, 255, 255, 0.14) 14px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Info notice shown below the calendar when a merged option is active */
+.half-semester-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 12px 2px;
+  padding: 9px 13px;
+  background: rgba(103, 166, 212, 0.08);
+  border-left: 3px solid #67A6D4;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  line-height: 1.5;
+}
+
+.half-semester-notice > i {
+  color: #67A6D4;
+  margin-top: 2px;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.ptrm-label-8a {
+  font-weight: 600;
+  color: #67A6D4;
+}
+
+.ptrm-label-8b {
+  font-weight: 600;
+  color: #A05DD4;
+}
+
 /* === Course Color Indicator === */
 .selected-code-wrapper {
   display: flex;

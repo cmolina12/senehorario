@@ -405,6 +405,18 @@
         @if (!ScheduleError) {
           <full-calendar [options]="calendarOptions"></full-calendar>
         }
+        @if (currentScheduleHasMergedSections) {
+          <div class="half-semester-notice">
+            <i class="bi bi-layers"></i>
+            <div>
+              Este horario combina secciones de
+              <span class="ptrm-label-8a">Primer Ciclo (8A)</span>
+              y
+              <span class="ptrm-label-8b">Segundo Ciclo (8B)</span>
+              para el mismo curso — las clases que se superponen en el calendario son en diferentes mitades del semestre.
+            </div>
+          </div>
+        }
         @if (loadingSchedules) {
           <div class="calendar-overlay">
             <div class="spinner"></div>
@@ -527,4 +539,189 @@
       </div>
     </div>
   </section>
+
+  <!-- CBU SECTION: CBUs that fit in the current schedule option -->
+  @if (scheduleOptions.length > 0) {
+    <section class="cbu-section">
+      <div class="panel cbu-panel">
+        <div class="panel-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="panel-title">CBUs que encajan en Opción {{ selectedScheduleIndex + 1 }}</span>
+            @if (!loadingCbus && allCbus.length > 0) {
+              <span class="count-badge">
+                {{ filteredFittingCBUs.length }}
+                {{ filteredFittingCBUs.length === 1 ? 'curso' : 'cursos' }}
+              </span>
+            }
+          </div>
+          @if (loadingCbus) {
+            <div class="d-flex align-items-center gap-2">
+              <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+              <span class="panel-title" style="text-transform:none;font-weight:400;">Cargando CBUs...</span>
+            </div>
+          }
+        </div>
+        <div class="panel-body cbu-body">
+          <!-- Filters -->
+          <div class="cbu-filters">
+            <div class="filter-row">
+              <span class="filter-label">Tipo</span>
+              <div class="filter-chips">
+                @for (f of cbuAttrFilters; track f.code) {
+                  <button
+                    class="filter-chip"
+                    [class.active]="cbuActiveFilters.includes(f.code)"
+                    (click)="toggleCbuFilter(f.code)"
+                  >{{ f.label }}</button>
+                }
+              </div>
+            </div>
+            <div class="filter-row">
+              <span class="filter-label">Ciclo</span>
+              <div class="filter-chips">
+                @for (f of cbuPtrmFilters; track f.value) {
+                  <button
+                    class="filter-chip"
+                    [class.active]="cbuPtrmFilter === f.value"
+                    (click)="setCbuPtrmFilter(f.value)"
+                  >{{ f.label }}</button>
+                }
+              </div>
+            </div>
+            @if (cbuActiveFilters.length > 0 || cbuPtrmFilter) {
+              <button
+                class="btn-clear-filters"
+                (click)="cbuActiveFilters = []; cbuPtrmFilter = ''"
+              >
+                <i class="bi bi-x-circle"></i> Limpiar filtros
+              </button>
+            }
+          </div>
+
+          <!-- Error state -->
+          @if (cbuError) {
+            <div class="status-message error">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ cbuError }}</span>
+            </div>
+          }
+
+          <!-- No CBUs returned at all -->
+          @if (!loadingCbus && !cbuError && allCbus.length === 0) {
+            <div class="status-message muted">
+              <i class="bi bi-journal-x"></i>
+              <span>No se encontraron CBUs disponibles</span>
+            </div>
+          }
+
+          <!-- CBUs loaded but none fit with current filters -->
+          @if (!loadingCbus && !cbuError && allCbus.length > 0 && filteredFittingCBUs.length === 0) {
+            <div class="status-message muted">
+              <i class="bi bi-calendar-x"></i>
+              <span>No hay CBUs que encajen en este horario con los filtros seleccionados</span>
+            </div>
+          }
+
+          <!-- CBU course list -->
+          @if (!loadingCbus && !cbuError && filteredFittingCBUs.length > 0) {
+            <div class="cbu-courses-grid">
+              @for (course of filteredFittingCBUs; track course.code) {
+                <div class="course-item">
+                  <div class="course-header" (click)="toggleCbuCourse(course)">
+                    <div class="course-info">
+                      <span class="course-code">{{ course.code }}</span>
+                      <span class="course-credits">{{ course.credits }} créditos</span>
+                      <span class="cbu-section-count">
+                        {{ course.sections.length }}
+                        {{ course.sections.length === 1 ? 'sección' : 'secciones' }}
+                      </span>
+                    </div>
+                    <i class="bi" [ngClass]="expandedCbuCourses[course.code] ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                  </div>
+                  <div class="course-title">{{ course.title }}</div>
+
+                  @if (expandedCbuCourses[course.code]) {
+                    <div class="sections-list">
+                      @for (section of course.sections; track section.nrc) {
+                        <div class="section-item">
+                          <div class="section-main">
+                            <div class="section-header">
+                              <span class="section-nrc">NRC {{ section.nrc }}</span>
+                              <span class="section-id">Sección {{ section.sectionId }}</span>
+                            </div>
+                            <div class="section-meta">
+                              {{ getIntersemetral(section) }} · {{ getCicloLabel(section) }}
+                            </div>
+                            @if (section.attrs && section.attrs.length > 0) {
+                              <div class="attr-badges">
+                                @for (attr of section.attrs; track attr) {
+                                  <span class="attr-badge attr-{{ attr.toLowerCase() }}">{{ getCbuAttrLabel(attr) }}</span>
+                                }
+                              </div>
+                            }
+                            <div class="section-seats">
+                              <div class="seats-display">
+                                <div class="seats-bar">
+                                  <div
+                                    class="seats-fill"
+                                    [ngClass]="{
+                                      'fill-available': section.availableSeats / section.totalSeats > 0.5,
+                                      'fill-low': section.availableSeats / section.totalSeats <= 0.5 && section.availableSeats / section.totalSeats > 0.1,
+                                      'fill-full': section.availableSeats / section.totalSeats <= 0.1
+                                    }"
+                                    [style.width]="(section.availableSeats / section.totalSeats) * 100 + '%'"
+                                  ></div>
+                                </div>
+                                <span
+                                  class="seats-count"
+                                  [ngClass]="{
+                                    'count-available': section.availableSeats / section.totalSeats > 0.5,
+                                    'count-low': section.availableSeats / section.totalSeats <= 0.5 && section.availableSeats / section.totalSeats > 0.1,
+                                    'count-full': section.availableSeats / section.totalSeats <= 0.1
+                                  }"
+                                >
+                                  <strong>{{ section.availableSeats }}</strong> / {{ section.totalSeats }} cupos
+                                </span>
+                              </div>
+                            </div>
+                            @if (section.professors && section.professors.length > 0) {
+                              <div class="section-prof">
+                                @for (prof of section.professors; track $index) {
+                                  <a
+                                    [href]="getProfessorUrl(prof)"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="prof-link"
+                                  >{{ prof | titlecase }}</a>@if ($index < section.professors.length - 1) {<span>, </span>}
+                                }
+                              </div>
+                            }
+                            <div class="section-meetings">
+                              @for (meeting of section.meetings; track $index) {
+                                <span class="meeting-badge">
+                                  {{ getDayLabel(meeting.day) }} {{ meeting.start.slice(0, 5) }}–{{ meeting.end.slice(0, 5) }}
+                                </span>
+                              }
+                            </div>
+                          </div>
+                          <button
+                            class="btn-section-toggle"
+                            [class.selected]="isSectionSelected(course.code, section.nrc)"
+                            (click)="addCbuSection(course, section); $event.stopPropagation()"
+                            [title]="isSectionSelected(course.code, section.nrc) ? 'Quitar CBU' : 'Agregar CBU'"
+                          >
+                            <i [ngClass]="isSectionSelected(course.code, section.nrc) ? 'bi bi-check' : 'bi bi-plus'"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
 </div>

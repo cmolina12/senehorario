@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { CourseModel } from '../models/course-model';
 import { SectionModel } from '../models/section-model';
 import { environment } from '../../environments/environment'; // Adjust the import path as necessary
@@ -30,6 +31,19 @@ export class CourseService {
   getSections(courseCode: string): Observable<SectionModel[]> {
     return this.http.get<SectionModel[]>(
       `${this.apiUrl}/${courseCode}/sections`
+    );
+  }
+
+  // Get all CBU courses with sections and attrs included.
+  // Tries the dedicated /cbu endpoint (requires backend deployment) first,
+  // then falls back to a regular domain search so at least some CBUs appear
+  // while the new backend endpoint is not yet deployed.
+  getCBUs(): Observable<CourseModel[]> {
+    return this.http.get<CourseModel[]>(`${this.apiUrl}/cbu`).pipe(
+      catchError(() => this.http.get<CourseModel[]>(
+        `${this.apiUrl}/domain?nameInput=${encodeURIComponent(encodeURIComponent('CB'))}`
+      )),
+      map(courses => (courses ?? []).filter(c => c.code.startsWith('CB')))
     );
   }
 }

@@ -10,4 +10,5 @@ export interface SectionModel {
   professors: string[]; // List of professors teaching this section
   availableSeats: number; // Number of available seats
   totalSeats: number; // Total number of seats
+  attrs: string[]; // Attribute codes, e.g. ["ECUR", "VIRT"]
 }
