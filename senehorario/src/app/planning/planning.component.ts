@@ -82,6 +82,14 @@ export class PlanningComponent implements OnInit, OnDestroy {
   ScheduleError: string = "";
   expandedCourses: { [code: string]: boolean } = {};
 
+  // --- Plans state ---
+  private readonly savedPlansKey = 'savedPlans';
+  plansModalOpen = false;
+  planNameInput = '';
+  savedPlans: { [name: string]: any } = {};
+  planSaveError = '';
+  planImportError = '';
+
   // --- CBU state ---
   allCbus: CourseModel[] = [];
   rawScheduleOptions: SectionModel[][] = [];
@@ -1056,9 +1064,156 @@ export class PlanningComponent implements OnInit, OnDestroy {
     return labels[attr] || attr;
   }
 
+  // --- Plans methods ---
+
+  openPlansModal(): void {
+    this.loadSavedPlans();
+    this.planNameInput = '';
+    this.planSaveError = '';
+    this.planImportError = '';
+    this.plansModalOpen = true;
+  }
+
+  closePlansModal(): void {
+    this.plansModalOpen = false;
+  }
+
+  private loadSavedPlans(): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(this.savedPlansKey);
+      this.savedPlans = raw ? JSON.parse(raw) : {};
+    } catch {
+      this.savedPlans = {};
+    }
+  }
+
+  private persistSavedPlans(): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      localStorage.setItem(this.savedPlansKey, JSON.stringify(this.savedPlans));
+    } catch (e) {
+      console.warn('Could not save plans to localStorage.', e);
+    }
+  }
+
+  savePlan(): void {
+    const name = this.planNameInput.trim();
+    if (!name) return;
+    this.planSaveError = '';
+    const snapshot = {
+      selectedSectionsByCourse: this.selectedSectionsByCourse,
+      selectedCoursesMeta: this.selectedCoursesMeta,
+      scheduleOptions: this.scheduleOptions,
+      selectedScheduleIndex: this.selectedScheduleIndex,
+      savedAt: new Date().toISOString(),
+    };
+    this.savedPlans = { ...this.savedPlans, [name]: snapshot };
+    this.persistSavedPlans();
+    this.planNameInput = '';
+  }
+
+  loadPlan(name: string): void {
+    const snapshot = this.savedPlans[name];
+    if (!snapshot) return;
+    this.selectedSectionsByCourse = snapshot.selectedSectionsByCourse || {};
+    this.selectedCoursesMeta = snapshot.selectedCoursesMeta || {};
+    this.scheduleOptions = snapshot.scheduleOptions || [];
+    this.selectedScheduleIndex = typeof snapshot.selectedScheduleIndex === 'number' ? snapshot.selectedScheduleIndex : 0;
+    if (this.selectedScheduleIndex < 0 || this.selectedScheduleIndex >= this.scheduleOptions.length) {
+      this.selectedScheduleIndex = 0;
+    }
+    this.selectedEvent = null;
+    this.selectedEventInfo = null;
+    this.persistState();
+    this.updateCalendarEvents();
+    if (this.hasSelectedSections) {
+      this.loadingSchedules = true;
+      this.fetchSchedules();
+    }
+    this.closePlansModal();
+  }
+
+  deletePlan(name: string): void {
+    const updated = { ...this.savedPlans };
+    delete updated[name];
+    this.savedPlans = updated;
+    this.persistSavedPlans();
+  }
+
+  exportPlan(name: string): void {
+    const snapshot = this.savedPlans[name];
+    if (!snapshot) return;
+    const blob = new Blob([JSON.stringify({ name, ...snapshot }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `senehorario-${name.replace(/\s+/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  importPlan(event: Event): void {
+    this.planImportError = '';
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        if (!data.selectedSectionsByCourse || !data.selectedCoursesMeta) {
+          this.planImportError = 'Archivo inválido: no es un plan de Senehorario.';
+          this.cdr.detectChanges();
+          return;
+        }
+        const planName = data.name || file.name.replace(/\.json$/i, '');
+        const snapshot = {
+          selectedSectionsByCourse: data.selectedSectionsByCourse,
+          selectedCoursesMeta: data.selectedCoursesMeta,
+          scheduleOptions: data.scheduleOptions || [],
+          selectedScheduleIndex: data.selectedScheduleIndex || 0,
+          savedAt: data.savedAt || new Date().toISOString(),
+        };
+        this.savedPlans = { ...this.savedPlans, [planName]: snapshot };
+        this.persistSavedPlans();
+        this.cdr.detectChanges();
+      } catch {
+        this.planImportError = 'No se pudo leer el archivo. Verifica que sea un JSON válido.';
+        this.cdr.detectChanges();
+      }
+    };
+    reader.readAsText(file);
+    input.value = '';
+  }
+
+  getSavedPlanNames(): string[] {
+    return Object.keys(this.savedPlans);
+  }
+
+  getSavedPlanCourses(name: string): string {
+    const snapshot = this.savedPlans[name];
+    if (!snapshot?.selectedCoursesMeta) return 'Sin cursos';
+    const codes = Object.keys(snapshot.selectedCoursesMeta);
+    return codes.length > 0 ? codes.join(', ') : 'Sin cursos';
+  }
+
+  getSavedPlanDate(name: string): string {
+    const snapshot = this.savedPlans[name];
+    if (!snapshot?.savedAt) return '';
+    try {
+      return new Date(snapshot.savedAt).toLocaleDateString('es-CO', {
+        day: '2-digit', month: 'short', year: 'numeric',
+      });
+    } catch {
+      return '';
+    }
+  }
+
   runApiTests = false; // Enable to run local API sanity checks on init
   ngOnInit() {
     this.restoreState();
+    this.loadSavedPlans();
     this.setupResizeListener();
     // FullCalendar sometimes misses change detection; refresh periodically
     this.calendarRefreshInterval = setInterval(() => {

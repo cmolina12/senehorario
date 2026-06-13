@@ -8,6 +8,14 @@
       <button
         type="button"
         class="theme-toggle"
+        (click)="openPlansModal()"
+        title="Mis planes"
+      >
+        <i class="bi bi-bookmark-star"></i>
+      </button>
+      <button
+        type="button"
+        class="theme-toggle"
         (click)="toggleTheme()"
         [attr.aria-label]="themeLabel()"
       >
@@ -713,3 +721,94 @@
     </section>
   }
 </div>
+
+<!-- Plans Modal -->
+@if (plansModalOpen) {
+  <div class="modal-backdrop" (click)="closePlansModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">Mis Planes</span>
+        <button class="modal-close" (click)="closePlansModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Save current plan -->
+        <div class="plans-save-section">
+          <div class="plans-save-row">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nombre del plan..."
+              [(ngModel)]="planNameInput"
+              (keyup.enter)="savePlan()"
+            />
+            <button
+              class="btn-search"
+              (click)="savePlan()"
+              [disabled]="!planNameInput.trim()"
+            >
+              Guardar
+            </button>
+          </div>
+          @if (planSaveError) {
+            <span class="plan-feedback plan-error">{{ planSaveError }}</span>
+          }
+        </div>
+
+        <div class="plans-divider"><span>Planes guardados</span></div>
+
+        <!-- Import -->
+        <div class="plans-import-row">
+          <label class="btn-import" for="plan-import-input">
+            <i class="bi bi-upload"></i> Importar plan
+          </label>
+          <input
+            type="file"
+            id="plan-import-input"
+            accept=".json"
+            (change)="importPlan($event)"
+            style="display:none"
+          />
+          @if (planImportError) {
+            <span class="plan-feedback plan-error">{{ planImportError }}</span>
+          }
+        </div>
+
+        <!-- Saved plans list -->
+        @if (getSavedPlanNames().length === 0) {
+          <div class="status-message muted">
+            <i class="bi bi-bookmark"></i>
+            <span>No hay planes guardados aún</span>
+          </div>
+        } @else {
+          <div class="plans-list">
+            @for (name of getSavedPlanNames(); track name) {
+              <div class="plan-item">
+                <div class="plan-info">
+                  <span class="plan-name">{{ name }}</span>
+                  <span class="plan-meta">
+                    {{ getSavedPlanCourses(name) }} · {{ getSavedPlanDate(name) }}
+                  </span>
+                </div>
+                <div class="plan-actions">
+                  <button class="btn-plan-action" (click)="loadPlan(name)" title="Cargar plan">
+                    <i class="bi bi-folder2-open"></i>
+                  </button>
+                  <button class="btn-plan-action" (click)="exportPlan(name)" title="Descargar">
+                    <i class="bi bi-download"></i>
+                  </button>
+                  <button class="btn-plan-action danger" (click)="deletePlan(name)" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}

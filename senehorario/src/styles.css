@@ -318,6 +318,101 @@ h6 {
   white-space: normal;
   opacity: 0.9;
 }
+/* ====================================================================== */
+/* Spinner */
+/* ====================================================================== */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ====================================================================== */
+/* Half-semester (8A/8B) FullCalendar Event Styles */
+/* These target FullCalendar-rendered DOM (outside Angular view scope) */
+/* ====================================================================== */
+.event-ptrm-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.event-ptrm-8a {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.event-ptrm-8b {
+  background: rgba(0, 0, 0, 0.15);
+  color: #fff;
+  border: 1px dashed rgba(255, 255, 255, 0.6);
+  margin-left: 2px;
+}
+
+.fc-event.ptrm-8b {
+  opacity: 0.82;
+}
+
+.fc-event.ptrm-split {
+  overflow: hidden;
+}
+
+.fc-event-split-wrapper {
+  display: flex;
+  height: 100%;
+}
+
+.fc-event-split-half {
+  flex: 1;
+  padding: 2px 5px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.fc-event-split-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  align-self: stretch;
+  margin: 3px 0;
+}
+
+.fc-event.ptrm-combined {
+  position: relative;
+  overflow: hidden;
+}
+
+.fc-event.ptrm-combined::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 7px,
+    rgba(255, 255, 255, 0.14) 7px,
+    rgba(255, 255, 255, 0.14) 14px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
