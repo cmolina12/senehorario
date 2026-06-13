@@ -21,10 +21,10 @@ You can use Senéhorario directly in your browser:
 
 Planned features and ideas (not yet implemented):
 
-- [ ] Search by professor, or by department / field of interest.
-- [ ] Suggest CBUs that fit into the current gaps in your schedule.
+- [x] Search by professor, or by department / field of interest.
+- [x] Suggest CBUs that fit into the current gaps in your schedule.
 - [ ] Mark selected classes as "options" rather than required — so two overlapping classes can both be considered when you only intend to take one of them (and don't care which).
-- [ ] Save, view, and switch between multiple plans.
+- [x] Save, view, and switch between multiple plans.
 - [ ] Manually-added time blocks (e.g. to reserve slots for non-class commitments).
 - [ ] Some kind of database to show professor ratings from Los Estudiantes directly within the app.
 
