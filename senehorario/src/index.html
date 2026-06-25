@@ -22,23 +22,19 @@
       rel="stylesheet"
     />
 
-    <!-- Privacy-friendly analytics by Plausible -->
+    <!-- Google tag (gtag.js) -->
     <script
       async
-      src="https://plausible.io/js/pa-U1dDP3W1hbisjWsq5mBvF.js"
+      src="https://www.googletagmanager.com/gtag/js?id=G-YQL4WC9SNL"
     ></script>
     <script>
-      ((window.plausible =
-        window.plausible ||
-        function () {
-          (plausible.q = plausible.q || []).push(arguments);
-        }),
-        (plausible.init =
-          plausible.init ||
-          function (i) {
-            plausible.o = i || {};
-          }));
-      plausible.init();
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-YQL4WC9SNL");
     </script>
   </head>
   <body>
