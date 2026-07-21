@@ -41,9 +41,9 @@ export class CourseService {
   getCBUs(): Observable<CourseModel[]> {
     return this.http.get<CourseModel[]>(`${this.apiUrl}/cbu`).pipe(
       catchError(() => this.http.get<CourseModel[]>(
-        `${this.apiUrl}/domain?nameInput=${encodeURIComponent(encodeURIComponent('CB'))}`
+        `${this.apiUrl}/domain?nameInput=${encodeURIComponent(encodeURIComponent('CBU'))}`
       )),
-      map(courses => (courses ?? []).filter(c => c.code.startsWith('CB')))
+      map(courses => (courses ?? []).filter(c => c.code.startsWith('CBU')))
     );
   }
 }

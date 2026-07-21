@@ -96,8 +96,13 @@ export class PlanningComponent implements OnInit, OnDestroy {
   loadingCbus = false;
   cbuError = "";
   cbuActiveFilters: string[] = [];
-  cbuPtrmFilter = "";
+  cbuAreaFilter = ""; // 'H' | 'T' | ''
   expandedCbuCourses: { [code: string]: boolean } = {};
+
+  readonly cbuAreaFilters = [
+    { value: 'H', label: 'Culturas y Humanidades' },
+    { value: 'T', label: 'Ciencia y Tecnología' },
+  ];
 
   readonly cbuAttrFilters = [
     { code: "ECUR", label: "Tipo E" },
@@ -105,12 +110,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
     { code: "INGL", label: "Inglés" },
     { code: "VIRT", label: "Virtual" },
     { code: "SEMP", label: "Semi-presencial" },
-  ];
-
-  readonly cbuPtrmFilters = [
-    { value: "8A", label: "Primer Ciclo" },
-    { value: "8B", label: "Segundo Ciclo" },
-    { value: "1", label: "16 Semanas" },
   ];
 
   calendarOptions: CalendarOptions = {
@@ -1016,6 +1015,10 @@ export class PlanningComponent implements OnInit, OnDestroy {
     if (!this.rawScheduleOptions[this.selectedScheduleIndex]) return [];
 
     return this.allCbus
+      .filter((course) => {
+        if (!this.cbuAreaFilter) return true;
+        return course.code.startsWith('CBU' + this.cbuAreaFilter);
+      })
       .map((course) => ({
         ...course,
         sections: course.sections.filter((s) => {
@@ -1025,7 +1028,6 @@ export class PlanningComponent implements OnInit, OnDestroy {
             !this.cbuActiveFilters.some((f) => s.attrs?.includes(f))
           )
             return false;
-          if (this.cbuPtrmFilter && s.ptrm !== this.cbuPtrmFilter) return false;
           return true;
         }),
       }))
@@ -1041,8 +1043,8 @@ export class PlanningComponent implements OnInit, OnDestroy {
     }
   }
 
-  setCbuPtrmFilter(ptrm: string): void {
-    this.cbuPtrmFilter = this.cbuPtrmFilter === ptrm ? "" : ptrm;
+  setCbuAreaFilter(area: string): void {
+    this.cbuAreaFilter = this.cbuAreaFilter === area ? "" : area;
   }
 
   toggleCbuCourse(course: CourseModel): void {

@@ -573,21 +573,21 @@
               </div>
             </div>
             <div class="filter-row">
-              <span class="filter-label">Ciclo</span>
+              <span class="filter-label">Área</span>
               <div class="filter-chips">
-                @for (f of cbuPtrmFilters; track f.value) {
+                @for (f of cbuAreaFilters; track f.value) {
                   <button
                     class="filter-chip"
-                    [class.active]="cbuPtrmFilter === f.value"
-                    (click)="setCbuPtrmFilter(f.value)"
+                    [class.active]="cbuAreaFilter === f.value"
+                    (click)="setCbuAreaFilter(f.value)"
                   >{{ f.label }}</button>
                 }
               </div>
             </div>
-            @if (cbuActiveFilters.length > 0 || cbuPtrmFilter) {
+            @if (cbuActiveFilters.length > 0 || cbuAreaFilter) {
               <button
                 class="btn-clear-filters"
-                (click)="cbuActiveFilters = []; cbuPtrmFilter = ''"
+                (click)="cbuActiveFilters = []; cbuAreaFilter = ''"
               >
                 <i class="bi bi-x-circle"></i> Limpiar filtros
               </button>
