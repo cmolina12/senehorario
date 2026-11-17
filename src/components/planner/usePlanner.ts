@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as api from "@/lib/api";
 import { scheduleToEvents } from "@/lib/calendar-events";
 import { buildSlots, normalizeGroups, type CourseGroups } from "@/lib/groups";
+import { normalizePins, slotSections, togglePin as togglePinIn, type Pins } from "@/lib/pins";
 import { describeChange, reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
 import { parseShareQuery, type SharedPlan } from "@/lib/share";
 import { MAX_SCHEDULES, generateAllSchedules, mergeHalfSemesterPairs } from "@/lib/scheduler";
@@ -40,6 +41,8 @@ export interface Selection {
   meta: SelectedMeta; // course code -> title/credits
   /** "Elige uno" groups. Omitted in an update = keep the current groups. */
   groups?: CourseGroups;
+  /** Pinned section per course. Omitted in an update = keep the current pins. */
+  pins?: Pins;
 }
 
 export interface SelectedEventInfo {
@@ -56,7 +59,9 @@ export interface PlanNotice {
   lines: string[];
 }
 
-const EMPTY_SELECTION: Selection = { sections: {}, meta: {}, groups: [] };
+const EMPTY_SELECTION: Selection = { sections: {}, meta: {}, groups: [], pins: {} };
+
+const scheduleSignature = (schedule: ScheduledSection[]) => schedule.map(sectionKey).sort().join(",");
 
 /** Live catalog data for each course code. */
 async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
@@ -115,6 +120,7 @@ export function usePlanner() {
   const version = useRef(0);
   const scheduleIndexRef = useRef(0);
   const groupsRef = useRef<CourseGroups>([]);
+  const pinsRef = useRef<Pins>({});
   const [preferences, setPreferencesState] = useState<Preferences>(DEFAULT_PREFERENCES);
   const preferencesRef = useRef<Preferences>(DEFAULT_PREFERENCES);
 
@@ -124,42 +130,52 @@ export function usePlanner() {
       selectedCoursesMeta: sel.meta,
       selectedScheduleIndex: index,
       courseGroups: sel.groups ?? [],
+      pinnedSections: sel.pins ?? {},
     });
   }, []);
 
-  /** Stores a new selection and regenerates its schedule options, keeping `preferredIndex` if still valid. */
+  /**
+   * Stores a new selection and regenerates its schedule options. `preferred`
+   * is the option to show: an index (kept if still valid) or a schedule to
+   * find again among the new options.
+   */
   const applySelection = useCallback(
-    (update: Selection, preferredIndex = 0, prefs = preferencesRef.current) => {
+    (update: Selection, preferred: number | ScheduledSection[] = 0, prefs = preferencesRef.current) => {
       version.current++;
       const codes = Object.keys(update.sections);
       const groups = normalizeGroups(update.groups ?? groupsRef.current, codes);
-      const sel: Selection = { ...update, groups };
+      const pins = normalizePins(update.pins ?? pinsRef.current, update.sections, groups);
+      const sel: Selection = { ...update, groups, pins };
       groupsRef.current = groups;
+      pinsRef.current = pins;
       setSelection(sel);
       setSelectedEvent(null);
 
       // One slot per ungrouped course, one per group ("elige uno": a group's
       // slot offers the sections of all its courses, so exactly one is picked).
-      // Sections that break a filter or blocked time never enter generation.
+      // Sections that break a filter or blocked time never enter generation;
+      // a pinned section is the only one its slot offers.
       const slots = buildSlots(codes, groups);
       const candidates = slots.map((slot) =>
-        slot.flatMap((code) =>
-          sel.sections[code]
-            .filter((s) => sectionConflict(s, prefs) === null)
-            .map(
-              (s): ScheduledSection => ({
-                ...s,
-                courseCode: code,
-                courseTitle: sel.meta[code]?.title,
-                courseCredits: sel.meta[code]?.credits,
-              }),
-            ),
+        slotSections(slot, sel.sections, pins, (s) => sectionConflict(s, prefs) === null).map(
+          ({ code, section }): ScheduledSection => ({
+            ...section,
+            courseCode: code,
+            courseTitle: sel.meta[code]?.title,
+            courseCredits: sel.meta[code]?.credits,
+          }),
         ),
       );
       const blockedCodes = slots.filter((_, i) => candidates[i].length === 0).map((slot) => slot.join(" / "));
       const raw = blockedCodes.length > 0 ? [] : generateAllSchedules(candidates);
       const sorted = sortSchedules(mergeHalfSemesterPairs(raw), prefs.sort);
-      const index = preferredIndex >= 0 && preferredIndex < sorted.length ? preferredIndex : 0;
+      let index = 0;
+      if (typeof preferred === "number") {
+        if (preferred >= 0 && preferred < sorted.length) index = preferred;
+      } else {
+        const signature = scheduleSignature(preferred);
+        index = Math.max(0, sorted.findIndex((s) => scheduleSignature(s) === signature));
+      }
 
       let error = "";
       if (blockedCodes.length > 0) {
@@ -297,7 +313,10 @@ export function usePlanner() {
         snapshot.selectedCoursesMeta,
       );
       setNotice(null);
-      applySelection({ sections, meta, groups: snapshot.courseGroups ?? [] }, snapshot.selectedScheduleIndex);
+      applySelection(
+        { sections, meta, groups: snapshot.courseGroups ?? [], pins: snapshot.pinnedSections ?? {} },
+        snapshot.selectedScheduleIndex,
+      );
       void refreshFromCatalog({ sections, meta });
     },
     [applySelection, refreshFromCatalog],
@@ -352,7 +371,7 @@ export function usePlanner() {
 
       const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
       const savedAs = hasPrevious ? backUpPlan(previous) : null;
-      applySelection({ sections, meta, groups: shared.groups }, shared.optionIndex);
+      applySelection({ sections, meta, groups: shared.groups, pins: shared.pins }, shared.optionIndex);
       setNotice({
         title: "Abriste un plan compartido",
         lines: [
@@ -417,15 +436,32 @@ export function usePlanner() {
     [applySelection, selection],
   );
 
+  /**
+   * Pins a section (or unpins it). Stays on the current option when it still
+   * exists, so pinning from the calendar doesn't jump elsewhere.
+   */
+  const togglePin = useCallback(
+    (courseCode: string, nrc: string) => {
+      const pins = togglePinIn(selection.pins ?? {}, courseCode, nrc, selection.groups ?? []);
+      const openDetails = selectedEvent;
+      applySelection({ ...selection, pins }, schedules[scheduleIndex] ?? 0);
+      // Keep the class details open (pinning from there shouldn't close them).
+      if (openDetails) setSelectedEvent(openDetails);
+    },
+    [applySelection, selection, schedules, scheduleIndex, selectedEvent],
+  );
+
   const selectedCodes = useMemo(() => Object.keys(selection.sections), [selection.sections]);
   const groups = selection.groups ?? [];
   const currentSchedule = schedules[scheduleIndex] ?? null;
   // Colors follow selection order, so a course keeps its color even in
   // options that leave it out (groups).
-  const events = useMemo(
-    () => (currentSchedule ? scheduleToEvents(currentSchedule, selectedCodes) : []),
-    [currentSchedule, selectedCodes],
-  );
+  const pins = selection.pins;
+  const events = useMemo(() => {
+    if (!currentSchedule) return [];
+    const pinned = new Set(currentSchedule.filter((s) => pins?.[s.courseCode] === s.nrc).map(sectionKey));
+    return scheduleToEvents(currentSchedule, selectedCodes, pinned);
+  }, [currentSchedule, selectedCodes, pins]);
 
   // With groups, an option takes one course per group, so count slots and
   // add up the credits of the courses actually in the option.
@@ -443,6 +479,8 @@ export function usePlanner() {
     selectedCodes,
     groups,
     setGroups,
+    pins: pins ?? {},
+    togglePin,
     courseCount,
     selectionTerm,
     totalCredits,

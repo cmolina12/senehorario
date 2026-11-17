@@ -4,6 +4,7 @@
 // because schedules are regenerated from the selected sections.)
 
 import { toGroups } from "./groups";
+import { toPins, type Pins } from "./pins";
 import { toPreferences, type Preferences } from "./preferences";
 import type { SelectedMeta, SelectedSections } from "./types";
 
@@ -17,6 +18,8 @@ export interface PlanSnapshot {
   selectedScheduleIndex: number;
   /** "Elige uno" groups of course codes (newer plans only). */
   courseGroups?: string[][];
+  /** Pinned section per course: course code -> NRC (newer plans only). */
+  pinnedSections?: Pins;
   savedAt?: string;
 }
 
@@ -69,6 +72,7 @@ export function toSnapshot(data: unknown): PlanSnapshot | null {
     selectedCoursesMeta: d.selectedCoursesMeta,
     selectedScheduleIndex: typeof d.selectedScheduleIndex === "number" ? d.selectedScheduleIndex : 0,
     courseGroups: toGroups(d.courseGroups),
+    pinnedSections: toPins(d.pinnedSections),
     savedAt: d.savedAt,
   };
 }

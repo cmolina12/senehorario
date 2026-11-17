@@ -38,6 +38,24 @@ describe("visibleRange", () => {
 });
 
 describe("scheduleToEvents", () => {
+  it("marks pinned sections", () => {
+    const sec = {
+      nrc: "1",
+      sectionId: "2",
+      term: "202710",
+      ptrm: "1",
+      campus: "",
+      meetings: [{ day: "MONDAY" as const, start: "08:00", end: "09:20", location: "" }],
+      professors: [],
+      availableSeats: 1,
+      totalSeats: 1,
+      attrs: [],
+      courseCode: "A1000",
+    };
+    expect(scheduleToEvents([sec])[0].title).not.toContain("ev-pin");
+    expect(scheduleToEvents([sec], undefined, new Set(["202710-1"]))[0].title).toContain("ev-pin");
+  });
+
   it("builds one escaped, title-cased event per meeting with its course color", () => {
     const events = scheduleToEvents([
       section("1", "MATE1203", [["MONDAY", "06:30:00", "07:50:00"], ["THURSDAY", "06:30:00", "07:50:00"]]),

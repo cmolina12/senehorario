@@ -27,6 +27,7 @@ describe("share links", () => {
       term: "202710",
       courses: { MATE1203: ["36109", "80880"], IIND4200: ["10210"] },
       groups: [],
+      pins: {},
       optionIndex: 2,
     });
   });
@@ -44,6 +45,13 @@ describe("share links", () => {
     expect(query).toContain("g=A1000%7EB1000");
     expect(parseShareQuery(`?${query}`)?.groups).toEqual([["A1000", "B1000"]]);
     expect(parseShareQuery("?t=202710&c=A1000-1&g=A1000~ZZZZ9999")?.groups).toEqual([]);
+  });
+
+  it("round-trips pinned sections and ignores NRCs that aren't in the plan", () => {
+    const query = buildShareQuery({ A1000: [section("1"), section("2")] }, "202710", 0, [], { A1000: "2" });
+    expect(query).toContain("p=2");
+    expect(parseShareQuery(`?${query}`)?.pins).toEqual({ A1000: "2" });
+    expect(parseShareQuery("?t=202710&c=A1000-1&p=9")?.pins).toEqual({});
   });
 
   it("defaults to the first option", () => {

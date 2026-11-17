@@ -13,6 +13,8 @@ interface Props {
   /** Course color for the side bar; a neutral bar when not selected. */
   color?: string;
   selectedCount?: number;
+  /** Section id of the pinned section, if any. */
+  pinnedSection?: string;
   expanded: boolean;
   onToggleExpanded: () => void;
   menu?: MenuItem[];
@@ -27,6 +29,7 @@ export function CourseCard({
   meta,
   color,
   selectedCount = 0,
+  pinnedSection,
   expanded,
   onToggleExpanded,
   menu,
@@ -69,6 +72,15 @@ export function CourseCard({
                   <span className="inline-flex items-center gap-1 font-semibold text-fg">
                     <i className="bi bi-check2" aria-hidden="true"></i>
                     {selectedCount} {plural(selectedCount, "seleccionada", "seleccionadas")}
+                  </span>
+                </>
+              )}
+              {pinnedSection && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-fg">
+                    <i className="bi bi-pin-angle-fill text-accent-hover" aria-hidden="true"></i>
+                    Fijada: sección {pinnedSection}
                   </span>
                 </>
               )}

@@ -5,6 +5,7 @@ import { Chip, EmptyState, IconButton } from "@/components/ui";
 import { courseColor } from "@/lib/calendar-events";
 import { cn, plural } from "@/lib/format";
 import { buildSlots, type CourseGroups } from "@/lib/groups";
+import type { Pins } from "@/lib/pins";
 import { formatTerm } from "@/lib/terms";
 import { sectionKey, type Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
@@ -21,6 +22,8 @@ interface Props {
   onGoToSearch: () => void;
   groups: CourseGroups;
   onGroupsChange: (groups: CourseGroups) => void;
+  pins: Pins;
+  onTogglePin: (courseCode: string, nrc: string) => void;
 }
 
 export function CoursesTab({
@@ -33,6 +36,8 @@ export function CoursesTab({
   onGoToSearch,
   groups,
   onGroupsChange,
+  pins,
+  onTogglePin,
 }: Props) {
   const [openCode, setOpenCode] = useState<string | null>(null);
   // Picking courses for a new "elige uno" group; null when not grouping.
@@ -69,6 +74,7 @@ export function CoursesTab({
     const open = openCode === code;
     const toggle = () => setOpenCode(open ? null : code);
     const pickable = picking !== null && !grouped.has(code);
+    const pinned = sections.find((s) => s.nrc === pins[code]);
     const card = (
       <CourseCard
         key={code}
@@ -77,6 +83,7 @@ export function CoursesTab({
         credits={meta?.credits ?? 0}
         meta={`${sections.length} ${plural(sections.length, "sección", "secciones")}`}
         color={courseColor(codes, code)}
+        pinnedSection={pinned?.sectionId}
         expanded={open}
         onToggleExpanded={pickable ? () => togglePick(code) : toggle}
         menu={
@@ -92,30 +99,51 @@ export function CoursesTab({
               ]
         }
       >
+        {pinned && sections.length > 1 && (
+          <p className="mt-2.5 flex gap-2 rounded-lg bg-accent-soft px-2.5 py-2 text-xs text-fg-secondary">
+            <i className="bi bi-pin-angle-fill text-accent-hover" aria-hidden="true"></i>
+            <span>
+              Los horarios solo usan la sección {pinned.sectionId}. Las demás quedan guardadas por si la sueltas.
+            </span>
+          </p>
+        )}
         <div className="divide-y divide-border">
-          {sections.map((section) => (
-            <div key={sectionKey(section)} className="flex items-start gap-3 py-2.5">
-              <div className="min-w-0 flex-1 space-y-1">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium">Sección {section.sectionId}</span>
-                  <span className="text-fg-muted">NRC {section.nrc}</span>
-                  {(section.ptrm === "8A" || section.ptrm === "8B") && (
-                    <Chip className="bg-accent-soft text-fg">{section.ptrm}</Chip>
-                  )}
+          {/* The pinned section first; the rest keep their order. */}
+          {(pinned ? [pinned, ...sections.filter((s) => s !== pinned)] : sections).map((section) => {
+            const isPinned = section === pinned;
+            return (
+              <div key={sectionKey(section)} className="flex items-start gap-1 py-2.5">
+                <div className={cn("min-w-0 flex-1 space-y-1 transition-opacity", pinned && !isPinned && "opacity-50")}>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">Sección {section.sectionId}</span>
+                    <span className="text-fg-muted">NRC {section.nrc}</span>
+                    {(section.ptrm === "8A" || section.ptrm === "8B") && (
+                      <Chip className="bg-accent-soft text-fg">{section.ptrm}</Chip>
+                    )}
+                  </div>
+                  <ProfessorLinks professors={section.professors} size="xs" />
+                  <div className="flex flex-wrap gap-1">
+                    <MeetingChips section={section} />
+                  </div>
                 </div>
-                <ProfessorLinks professors={section.professors} size="xs" />
-                <div className="flex flex-wrap gap-1">
-                  <MeetingChips section={section} />
-                </div>
+                {(isPinned || sections.length > 1 || inGroup) && (
+                  <IconButton
+                    icon={isPinned ? "bi-pin-angle-fill text-accent-hover" : "bi-pin-angle"}
+                    label={isPinned ? `Soltar sección ${section.sectionId}` : `Fijar sección ${section.sectionId}`}
+                    aria-pressed={isPinned}
+                    className="size-8 text-sm"
+                    onClick={() => onTogglePin(code, section.nrc)}
+                  />
+                )}
+                <IconButton
+                  icon="bi-x-lg"
+                  label={`Quitar sección ${section.sectionId}`}
+                  className="size-8 text-xs hover:text-danger"
+                  onClick={() => onRemoveSection(code, section)}
+                />
               </div>
-              <IconButton
-                icon="bi-x-lg"
-                label={`Quitar sección ${section.sectionId}`}
-                className="size-8 text-xs hover:text-danger"
-                onClick={() => onRemoveSection(code, section)}
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CourseCard>
     );
@@ -211,6 +239,9 @@ export function CoursesTab({
                 <p className="text-xs font-semibold text-fg">
                   <i className="bi bi-collection mr-1.5" aria-hidden="true"></i>
                   Elige uno · {slot.length} cursos
+                  {slot.some((c) => pins[c]) && (
+                    <span className="font-normal text-fg-secondary"> · fijaste {slot.find((c) => pins[c])}</span>
+                  )}
                 </p>
                 {!picking && (
                   <button
