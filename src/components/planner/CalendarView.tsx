@@ -2,13 +2,15 @@
 
 import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
-import { EmptyState, IconButton } from "@/components/ui";
+import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import type { VisibleRange } from "@/lib/calendar-events";
 import { plural } from "@/lib/format";
+import { describeChange, type PlanChange } from "@/lib/refresh";
 import { MAX_SCHEDULES } from "@/lib/scheduler";
 import { formatTerm } from "@/lib/terms";
 import type { ScheduledSection } from "@/lib/types";
 import { AgendaView } from "./AgendaView";
+import { NrcList } from "./NrcList";
 import type { SelectedEventInfo } from "./usePlanner";
 
 // FullCalendar measures the DOM, so render it only in the browser.
@@ -28,6 +30,9 @@ interface Props {
   error: string;
   onEventClick: (info: SelectedEventInfo) => void;
   onGoToSearch: () => void;
+  refreshing: boolean;
+  planChanges: PlanChange[];
+  onDismissChanges: () => void;
 }
 
 export function CalendarView({
@@ -44,6 +49,9 @@ export function CalendarView({
   error,
   onEventClick,
   onGoToSearch,
+  refreshing,
+  planChanges,
+  onDismissChanges,
 }: Props) {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-4 lg:p-6">
@@ -55,34 +63,60 @@ export function CalendarView({
               ? "Aún no has agregado cursos"
               : `${courseCount} ${plural(courseCount, "curso", "cursos")} · ${totalCredits} ${plural(totalCredits, "crédito", "créditos")}${term ? ` · ${formatTerm(term)}` : ""}`}
           </p>
+          {refreshing && (
+            <p className="mt-1 inline-flex items-center gap-2 text-xs text-fg-muted">
+              <Spinner className="size-3" /> Verificando cupos con la oferta actual…
+            </p>
+          )}
         </div>
 
         {optionCount > 0 && (
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
-            <IconButton
-              icon="bi-chevron-left"
-              label="Opción anterior"
-              className="size-8"
-              disabled={optionIndex === 0}
-              onClick={() => onOptionChange(optionIndex - 1)}
-            />
-            <span
-              className="min-w-28 px-1 text-center text-sm"
-              title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
-            >
-              Opción <span className="font-semibold">{optionIndex + 1}</span> de {optionCount}
-              {truncated && "+"}
-            </span>
-            <IconButton
-              icon="bi-chevron-right"
-              label="Opción siguiente"
-              className="size-8"
-              disabled={optionIndex >= optionCount - 1}
-              onClick={() => onOptionChange(optionIndex + 1)}
-            />
+          <div className="flex items-center gap-2">
+            {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} />}
+            <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
+              <IconButton
+                icon="bi-chevron-left"
+                label="Opción anterior"
+                className="size-8"
+                disabled={optionIndex === 0}
+                onClick={() => onOptionChange(optionIndex - 1)}
+              />
+              <span
+                className="min-w-28 px-1 text-center text-sm"
+                title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
+              >
+                Opción <span className="font-semibold">{optionIndex + 1}</span> de {optionCount}
+                {truncated && "+"}
+              </span>
+              <IconButton
+                icon="bi-chevron-right"
+                label="Opción siguiente"
+                className="size-8"
+                disabled={optionIndex >= optionCount - 1}
+                onClick={() => onOptionChange(optionIndex + 1)}
+              />
+            </div>
           </div>
         )}
       </header>
+
+      {planChanges.length > 0 && (
+        <div
+          role="status"
+          className="flex gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm"
+        >
+          <i className="bi bi-arrow-repeat mt-0.5 text-warning" aria-hidden="true"></i>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Actualizamos tu plan con la oferta actual</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-4 text-fg-secondary">
+              {planChanges.map((change, i) => (
+                <li key={i}>{describeChange(change)}</li>
+              ))}
+            </ul>
+          </div>
+          <IconButton icon="bi-x-lg" label="Cerrar aviso" className="-mt-1.5 -mr-2 size-8 text-xs" onClick={onDismissChanges} />
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_hsl(var(--shadow-color)/0.04)]">
         {error ? (

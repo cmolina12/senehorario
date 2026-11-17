@@ -81,15 +81,8 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   );
 }
 
-export interface MenuItem {
-  label: string;
-  icon: string;
-  onSelect: () => void;
-  danger?: boolean;
-}
-
-/** "⋯" button with a small dropdown of actions. */
-export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
+/** Open/closed state that closes on outside click or Escape. */
+function useDismissable() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -106,6 +99,20 @@ export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  return { open, setOpen, ref };
+}
+
+export interface MenuItem {
+  label: string;
+  icon: string;
+  onSelect: () => void;
+  danger?: boolean;
+}
+
+/** "⋯" button with a small dropdown of actions. */
+export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
+  const { open, setOpen, ref } = useDismissable();
 
   return (
     <div ref={ref} className="relative">
@@ -140,6 +147,53 @@ export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
               {item.label}
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Button that opens a floating panel below it. */
+export function Popover({
+  icon,
+  label,
+  className,
+  panelClassName,
+  children,
+}: {
+  icon: string;
+  label: string;
+  className?: string;
+  panelClassName?: string;
+  children: React.ReactNode;
+}) {
+  const { open, setOpen, ref } = useDismissable();
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "inline-flex h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-medium transition hover:border-border-strong",
+          open && "border-accent",
+          className,
+        )}
+      >
+        <i className={`bi ${icon}`} aria-hidden="true"></i>
+        {label}
+      </button>
+      {open && (
+        <div
+          role="dialog"
+          aria-label={label}
+          className={cn(
+            "absolute top-full left-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:right-0 sm:left-auto rounded-2xl border border-border bg-surface p-4 shadow-xl shadow-black/10",
+            panelClassName,
+          )}
+        >
+          {children}
         </div>
       )}
     </div>
