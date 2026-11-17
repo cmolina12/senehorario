@@ -8,9 +8,17 @@ import { cn, titleCase } from "@/lib/format";
 import type { ScheduledSection } from "@/lib/types";
 
 /** NRCs of the option on screen, ready to type into Banner. */
-export function NrcList({ schedule, optionNumber }: { schedule: ScheduledSection[]; optionNumber: number }) {
+export function NrcList({
+  schedule,
+  optionNumber,
+  courseOrder,
+}: {
+  schedule: ScheduledSection[];
+  optionNumber: number;
+  courseOrder: string[];
+}) {
   const [copied, setCopied] = useState<string | null>(null);
-  const codes = [...new Set(schedule.map((s) => s.courseCode))];
+  const codes = courseOrder;
 
   const copy = async (key: string, text: string) => {
     if (await copyText(text)) {

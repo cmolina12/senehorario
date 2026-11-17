@@ -8,11 +8,13 @@ import type { SelectedEventInfo } from "./usePlanner";
 export function AgendaView({
   schedule,
   onSelect,
+  courseOrder,
 }: {
   schedule: ScheduledSection[];
   onSelect: (info: SelectedEventInfo) => void;
+  courseOrder: string[];
 }) {
-  const codes = [...new Set(schedule.map((s) => s.courseCode))];
+  const codes = courseOrder;
   const days = WEEK_DAYS.map((day) => ({
     day,
     items: schedule

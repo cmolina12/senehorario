@@ -21,6 +21,8 @@ const ScheduleCalendar = dynamic(() => import("./ScheduleCalendar"), { ssr: fals
 
 interface Props {
   courseCount: number;
+  /** Selected course codes in order; decides each course's color. */
+  courseOrder: string[];
   totalCredits: number;
   term: string | null;
   optionCount: number;
@@ -44,6 +46,7 @@ interface Props {
 
 export function CalendarView({
   courseCount,
+  courseOrder,
   totalCredits,
   term,
   optionCount,
@@ -83,7 +86,7 @@ export function CalendarView({
         {courseCount > 0 && (
           <div className="flex flex-wrap items-center gap-2">
             <PreferencesPanel value={preferences} onChange={onPreferencesChange} />
-            {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} />}
+            {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} courseOrder={courseOrder} />}
             {schedule && shareQuery && term && (
               <SharePanel shareQuery={shareQuery} schedule={schedule} term={term} optionNumber={optionIndex + 1} />
             )}
@@ -158,7 +161,7 @@ export function CalendarView({
               <ScheduleCalendar events={events} range={range} onEventClick={onEventClick} />
             </div>
             <div className="sm:hidden">
-              <AgendaView schedule={schedule} onSelect={onEventClick} />
+              <AgendaView schedule={schedule} onSelect={onEventClick} courseOrder={courseOrder} />
             </div>
           </>
         )}

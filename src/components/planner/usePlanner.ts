@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as api from "@/lib/api";
 import { scheduleToEvents } from "@/lib/calendar-events";
+import { buildSlots, normalizeGroups, type CourseGroups } from "@/lib/groups";
 import { describeChange, reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
 import { parseShareQuery, type SharedPlan } from "@/lib/share";
 import { MAX_SCHEDULES, generateAllSchedules, mergeHalfSemesterPairs } from "@/lib/scheduler";
@@ -37,6 +38,8 @@ import {
 export interface Selection {
   sections: SelectedSections; // course code -> chosen candidate sections
   meta: SelectedMeta; // course code -> title/credits
+  /** "Elige uno" groups. Omitted in an update = keep the current groups. */
+  groups?: CourseGroups;
 }
 
 export interface SelectedEventInfo {
@@ -53,7 +56,7 @@ export interface PlanNotice {
   lines: string[];
 }
 
-const EMPTY_SELECTION: Selection = { sections: {}, meta: {} };
+const EMPTY_SELECTION: Selection = { sections: {}, meta: {}, groups: [] };
 
 /** Live catalog data for each course code. */
 async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
@@ -111,6 +114,7 @@ export function usePlanner() {
   // overwrites edits made while it was running.
   const version = useRef(0);
   const scheduleIndexRef = useRef(0);
+  const groupsRef = useRef<CourseGroups>([]);
   const [preferences, setPreferencesState] = useState<Preferences>(DEFAULT_PREFERENCES);
   const preferencesRef = useRef<Preferences>(DEFAULT_PREFERENCES);
 
@@ -119,31 +123,40 @@ export function usePlanner() {
       selectedSectionsByCourse: sel.sections,
       selectedCoursesMeta: sel.meta,
       selectedScheduleIndex: index,
+      courseGroups: sel.groups ?? [],
     });
   }, []);
 
   /** Stores a new selection and regenerates its schedule options, keeping `preferredIndex` if still valid. */
   const applySelection = useCallback(
-    (sel: Selection, preferredIndex = 0, prefs = preferencesRef.current) => {
+    (update: Selection, preferredIndex = 0, prefs = preferencesRef.current) => {
       version.current++;
+      const codes = Object.keys(update.sections);
+      const groups = normalizeGroups(update.groups ?? groupsRef.current, codes);
+      const sel: Selection = { ...update, groups };
+      groupsRef.current = groups;
       setSelection(sel);
       setSelectedEvent(null);
 
+      // One slot per ungrouped course, one per group ("elige uno": a group's
+      // slot offers the sections of all its courses, so exactly one is picked).
       // Sections that break a filter or blocked time never enter generation.
-      const codes = Object.keys(sel.sections);
-      const candidates = codes.map((code) =>
-        sel.sections[code]
-          .filter((s) => sectionConflict(s, prefs) === null)
-          .map(
-            (s): ScheduledSection => ({
-              ...s,
-              courseCode: code,
-              courseTitle: sel.meta[code]?.title,
-              courseCredits: sel.meta[code]?.credits,
-            }),
-          ),
+      const slots = buildSlots(codes, groups);
+      const candidates = slots.map((slot) =>
+        slot.flatMap((code) =>
+          sel.sections[code]
+            .filter((s) => sectionConflict(s, prefs) === null)
+            .map(
+              (s): ScheduledSection => ({
+                ...s,
+                courseCode: code,
+                courseTitle: sel.meta[code]?.title,
+                courseCredits: sel.meta[code]?.credits,
+              }),
+            ),
+        ),
       );
-      const blockedCodes = codes.filter((_, i) => candidates[i].length === 0);
+      const blockedCodes = slots.filter((_, i) => candidates[i].length === 0).map((slot) => slot.join(" / "));
       const raw = blockedCodes.length > 0 ? [] : generateAllSchedules(candidates);
       const sorted = sortSchedules(mergeHalfSemesterPairs(raw), prefs.sort);
       const index = preferredIndex >= 0 && preferredIndex < sorted.length ? preferredIndex : 0;
@@ -284,7 +297,7 @@ export function usePlanner() {
         snapshot.selectedCoursesMeta,
       );
       setNotice(null);
-      applySelection({ sections, meta }, snapshot.selectedScheduleIndex);
+      applySelection({ sections, meta, groups: snapshot.courseGroups ?? [] }, snapshot.selectedScheduleIndex);
       void refreshFromCatalog({ sections, meta });
     },
     [applySelection, refreshFromCatalog],
@@ -339,7 +352,7 @@ export function usePlanner() {
 
       const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
       const savedAs = hasPrevious ? backUpPlan(previous) : null;
-      applySelection({ sections, meta }, shared.optionIndex);
+      applySelection({ sections, meta, groups: shared.groups }, shared.optionIndex);
       setNotice({
         title: "Abriste un plan compartido",
         lines: [
@@ -398,20 +411,39 @@ export function usePlanner() {
     [schedules.length, selection, persist],
   );
 
-  const currentSchedule = schedules[scheduleIndex] ?? null;
-  const events = useMemo(
-    () => (currentSchedule ? scheduleToEvents(currentSchedule) : []),
-    [currentSchedule],
+  /** Replaces the "elige uno" groups and regenerates from the first option. */
+  const setGroups = useCallback(
+    (groups: CourseGroups) => applySelection({ ...selection, groups }, 0),
+    [applySelection, selection],
   );
 
-  const selectedCodes = Object.keys(selection.sections);
-  const totalCredits = Object.values(selection.meta).reduce((sum, m) => sum + (m.credits || 0), 0);
+  const selectedCodes = useMemo(() => Object.keys(selection.sections), [selection.sections]);
+  const groups = selection.groups ?? [];
+  const currentSchedule = schedules[scheduleIndex] ?? null;
+  // Colors follow selection order, so a course keeps its color even in
+  // options that leave it out (groups).
+  const events = useMemo(
+    () => (currentSchedule ? scheduleToEvents(currentSchedule, selectedCodes) : []),
+    [currentSchedule, selectedCodes],
+  );
+
+  // With groups, an option takes one course per group, so count slots and
+  // add up the credits of the courses actually in the option.
+  const courseCount = buildSlots(selectedCodes, groups).length;
+  const totalCredits = currentSchedule
+    ? [...new Map(currentSchedule.map((s) => [s.courseCode, s.courseCredits ?? 0])).values()].reduce((a, b) => a + b, 0)
+    : Object.entries(selection.meta)
+        .filter(([code]) => !groups.some((g) => g.includes(code)))
+        .reduce((sum, [, m]) => sum + (m.credits || 0), 0);
   // Every selected section shares one term (enforced by the UI and keepNewestTerm).
   const selectionTerm = selectedCodes.length > 0 ? selection.sections[selectedCodes[0]][0]?.term ?? null : null;
 
   return {
     selection,
     selectedCodes,
+    groups,
+    setGroups,
+    courseCount,
     selectionTerm,
     totalCredits,
     schedules,

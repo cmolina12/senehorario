@@ -108,9 +108,10 @@ function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): st
 const heading = (sec: ScheduledSection, extra = "") =>
   `${escapeHtml(sec.courseCode)} · ${escapeHtml(sec.sectionId)}${extra}`;
 
-export function scheduleToEvents(schedule: ScheduledSection[]): EventInput[] {
-  const uniqueCourses = [...new Set(schedule.map((s) => s.courseCode))];
-  const colorFor = (code: string) => courseColor(uniqueCourses, code);
+/** `courseOrder` decides colors (defaults to the order courses appear in the schedule). */
+export function scheduleToEvents(schedule: ScheduledSection[], courseOrder?: string[]): EventInput[] {
+  const order = courseOrder ?? [...new Set(schedule.map((s) => s.courseCode))];
+  const colorFor = (code: string) => courseColor(order, code);
 
   const sectionsByCourse = new Map<string, ScheduledSection[]>();
   for (const sec of schedule) {

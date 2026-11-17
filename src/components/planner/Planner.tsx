@@ -101,6 +101,7 @@ export function Planner() {
       selectedSectionsByCourse: selection.sections,
       selectedCoursesMeta: selection.meta,
       selectedScheduleIndex: scheduleIndex,
+      courseGroups: selection.groups ?? [],
     }),
     [selection, scheduleIndex],
   );
@@ -145,6 +146,8 @@ export function Planner() {
         onRemoveSection={planner.removeSection}
         onRemoveCourse={planner.removeCourse}
         onGoToSearch={() => showTab("search")}
+        groups={planner.groups}
+        onGroupsChange={planner.setGroups}
       />
     ),
     cbus: (
@@ -226,7 +229,8 @@ export function Planner() {
           )}
         >
           <CalendarView
-            courseCount={courseCount}
+            courseCount={planner.courseCount}
+            courseOrder={planner.selectedCodes}
             totalCredits={planner.totalCredits}
             term={planner.selectionTerm}
             optionCount={schedules.length}
@@ -244,7 +248,7 @@ export function Planner() {
             onDismissNotice={planner.dismissNotice}
             shareQuery={
               courseCount > 0 && planner.selectionTerm
-                ? buildShareQuery(selection.sections, planner.selectionTerm, scheduleIndex)
+                ? buildShareQuery(selection.sections, planner.selectionTerm, scheduleIndex, planner.groups)
                 : null
             }
             preferences={preferences}
