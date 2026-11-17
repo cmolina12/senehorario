@@ -226,6 +226,9 @@ export function Planner() {
             error={planner.scheduleError}
             onEventClick={setSelectedEvent}
             onGoToSearch={() => showTab("search")}
+            refreshing={planner.refreshing}
+            planChanges={planner.planChanges}
+            onDismissChanges={planner.dismissPlanChanges}
           />
         </main>
       </div>
