@@ -11,8 +11,8 @@ export default function LandingPage() {
       <div className="landing-wrapper">
         {/* Header Bar */}
         <header className="landing-header">
-          <div className="floating-header container d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center">
+          <div className="floating-header lp-container flex! items-center! justify-between!">
+            <div className="flex! items-center!">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/peluche.png" alt="Uniandes Logo" className="logo" />
               <div className="brand-stack">
@@ -20,7 +20,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="header-actions d-flex align-items-center">
+            <div className="header-actions flex! items-center!">
               <ThemeToggle />
               <a
                 className="header-link"
@@ -31,7 +31,7 @@ export default function LandingPage() {
                 Oferta de cursos
               </a>
               <FaqLink />
-              <Link href="/planning" className="btn btn-uniandes btn-sm">
+              <Link href="/planning" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white no-underline transition hover:bg-primary-light dark:bg-accent dark:text-on-accent dark:hover:bg-accent-hover">
                 Comienza
               </Link>
             </div>
@@ -40,27 +40,38 @@ export default function LandingPage() {
 
         {/* Hero Section */}
         <main className="landing-main">
-          <div className="container">
-            <div className="row align-items-center py-4">
-              <div className="col-lg-6 animate-fadein hero-text">
-                <h1 className="hero-title mb-3">
+          <div className="lp-container">
+            <div className="lp-row items-center! py-6!">
+              <div className="lp-col-lg-6 animate-fadein hero-text">
+                <h1 className="hero-title mb-4!">
                   Planifica tu horario académico <span className="highlight">sin conflictos</span>.
                 </h1>
-                <p className="hero-subtitle mb-4">
+                <p className="hero-subtitle mb-6!">
                   <strong>Senéhorario</strong> es una herramienta de planificación diseñada para
                   estudiantes de la Universidad de los Andes.{" "}
                   <strong>Construye tu horario ideal</strong> explorando combinaciones de cursos,
                   evitando conflictos y optimizando tu semestre.
                 </p>
               </div>
-              <div className="col-lg-6 d-none d-lg-block text-center">
+              <div className="lp-col-lg-6 hidden! min-[992px]:block! text-center!">
                 <div className="hero-visual">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/mac2.png"
-                    alt="Senéhorario planner schedule view"
-                    className="planner-preview-img"
-                  />
+                  <div className="laptop">
+                    <div className="laptop-screen">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/planner-light.jpg"
+                        alt="Vista del planificador de Senéhorario con un horario semanal"
+                        className="block dark:hidden"
+                      />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/planner-dark.jpg"
+                        alt="Vista del planificador de Senéhorario con un horario semanal"
+                        className="hidden dark:block"
+                      />
+                    </div>
+                    <div className="laptop-base" aria-hidden="true" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -68,36 +79,36 @@ export default function LandingPage() {
         </main>
 
         {/* Features Section */}
-        <section className="features-section py-5">
-          <div className="container">
-            <div className="row g-4">
+        <section className="features-section py-12!">
+          <div className="lp-container">
+            <div className="lp-row lp-g-4">
               <Feature icon="bi-search" title="Búsqueda y selección de secciones">
                 Busca por NRC, código o nombre, revisa horarios y agrega secciones a tu selección en
                 segundos.
               </Feature>
-              <Feature icon="bi-calendar-week" title="Generación en vivo">
-                Las opciones de horario se actualizan automáticamente a medida que agregas o quitas
-                secciones.
+              <Feature icon="bi-calendar-week" title="Opciones sin choques, en vivo">
+                Las opciones se actualizan al instante mientras agregas o quitas secciones, y solo
+                ves horarios válidos en una vista semanal.
               </Feature>
-              <Feature icon="bi-arrows-angle-expand" title="Opciones compatibles, al instante">
-                Visualiza únicamente horarios válidos y recórrelos en una vista semanal para comparar
-                rápidamente cuál te conviene.
+              <Feature icon="bi-stars" title="CBUs y planes guardados">
+                Descubre los CBUs que caben en los huecos de tu horario y guarda varios planes para
+                compararlos cuando quieras.
               </Feature>
             </div>
           </div>
         </section>
 
         {/* About Section */}
-        <section className="about-section py-5">
-          <div className="container">
-            <div className="row justify-content-center">
-              <div className="col-lg-8 text-center">
+        <section className="about-section py-12!">
+          <div className="lp-container">
+            <div className="lp-row justify-center!">
+              <div className="lp-col-lg-8 text-center!">
                 <div className="about-card">
                   <div className="about-eyebrow">Open Source</div>
-                  <h3 className="about-title mt-3 mb-3">
+                  <h3 className="about-title mt-4! mb-4!">
                     Desarrollado de forma abierta para estudiantes de Uniandes
                   </h3>
-                  <p className="about-desc mb-4">
+                  <p className="about-desc mb-6!">
                     Senéhorario es mantenido por{" "}
                     <a
                       href="https://cmolina.xyz"
@@ -110,16 +121,16 @@ export default function LandingPage() {
                     . Las contribuciones y comentarios son bienvenidos.
                   </p>
 
-                  <div className="about-links d-flex justify-content-center gap-3 flex-wrap">
+                  <div className="about-links flex! justify-center! gap-4! flex-wrap!">
                     <a href={REPO_URL} target="_blank" rel="noopener" className="about-link">
-                      <i className="bi bi-github me-1"></i>Repositorio
+                      <i className="bi bi-github me-1!"></i>Repositorio
                     </a>
                     <a href="mailto:c.molinap@uniandes.edu.co" className="about-link">
-                      <i className="bi bi-envelope me-1"></i>Contacto
+                      <i className="bi bi-envelope me-1!"></i>Contacto
                     </a>
                   </div>
 
-                  <div className="about-stack mt-4">Stack: Next.js · React · TypeScript</div>
+                  <div className="about-stack mt-6!">Stack: Next.js · React · TypeScript</div>
                 </div>
               </div>
             </div>
@@ -127,14 +138,14 @@ export default function LandingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" className="faq-section py-5">
-          <div className="container">
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                <div className="section-title text-uppercase mb-3" style={{ color: "var(--primary-light)" }}>
+        <section id="faq" className="faq-section py-12!">
+          <div className="lp-container">
+            <div className="lp-row justify-center!">
+              <div className="lp-col-lg-8">
+                <div className="section-title uppercase! mb-4!" style={{ color: "var(--primary-light)" }}>
                   Ayuda y preguntas frecuentes
                 </div>
-                <h3 className="faq-heading mb-4">
+                <h3 className="faq-heading mb-6!">
                   Resolvemos las dudas más comunes para que arranques rápido.
                 </h3>
                 <div className="faq-list">
@@ -165,9 +176,9 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="footer-modern text-center">
+        <footer className="footer-modern text-center!">
           &copy; 2026 Camilo Molina
-          <span className="mx-2">·</span>
+          <span className="mx-2!">·</span>
           <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener">
             MIT License
           </a>
@@ -179,8 +190,8 @@ export default function LandingPage() {
 
 function Feature({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="col-md-4">
-      <div className="feature-item h-100">
+    <div className="lp-col-md-4">
+      <div className="feature-item h-full!">
         <div className="feature-icon">
           <i className={`bi ${icon}`}></i>
         </div>

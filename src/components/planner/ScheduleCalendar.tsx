@@ -2,37 +2,12 @@
 
 import type { CalendarOptions, EventClickArg, EventInput } from "@fullcalendar/core";
 import esLocale from "@fullcalendar/core/locales/es";
-import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { useEffect, useMemo, useState } from "react";
-import { CALENDAR_BASE_DATE, type EventProps } from "@/lib/calendar-events";
+import { useMemo } from "react";
+import { CALENDAR_BASE_DATE, type EventProps, type VisibleRange } from "@/lib/calendar-events";
 import type { SelectedEventInfo } from "./usePlanner";
-
-const DAY_ABBREVIATIONS: Record<string, string> = {
-  Lunes: "L",
-  Martes: "M",
-  Miércoles: "I",
-  Jueves: "J",
-  Viernes: "V",
-  Sábado: "S",
-  Domingo: "D",
-};
-
-const SMALL_SCREEN = "(max-width: 768px)";
-
-function useIsSmallScreen() {
-  const [small, setSmall] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(SMALL_SCREEN);
-    const update = () => setSmall(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return small;
-}
 
 function eventInfoFromClick(arg: EventClickArg): SelectedEventInfo {
   const ext = arg.event.extendedProps as EventProps;
@@ -46,6 +21,7 @@ function eventInfoFromClick(arg: EventClickArg): SelectedEventInfo {
         courseCode: ext.splitCourseCodeB ?? b.courseCode,
         courseTitle: b.courseTitle,
         courseCredits: b.courseCredits,
+        color: ext.splitColorB,
       };
     }
   }
@@ -54,52 +30,48 @@ function eventInfoFromClick(arg: EventClickArg): SelectedEventInfo {
     courseCode: ext.courseCode || ext.section.courseCode,
     courseTitle: ext.courseTitle || ext.section.courseTitle,
     courseCredits: ext.courseCredits ?? ext.section.courseCredits,
+    color: ext.color,
   };
 }
 
 interface Props {
   events: EventInput[];
+  range: VisibleRange;
   onEventClick: (info: SelectedEventInfo) => void;
 }
 
-export default function ScheduleCalendar({ events, onEventClick }: Props) {
-  const isSmall = useIsSmallScreen();
-
+export default function ScheduleCalendar({ events, range, onEventClick }: Props) {
   const options = useMemo<CalendarOptions>(
     () => ({
-      plugins: [timeGridPlugin, dayGridPlugin, interactionPlugin],
+      plugins: [timeGridPlugin, interactionPlugin],
       locales: [esLocale],
       locale: "es",
-      dayHeaderContent: (arg) => {
-        const name = arg.date.toLocaleDateString("es-ES", { weekday: "long" });
-        const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
-        return isSmall ? (DAY_ABBREVIATIONS[capitalized] ?? capitalized.charAt(0)) : capitalized;
-      },
       initialDate: CALENDAR_BASE_DATE,
-      height: 600,
-      contentHeight: 600,
       initialView: "timeGridWeek",
       headerToolbar: false,
-      slotMinTime: "06:00:00",
-      slotMaxTime: "21:00:00",
+      height: "auto",
       allDaySlot: false,
-      dayHeaderFormat: { weekday: "long" },
-      hiddenDays: [0], // Sunday
+      expandRows: true,
+      slotMinTime: range.slotMinTime,
+      slotMaxTime: range.slotMaxTime,
+      hiddenDays: range.hiddenDays,
       slotDuration: "01:00:00",
       slotLabelInterval: "01:00",
-      slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: true },
+      slotLabelFormat: { hour: "numeric", minute: "2-digit", hour12: true, meridiem: "short" },
+      dayHeaderContent: (arg) => {
+        const name = arg.date.toLocaleDateString("es-ES", { weekday: "short" }).replace(".", "");
+        return name.charAt(0).toUpperCase() + name.slice(1);
+      },
       // Titles are pre-escaped HTML built in lib/calendar-events.ts
       eventContent: (arg) => ({ html: arg.event.title }),
       eventDidMount: (info) => {
-        const { splitColorA, splitColorB } = info.event.extendedProps as EventProps;
-        if (splitColorA && splitColorB) {
-          info.el.style.background = `linear-gradient(to right, ${splitColorA} 50%, ${splitColorB} 50%)`;
-          info.el.style.borderColor = splitColorA;
-        }
+        const { color, splitColorB } = info.event.extendedProps as EventProps;
+        info.el.style.setProperty("--ev", color);
+        if (splitColorB) info.el.style.setProperty("--ev-b", splitColorB);
       },
       eventClick: (arg) => onEventClick(eventInfoFromClick(arg)),
     }),
-    [isSmall, onEventClick],
+    [range, onEventClick],
   );
 
   return <FullCalendar {...options} events={events} />;

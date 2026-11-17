@@ -1,12 +1,16 @@
 "use client";
 
+import { IconButton } from "@/components/ui";
 import { useTheme } from "@/lib/theme";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggleTheme, themeLabel } = useTheme();
   return (
-    <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label={themeLabel}>
-      <i className={`bi ${theme === "dark" ? "bi-brightness-high" : "bi-moon-stars"}`}></i>
-    </button>
+    <IconButton
+      icon={theme === "dark" ? "bi-sun" : "bi-moon-stars"}
+      label={themeLabel}
+      className={className}
+      onClick={toggleTheme}
+    />
   );
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme-script";
