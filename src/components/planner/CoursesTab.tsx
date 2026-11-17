@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Chip, EmptyState, IconButton } from "@/components/ui";
 import { courseColor } from "@/lib/calendar-events";
-import { cn, plural, titleCase } from "@/lib/format";
+import { plural, titleCase } from "@/lib/format";
 import { formatTerm } from "@/lib/terms";
 import { sectionKey, type Section } from "@/lib/types";
+import { CourseCard } from "./CourseCard";
 import { MeetingChips } from "./SectionRow";
 import type { Selection } from "./usePlanner";
 
@@ -66,85 +67,68 @@ export function CoursesTab({
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {codes.map((code) => {
           const sections = selection.sections[code];
           const meta = selection.meta[code];
           const open = openCode === code;
+          const toggle = () => setOpenCode(open ? null : code);
           return (
-            <div
+            <CourseCard
               key={code}
-              className="rounded-xl border border-l-4 border-border bg-surface"
-              style={{ borderLeftColor: courseColor(codes, code) }}
+              code={code}
+              title={meta?.title ?? ""}
+              credits={meta?.credits ?? 0}
+              meta={`${sections.length} ${plural(sections.length, "sección", "secciones")}`}
+              color={courseColor(codes, code)}
+              expanded={open}
+              onToggleExpanded={toggle}
+              menu={[
+                { label: open ? "Ocultar secciones" : "Ver secciones", icon: "bi-list-ul", onSelect: toggle },
+                { label: "Buscar más secciones", icon: "bi-search", onSelect: () => onSearchFor(code) },
+                { label: "Quitar curso", icon: "bi-trash3", danger: true, onSelect: () => onRemoveCourse(code) },
+              ]}
             >
-              <div className="flex items-start gap-3 px-4 py-3">
-                <button
-                  type="button"
-                  onClick={() => setOpenCode(open ? null : code)}
-                  aria-expanded={open}
-                  className="min-w-0 flex-1 text-left"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold">{code}</span>
-                    <span className="text-xs text-fg-muted">
-                      {meta?.credits ?? "—"} {plural(meta?.credits ?? 0, "crédito", "créditos")} ·{" "}
-                      {sections.length} {plural(sections.length, "sección", "secciones")}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-sm text-fg-secondary">
-                    {meta?.title ? titleCase(meta.title) : "No disponible"}
-                  </p>
-                </button>
-                <div className="-mr-2 -mt-1 flex">
-                  <IconButton icon="bi-search" label="Ver todas las secciones" onClick={() => onSearchFor(code)} />
-                  <IconButton
-                    icon="bi-trash3"
-                    label="Quitar curso"
-                    className="hover:text-danger"
-                    onClick={() => onRemoveCourse(code)}
-                  />
-                  <IconButton
-                    icon="bi-chevron-down"
-                    label={open ? "Ocultar secciones" : "Ver secciones"}
-                    className={cn("text-xs transition", open && "rotate-180")}
-                    onClick={() => setOpenCode(open ? null : code)}
-                  />
-                </div>
-              </div>
-              {open && (
-                <div className="divide-y divide-border border-t border-border px-4">
-                  {sections.map((section) => (
-                    <div key={sectionKey(section)} className="flex items-start gap-3 py-2.5">
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium">Sección {section.sectionId}</span>
-                          <span className="text-fg-muted">NRC {section.nrc}</span>
-                          {(section.ptrm === "8A" || section.ptrm === "8B") && (
-                            <Chip className="bg-accent-soft text-fg">{section.ptrm}</Chip>
-                          )}
-                        </div>
-                        {section.professors?.length > 0 && (
-                          <p className="truncate text-xs text-fg-secondary">
-                            {titleCase(section.professors.join(", "))}
-                          </p>
+              <div className="divide-y divide-border">
+                {sections.map((section) => (
+                  <div key={sectionKey(section)} className="flex items-start gap-3 py-2.5">
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-medium">Sección {section.sectionId}</span>
+                        <span className="text-fg-muted">NRC {section.nrc}</span>
+                        {(section.ptrm === "8A" || section.ptrm === "8B") && (
+                          <Chip className="bg-accent-soft text-fg">{section.ptrm}</Chip>
                         )}
-                        <div className="flex flex-wrap gap-1">
-                          <MeetingChips section={section} />
-                        </div>
                       </div>
-                      <IconButton
-                        icon="bi-x-lg"
-                        label={`Quitar sección ${section.sectionId}`}
-                        className="size-8 text-xs hover:text-danger"
-                        onClick={() => onRemoveSection(code, section)}
-                      />
+                      {section.professors?.length > 0 && (
+                        <p className="truncate text-xs text-fg-secondary">
+                          {titleCase(section.professors.join(", "))}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1">
+                        <MeetingChips section={section} />
+                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <IconButton
+                      icon="bi-x-lg"
+                      label={`Quitar sección ${section.sectionId}`}
+                      className="size-8 text-xs hover:text-danger"
+                      onClick={() => onRemoveSection(code, section)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </CourseCard>
           );
         })}
+
+        <button
+          type="button"
+          onClick={onGoToSearch}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border py-4 text-sm font-medium text-fg-muted transition hover:border-border-strong hover:text-fg"
+        >
+          <i className="bi bi-plus-lg" aria-hidden="true"></i> Agregar curso
+        </button>
       </div>
     </div>
   );

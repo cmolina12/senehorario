@@ -22,6 +22,8 @@ interface Props {
   courses: Course[];
   term: TermPicker;
   selectedCount: (courseCode: string) => number;
+  /** Color of a selected course; undefined when it isn't selected. */
+  colorFor: (courseCode: string) => string | undefined;
   isSectionSelected: (courseCode: string, section: Section) => boolean;
   onToggleSection: (course: Course, section: Section) => void;
   onAddSections: (course: Course, onlyAvailable: boolean) => void;
@@ -36,6 +38,7 @@ export function SearchTab({
   courses,
   term,
   selectedCount,
+  colorFor,
   isSectionSelected,
   onToggleSection,
   onAddSections,
@@ -118,13 +121,16 @@ export function SearchTab({
       )}
 
       {!search.loading && courses.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {courses.map((course) => {
             const count = selectedCount(course.code);
             return (
               <CourseCard
                 key={course.code}
-                course={course}
+                code={course.code}
+                title={course.title}
+                credits={course.credits}
+                color={colorFor(course.code)}
                 expanded={!!expanded[course.code]}
                 onToggleExpanded={() => setExpanded((x) => ({ ...x, [course.code]: !x[course.code] }))}
                 selectedCount={count}

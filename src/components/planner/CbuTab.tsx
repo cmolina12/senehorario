@@ -17,6 +17,8 @@ interface Props {
   /** The schedule option being viewed; null when nothing has been generated. */
   schedule: Section[] | null;
   selectedCount: (courseCode: string) => number;
+  /** Color of a selected course; undefined when it isn't selected. */
+  colorFor: (courseCode: string) => string | undefined;
   isSectionSelected: (courseCode: string, section: Section) => boolean;
   onToggleSection: (course: Course, section: Section) => void;
 }
@@ -27,6 +29,7 @@ export function CbuTab({
   optionNumber,
   schedule,
   selectedCount,
+  colorFor,
   isSectionSelected,
   onToggleSection,
 }: Props) {
@@ -124,11 +127,14 @@ export function CbuTab({
         </EmptyState>
       )}
       {!loading && !error && fitting.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {fitting.map((course) => (
             <CourseCard
               key={course.code}
-              course={course}
+              code={course.code}
+              title={course.title}
+              credits={course.credits}
+              color={colorFor(course.code)}
               expanded={!!expanded[course.code]}
               onToggleExpanded={() => setExpanded((x) => ({ ...x, [course.code]: !x[course.code] }))}
               selectedCount={selectedCount(course.code)}
