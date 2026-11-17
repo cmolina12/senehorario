@@ -26,6 +26,7 @@ export interface SelectedEventInfo {
   courseCode?: string;
   courseTitle?: string;
   courseCredits?: number;
+  color?: string;
 }
 
 const EMPTY_SELECTION: Selection = { sections: {}, meta: {} };

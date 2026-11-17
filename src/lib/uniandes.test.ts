@@ -52,6 +52,24 @@ describe("mapToDomain", () => {
     });
   });
 
+  it("sorts meetings by day and time across schedule rows", () => {
+    const base = raw().schedules![0];
+    const [course] = mapToDomain([
+      raw({
+        schedules: [
+          { ...base, l: null, i: null, j: "J", time_ini: "0800", time_fin: "0920" },
+          { ...base, l: "L", i: null, time_ini: "1000", time_fin: "1120" },
+          { ...base, l: "L", i: null, time_ini: "0700", time_fin: "0750" },
+        ],
+      }),
+    ]);
+    expect(course.sections[0].meetings.map((m) => `${m.day} ${m.start}`)).toEqual([
+      "MONDAY 07:00:00",
+      "MONDAY 10:00:00",
+      "THURSDAY 08:00:00",
+    ]);
+  });
+
   it("clamps available seats and tolerates bad numbers and times", () => {
     const [course] = mapToDomain([
       raw({

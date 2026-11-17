@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { EmptyState, IconButton } from "@/components/ui";
 import { persistSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
 
 interface Props {
   plans: SavedPlans;
   onPlansChange: (plans: SavedPlans) => void;
   currentSnapshot: () => PlanSnapshot;
+  canSave: boolean;
   onLoad: (snapshot: PlanSnapshot) => void;
   onClose: () => void;
 }
@@ -23,9 +25,15 @@ function planDate(snapshot: PlanSnapshot): string {
   return date.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export function PlansModal({ plans, onPlansChange, currentSnapshot, onLoad, onClose }: Props) {
+export function PlansModal({ plans, onPlansChange, currentSnapshot, canSave, onLoad, onClose }: Props) {
   const [name, setName] = useState("");
   const [importError, setImportError] = useState("");
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   const update = (next: SavedPlans) => {
     onPlansChange(next);
@@ -69,7 +77,7 @@ export function PlansModal({ plans, onPlansChange, currentSnapshot, onLoad, onCl
       const data = JSON.parse(await file.text());
       const snapshot = toSnapshot(data);
       if (!snapshot) {
-        setImportError("Archivo inválido: no es un plan de Senehorario.");
+        setImportError("Archivo inválido: no es un plan de Senéhorario.");
         return;
       }
       const planName = data.name || file.name.replace(/\.json$/i, "");
@@ -82,82 +90,87 @@ export function PlansModal({ plans, onPlansChange, currentSnapshot, onLoad, onCl
   const names = Object.keys(plans);
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <span className="modal-title">Mis Planes</span>
-          <button className="modal-close" onClick={onClose}>
-            <i className="bi bi-x-lg"></i>
-          </button>
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="plans-title">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={onClose} />
+      <div className="relative flex max-h-[85dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl sm:max-w-lg sm:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div>
+            <h2 id="plans-title" className="text-base font-semibold">
+              Mis planes
+            </h2>
+            <p className="text-xs text-fg-muted">Se guardan en este navegador. Descárgalos para llevarlos a otro.</p>
+          </div>
+          <IconButton icon="bi-x-lg" label="Cerrar" className="-mr-2" onClick={onClose} />
         </div>
-        <div className="modal-body">
-          {/* Save current plan */}
-          <div className="plans-save-section">
-            <div className="plans-save-row">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nombre del plan..."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyUp={(e) => e.key === "Enter" && save()}
-              />
-              <button className="btn-search" onClick={save} disabled={!name.trim()}>
-                Guardar
-              </button>
-            </div>
-          </div>
 
-          <div className="plans-divider">
-            <span>Planes guardados</span>
-          </div>
-
-          {/* Import */}
-          <div className="plans-import-row">
-            <label className="btn-import" htmlFor="plan-import-input">
-              <i className="bi bi-upload"></i> Importar plan
-            </label>
+        <div className="space-y-5 overflow-y-auto px-5 py-4">
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              save();
+            }}
+          >
             <input
-              type="file"
-              id="plan-import-input"
-              accept=".json"
-              onChange={importPlan}
-              style={{ display: "none" }}
+              type="text"
+              autoFocus
+              className="h-10 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm placeholder:text-fg-muted focus:border-accent focus:ring-3 focus:ring-accent/25 focus:outline-none"
+              placeholder={canSave ? "Nombre para el plan actual" : "Agrega cursos para guardar un plan"}
+              aria-label="Nombre del plan"
+              value={name}
+              disabled={!canSave}
+              onChange={(e) => setName(e.target.value)}
             />
-            {importError && <span className="plan-feedback plan-error">{importError}</span>}
-          </div>
+            <button
+              type="submit"
+              disabled={!canSave || !name.trim()}
+              className="h-10 shrink-0 rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent transition hover:bg-accent-hover disabled:opacity-50"
+            >
+              Guardar
+            </button>
+          </form>
 
-          {/* Saved plans list */}
-          {names.length === 0 ? (
-            <div className="status-message muted">
-              <i className="bi bi-bookmark"></i>
-              <span>No hay planes guardados aún</span>
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-xs font-semibold tracking-wide text-fg-muted uppercase">Guardados</h3>
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-fg-secondary transition hover:bg-surface-hover hover:text-fg">
+                <i className="bi bi-upload" aria-hidden="true"></i> Importar
+                <input type="file" accept=".json,application/json" onChange={importPlan} className="sr-only" />
+              </label>
             </div>
-          ) : (
-            <div className="plans-list">
-              {names.map((planName) => (
-                <div key={planName} className="plan-item">
-                  <div className="plan-info">
-                    <span className="plan-name">{planName}</span>
-                    <span className="plan-meta">
-                      {planCourses(plans[planName])} · {planDate(plans[planName])}
-                    </span>
-                  </div>
-                  <div className="plan-actions">
-                    <button className="btn-plan-action" onClick={() => onLoad(plans[planName])} title="Cargar plan">
-                      <i className="bi bi-folder2-open"></i>
+            {importError && <p className="mb-2 text-xs text-danger">{importError}</p>}
+
+            {names.length === 0 ? (
+              <EmptyState icon="bi-bookmark" title="No hay planes guardados aún" />
+            ) : (
+              <ul className="divide-y divide-border rounded-xl border border-border">
+                {names.map((planName) => (
+                  <li key={planName} className="flex items-center gap-2 py-2 pr-2 pl-3">
+                    <button
+                      type="button"
+                      onClick={() => onLoad(plans[planName])}
+                      className="min-w-0 flex-1 rounded-lg py-1 text-left"
+                      title="Cargar plan"
+                    >
+                      <p className="truncate text-sm font-semibold">{planName}</p>
+                      <p className="truncate text-xs text-fg-muted">
+                        {planCourses(plans[planName])}
+                        {planDate(plans[planName]) && ` · ${planDate(plans[planName])}`}
+                      </p>
                     </button>
-                    <button className="btn-plan-action" onClick={() => exportPlan(planName)} title="Descargar">
-                      <i className="bi bi-download"></i>
-                    </button>
-                    <button className="btn-plan-action danger" onClick={() => remove(planName)} title="Eliminar">
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                    <IconButton icon="bi-folder2-open" label="Cargar" onClick={() => onLoad(plans[planName])} />
+                    <IconButton icon="bi-download" label="Descargar" onClick={() => exportPlan(planName)} />
+                    <IconButton
+                      icon="bi-trash3"
+                      label="Eliminar"
+                      className="hover:text-danger"
+                      onClick={() => remove(planName)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

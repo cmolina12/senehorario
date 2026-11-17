@@ -1,14 +1,14 @@
 // Display helpers used across the planner UI.
 
-import type { Section } from "./types";
+import type { DayOfWeek, Section } from "./types";
 
 const DAY_LABELS: Record<string, string> = {
   mon: "Lun",
   tue: "Mar",
-  wed: "Mie",
+  wed: "Mié",
   thu: "Jue",
   fri: "Vie",
-  sat: "Sab",
+  sat: "Sáb",
   sun: "Dom",
 };
 
@@ -17,13 +17,35 @@ export function dayLabel(day: string): string {
   return DAY_LABELS[key] ?? day?.slice(0, 3) ?? "";
 }
 
+export const WEEK_DAYS: DayOfWeek[] = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+
+const DAY_NAMES: Record<DayOfWeek, string> = {
+  MONDAY: "Lunes",
+  TUESDAY: "Martes",
+  WEDNESDAY: "Miércoles",
+  THURSDAY: "Jueves",
+  FRIDAY: "Viernes",
+  SATURDAY: "Sábado",
+  SUNDAY: "Domingo",
+};
+
+export const dayName = (day: DayOfWeek) => DAY_NAMES[day] ?? day;
+
+/** The catalog fills unassigned rooms with dashes. */
+export function formatLocation(location: string): string {
+  return /[\p{L}\p{N}]/u.test(location) ? location.trim() : "Salón por asignar";
+}
+
+/** Joins class names, skipping falsy values. */
+export const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
+
 /** "06:30:00" -> "06:30" */
 export const shortTime = (time: string) => time.slice(0, 5);
 
 export function cicloLabel(section: Pick<Section, "ptrm">): string {
-  if (section.ptrm === "8A") return "Primer Ciclo - 8A";
-  if (section.ptrm === "8B") return "Segundo Ciclo - 8B";
-  if (section.ptrm === "1") return "16 Semanas";
+  if (section.ptrm === "8A") return "Primer ciclo (8A)";
+  if (section.ptrm === "8B") return "Segundo ciclo (8B)";
+  if (section.ptrm === "1") return "16 semanas";
   return section.ptrm;
 }
 
@@ -43,12 +65,20 @@ export function professorUrl(name: string): string {
   return `https://losestudiantes.com/uniandes/professors/${slug}`;
 }
 
-/** Same behavior as Angular's `titlecase` pipe. */
+// Spanish connectors stay lowercase unless they start the text.
+const MINOR_WORDS = new Set(["a", "al", "con", "de", "del", "el", "en", "la", "las", "lo", "los", "para", "por", "un", "una", "y"]);
+
+/** "MODELOS DE CONTROL" -> "Modelos de Control"; Roman numerals stay upper-case. */
 export function titleCase(text: string): string {
-  return text.replace(
-    /[\p{L}\p{N}]+/gu,
-    (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
-  );
+  let first = true;
+  return text.replace(/[\p{L}\p{N}]+/gu, (w) => {
+    const lower = w.toLowerCase();
+    const isFirst = first;
+    first = false;
+    if (/^[ivx]+$/.test(lower) && lower.length <= 4 && !isFirst) return w.toUpperCase();
+    if (!isFirst && MINOR_WORDS.has(lower)) return lower;
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  });
 }
 
 export const CBU_ATTR_FILTERS = [

@@ -112,6 +112,8 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       }
     }
 
+    meetings.sort((x, y) => DAY_ORDER.indexOf(x.day) - DAY_ORDER.indexOf(y.day) || x.start.localeCompare(y.start));
+
     const totalSeats = parseIntSafe(a.maxenrol);
     const availableSeats = Math.max(0, Math.min(parseIntSafe(a.seatsavail), totalSeats));
 
@@ -138,6 +140,8 @@ export function parseTime(hhmm: string | null): string | null {
   if (!hhmm || !/^\d{4}/.test(hhmm)) return null;
   return `${hhmm.slice(0, 2)}:${hhmm.slice(2, 4)}:00`;
 }
+
+const DAY_ORDER: DayOfWeek[] = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 function parseDays(s: ApiSchedule): DayOfWeek[] {
   const days: DayOfWeek[] = [];

@@ -1,9 +1,11 @@
 // Converts generated schedules into FullCalendar events, including the special
-// rendering for half-semester (8A/8B) sections.
+// rendering for half-semester (8A/8B) sections. Event markup is styled by the
+// .ev* rules in globals.css.
 
 import type { EventInput } from "@fullcalendar/core";
-import { meetingsOverlap } from "./scheduler";
-import { sectionKey, type DayOfWeek, type Meeting, type ScheduledSection } from "./types";
+import { shortTime, titleCase } from "./format";
+import { meetingsOverlap, toMinutes } from "./scheduler";
+import { sectionKey, type DayOfWeek, type Meeting, type ScheduledSection, type Section } from "./types";
 
 // Color palette for courses (matches the university's official platform)
 export const COURSE_COLORS = [
@@ -16,6 +18,12 @@ export const COURSE_COLORS = [
   "#81BA6C",
   "#62E1C9",
 ];
+
+/** Color for a course, by its position among the selected courses. */
+export function courseColor(codes: string[], code: string): string {
+  const idx = Math.max(0, codes.indexOf(code));
+  return COURSE_COLORS[idx % COURSE_COLORS.length];
+}
 
 // Fixed week the calendar displays (Monday 2025-07-28).
 export const CALENDAR_BASE_DATE = "2025-07-28";
@@ -35,13 +43,14 @@ export interface EventProps {
   courseCode: string;
   courseTitle?: string;
   courseCredits?: number;
-  splitColorA?: string;
+  color: string;
+  /** Second course sharing a split 8A/8B event. */
   splitColorB?: string;
   splitSectionB?: ScheduledSection;
   splitCourseCodeB?: string;
 }
 
-function escapeHtml(text: string): string {
+export function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -62,8 +71,8 @@ function toDateTime(day: DayOfWeek, time: string): string {
 function makeEvent(
   section: ScheduledSection,
   meeting: Meeting,
-  bgColor: string,
-  titleHtml: string,
+  color: string,
+  html: string,
   classNames: string[],
   extra: Partial<EventProps> = {},
 ): EventInput {
@@ -72,30 +81,36 @@ function makeEvent(
     courseCode: section.courseCode,
     courseTitle: section.courseTitle,
     courseCredits: section.courseCredits,
+    color,
     ...extra,
   };
   return {
-    title: titleHtml,
+    title: html,
     start: toDateTime(meeting.day, meeting.start),
     end: toDateTime(meeting.day, meeting.end),
-    color: bgColor,
-    textColor: "rgb(34, 34, 34)",
     classNames,
     extendedProps,
   };
 }
 
-const ptrmBadge = (ptrm: string) =>
-  `<span class="event-ptrm-badge event-ptrm-${ptrm.toLowerCase()}">${ptrm}</span>`;
+const badge = (ptrm: string) => `<span class="ev-badge">${escapeHtml(ptrm)}</span>`;
 
-function eventBody(heading: string, title: string | undefined): string {
-  return `<div class="fc-event-content-wrapper"><div class="fc-event-course">${heading}</div><div class="fc-event-title">${escapeHtml(title ?? "")}</div></div>`;
+function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): string {
+  return (
+    `<div class="ev">` +
+    `<div class="ev-code">${heading}</div>` +
+    `<div class="ev-title">${escapeHtml(titleCase(sec.courseTitle ?? ""))}</div>` +
+    `<div class="ev-time">${shortTime(meeting.start)}–${shortTime(meeting.end)}</div>` +
+    `</div>`
+  );
 }
+
+const heading = (sec: ScheduledSection, extra = "") =>
+  `${escapeHtml(sec.courseCode)} · ${escapeHtml(sec.sectionId)}${extra}`;
 
 export function scheduleToEvents(schedule: ScheduledSection[]): EventInput[] {
   const uniqueCourses = [...new Set(schedule.map((s) => s.courseCode))];
-  const colorFor = (code: string) =>
-    COURSE_COLORS[uniqueCourses.indexOf(code) % COURSE_COLORS.length];
+  const colorFor = (code: string) => courseColor(uniqueCourses, code);
 
   const sectionsByCourse = new Map<string, ScheduledSection[]>();
   for (const sec of schedule) {
@@ -109,33 +124,31 @@ export function scheduleToEvents(schedule: ScheduledSection[]): EventInput[] {
 
   // Pass 1: same-course 8A+8B -> one combined event per meeting
   for (const [courseCode, sections] of sectionsByCourse) {
-    const bgColor = colorFor(courseCode);
+    const color = colorFor(courseCode);
     const s8A = sections.find((s) => s.ptrm === "8A");
     const s8B = sections.find((s) => s.ptrm === "8B");
     if (!s8A || !s8B) continue;
 
     handled.add(sectionKey(s8A));
     handled.add(sectionKey(s8B));
-    const code = escapeHtml(courseCode);
-    const title = eventBody(`${code} ${ptrmBadge("8A")}${ptrmBadge("8B")}`, s8A.courseTitle);
     for (const m of s8A.meetings) {
-      events.push(makeEvent(s8A, m, bgColor, title, ["ptrm-combined"]));
+      const html = eventHtml(`${escapeHtml(courseCode)}${badge("8A")}${badge("8B")}`, s8A, m);
+      events.push(makeEvent(s8A, m, color, html, ["ptrm-combined"]));
     }
     for (const sec of sections.filter((s) => s !== s8A && s !== s8B)) {
       handled.add(sectionKey(sec));
-      const t = eventBody(`${code} - ${escapeHtml(sec.sectionId)}`, sec.courseTitle);
-      for (const m of sec.meetings) events.push(makeEvent(sec, m, bgColor, t, []));
+      for (const m of sec.meetings) events.push(makeEvent(sec, m, color, eventHtml(heading(sec), sec, m), []));
     }
   }
 
   // Pass 2: flat meeting list for remaining sections
-  type Entry = { sec: ScheduledSection; meeting: Meeting; bgColor: string };
+  type Entry = { sec: ScheduledSection; meeting: Meeting; color: string };
   const entries: Entry[] = [];
   for (const [courseCode, sections] of sectionsByCourse) {
-    const bgColor = colorFor(courseCode);
+    const color = colorFor(courseCode);
     for (const sec of sections) {
       if (handled.has(sectionKey(sec))) continue;
-      for (const meeting of sec.meetings) entries.push({ sec, meeting, bgColor });
+      for (const meeting of sec.meetings) entries.push({ sec, meeting, color });
     }
   }
 
@@ -152,16 +165,19 @@ export function scheduleToEvents(schedule: ScheduledSection[]): EventInput[] {
       if (!meetingsOverlap(eA.meeting, eB.meeting)) continue;
       used.add(i);
       used.add(j);
-      const half = (e: Entry, ptrm: string) =>
-        `<div class="fc-event-split-half"><div class="fc-event-course">${escapeHtml(e.sec.courseCode)} - ${escapeHtml(e.sec.sectionId)} ${ptrmBadge(ptrm)}</div><div class="fc-event-title">${escapeHtml(e.sec.courseTitle ?? "")}</div></div>`;
-      const splitTitle = `<div class="fc-event-split-wrapper">${half(eA, "8A")}<div class="fc-event-split-divider"></div>${half(eB, "8B")}</div>`;
+      const html =
+        `<div class="ev-split">` +
+        eventHtml(heading(eA.sec, badge("8A")), eA.sec, eA.meeting) +
+        eventHtml(heading(eB.sec, badge("8B")), eB.sec, eB.meeting) +
+        `</div>`;
       // Use the later of the two end times so neither section gets cut off
       const longerEnd =
-        eA.meeting.end >= eB.meeting.end ? eA.meeting : { ...eA.meeting, end: eB.meeting.end };
+        toMinutes(eA.meeting.end) >= toMinutes(eB.meeting.end)
+          ? eA.meeting
+          : { ...eA.meeting, end: eB.meeting.end };
       events.push(
-        makeEvent(eA.sec, longerEnd, eA.bgColor, splitTitle, ["ptrm-split"], {
-          splitColorA: eA.bgColor,
-          splitColorB: eB.bgColor,
+        makeEvent(eA.sec, longerEnd, eA.color, html, ["ptrm-split"], {
+          splitColorB: eB.color,
           splitSectionB: eB.sec,
           splitCourseCodeB: eB.sec.courseCode,
         }),
@@ -173,16 +189,42 @@ export function scheduleToEvents(schedule: ScheduledSection[]): EventInput[] {
   // Pass 4: remaining meetings rendered normally
   for (let i = 0; i < entries.length; i++) {
     if (used.has(i)) continue;
-    const { sec, meeting, bgColor } = entries[i];
+    const { sec, meeting, color } = entries[i];
     const isHalf = sec.ptrm === "8A" || sec.ptrm === "8B";
-    const badge = isHalf ? ptrmBadge(sec.ptrm) : "";
     const cls = isHalf ? [`ptrm-${sec.ptrm.toLowerCase()}`] : [];
-    const title = eventBody(
-      `${escapeHtml(sec.courseCode)} - ${escapeHtml(sec.sectionId)}${badge}`,
-      sec.courseTitle,
-    );
-    events.push(makeEvent(sec, meeting, bgColor, title, cls));
+    events.push(makeEvent(sec, meeting, color, eventHtml(heading(sec, isHalf ? badge(sec.ptrm) : ""), sec, meeting), cls));
   }
 
   return events;
+}
+
+export interface VisibleRange {
+  slotMinTime: string; // "07:00:00"
+  slotMaxTime: string;
+  hiddenDays: number[]; // FullCalendar day numbers (0 = Sunday)
+}
+
+const DEFAULT_START_HOUR = 7;
+const DEFAULT_END_HOUR = 18;
+
+/**
+ * Hours and days the calendar should show for a set of candidate sections:
+ * fitted to their meetings (so switching options doesn't make the grid jump),
+ * never narrower than 7:00–18:00, and Saturday only when something meets then.
+ */
+export function visibleRange(sections: Section[]): VisibleRange {
+  const meetings = sections.flatMap((s) => s.meetings);
+  let start = DEFAULT_START_HOUR;
+  let end = DEFAULT_END_HOUR;
+  for (const m of meetings) {
+    start = Math.min(start, Math.floor(toMinutes(m.start) / 60));
+    end = Math.max(end, Math.ceil(toMinutes(m.end) / 60));
+  }
+  const hh = (h: number) => `${String(Math.max(0, Math.min(24, h))).padStart(2, "0")}:00:00`;
+  const hasSaturday = meetings.some((m) => m.day === "SATURDAY");
+  return {
+    slotMinTime: hh(start),
+    slotMaxTime: hh(end),
+    hiddenDays: hasSaturday ? [0] : [0, 6],
+  };
 }
