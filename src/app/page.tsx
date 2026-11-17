@@ -2,7 +2,6 @@ import Link from "next/link";
 import "./landing.css";
 import { CHANGELOG, formatMonth } from "@/content/changelog";
 import { FaqLink } from "@/components/FaqLink";
-import { ContactEmail } from "@/components/landing/ContactEmail";
 import { CONTACT_EMAIL } from "@/content/contact";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -151,11 +150,18 @@ export default async function LandingPage() {
                     </ul>
                   </div>
 
-                  <div className="about-links flex! justify-center! gap-4! flex-wrap!">
-                    <a href={REPO_URL} target="_blank" rel="noopener" className="about-link">
-                      <i className="bi bi-github me-1!"></i>Repositorio
+                  <div className="flex! flex-col! items-center! gap-2!">
+                    <a
+                      href={REPO_URL}
+                      target="_blank"
+                      rel="noopener"
+                      className="inline-flex items-center gap-2.5 rounded-xl bg-primary px-5 py-3 text-base font-semibold text-white no-underline shadow-lg shadow-primary/20 transition hover:-translate-y-px hover:bg-primary-light hover:text-white dark:bg-accent dark:text-on-accent dark:shadow-none dark:hover:bg-accent-hover dark:hover:text-on-accent"
+                    >
+                      <i className="bi bi-github text-lg" aria-hidden="true"></i>
+                      Ver el código en GitHub
+                      <i className="bi bi-arrow-up-right text-sm" aria-hidden="true"></i>
                     </a>
-                    <ContactEmail />
+                    <p className="about-repo-note mb-0!">Licencia MIT · issues y pull requests bienvenidos</p>
                   </div>
 
                 </div>
