@@ -102,6 +102,7 @@ export function Planner() {
       selectedCoursesMeta: selection.meta,
       selectedScheduleIndex: scheduleIndex,
       courseGroups: selection.groups ?? [],
+      pinnedSections: selection.pins ?? {},
     }),
     [selection, scheduleIndex],
   );
@@ -148,6 +149,8 @@ export function Planner() {
         onGoToSearch={() => showTab("search")}
         groups={planner.groups}
         onGroupsChange={planner.setGroups}
+        pins={planner.pins}
+        onTogglePin={planner.togglePin}
       />
     ),
     cbus: (
@@ -251,7 +254,7 @@ export function Planner() {
             onDismissNotice={planner.dismissNotice}
             shareQuery={
               courseCount > 0 && planner.selectionTerm
-                ? buildShareQuery(selection.sections, planner.selectionTerm, scheduleIndex, planner.groups)
+                ? buildShareQuery(selection.sections, planner.selectionTerm, scheduleIndex, planner.groups, planner.pins)
                 : null
             }
             preferences={preferences}
@@ -283,7 +286,12 @@ export function Planner() {
         <MobileTab icon="bi-stars" label="CBUs" active={!mobileCalendar && tab === "cbus"} onClick={() => showTab("cbus")} />
       </nav>
 
-      <DetailsDrawer event={planner.selectedEvent} onClose={closeDetails} />
+      <DetailsDrawer
+        event={planner.selectedEvent}
+        onClose={closeDetails}
+        pins={planner.pins}
+        onTogglePin={planner.togglePin}
+      />
 
       <PlansModal
         open={plansOpen}

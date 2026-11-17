@@ -13,12 +13,23 @@ import {
   termLabel,
   titleCase,
 } from "@/lib/format";
+import type { Pins } from "@/lib/pins";
 import { formatTerm } from "@/lib/terms";
 import { ProfessorLinks, SeatMeter } from "./SectionRow";
 import type { SelectedEventInfo } from "./usePlanner";
 
 /** Class details: a side drawer on desktop, a bottom sheet on phones. */
-export function DetailsDrawer({ event: openEvent, onClose }: { event: SelectedEventInfo | null; onClose: () => void }) {
+export function DetailsDrawer({
+  event: openEvent,
+  onClose,
+  pins,
+  onTogglePin,
+}: {
+  event: SelectedEventInfo | null;
+  onClose: () => void;
+  pins: Pins;
+  onTogglePin: (courseCode: string, nrc: string) => void;
+}) {
   // Keep the last event on screen while the drawer slides out.
   const { rendered: event, closing } = usePresence(openEvent);
   useEffect(() => {
@@ -31,6 +42,8 @@ export function DetailsDrawer({ event: openEvent, onClose }: { event: SelectedEv
   if (!event) return null;
   const { section } = event;
   const term = termLabel(section);
+  const courseCode = event.courseCode ?? section.courseCode;
+  const pinned = pins[courseCode] === section.nrc;
 
   return (
     <div className={cn("fixed inset-0 z-50", closing && "pointer-events-none")} role="dialog" aria-modal="true" aria-label={`Detalles de ${event.courseCode}`}>
@@ -60,6 +73,28 @@ export function DetailsDrawer({ event: openEvent, onClose }: { event: SelectedEv
         </div>
 
         <div className="space-y-5 px-5 py-4">
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              aria-pressed={pinned}
+              onClick={() => onTogglePin(courseCode, section.nrc)}
+              className={cn(
+                "flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition",
+                pinned
+                  ? "bg-accent-soft text-fg ring-1 ring-accent hover:bg-accent-soft/70"
+                  : "bg-accent text-on-accent hover:bg-accent-hover",
+              )}
+            >
+              <i className={cn("bi", pinned ? "bi-pin-angle-fill" : "bi-pin-angle")} aria-hidden="true"></i>
+              {pinned ? "Fijada · soltar" : "Fijar esta sección"}
+            </button>
+            <p className="text-center text-xs text-fg-muted">
+              {pinned
+                ? "Todas las opciones incluyen esta sección."
+                : "Todas las opciones la incluirán; el resto de tus cursos sigue variando."}
+            </p>
+          </div>
+
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <Info label="Sección" value={section.sectionId} />
             <Info label="NRC" value={section.nrc} />

@@ -18,6 +18,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Nuevo",
+    text: "Fija una sección: elige exactamente la que quieres de un curso y el resto de tu horario sigue variando.",
+  },
+  {
+    date: "2026-11",
+    tag: "Nuevo",
     text: "Grupos «elige uno»: agrupa electivas o CBUs y cada horario incluye solo uno.",
   },
   {

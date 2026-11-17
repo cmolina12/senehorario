@@ -105,11 +105,19 @@ function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): st
   );
 }
 
-const heading = (sec: ScheduledSection, extra = "") =>
-  `${escapeHtml(sec.courseCode)} · ${escapeHtml(sec.sectionId)}${extra}`;
+const PIN_ICON = `<i class="bi bi-pin-angle-fill ev-pin" aria-label="Fijada"></i>`;
 
-/** `courseOrder` decides colors (defaults to the order courses appear in the schedule). */
-export function scheduleToEvents(schedule: ScheduledSection[], courseOrder?: string[]): EventInput[] {
+/**
+ * `courseOrder` decides colors (defaults to the order courses appear in the
+ * schedule); sections whose key is in `pinned` get a pin next to their code.
+ */
+export function scheduleToEvents(
+  schedule: ScheduledSection[],
+  courseOrder?: string[],
+  pinned: ReadonlySet<string> = new Set(),
+): EventInput[] {
+  const heading = (sec: ScheduledSection, extra = "") =>
+    `${escapeHtml(sec.courseCode)} · ${escapeHtml(sec.sectionId)}${extra}${pinned.has(sectionKey(sec)) ? PIN_ICON : ""}`;
   const order = courseOrder ?? [...new Set(schedule.map((s) => s.courseCode))];
   const colorFor = (code: string) => courseColor(order, code);
 

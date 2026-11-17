@@ -327,6 +327,11 @@
   text-overflow: ellipsis;
 }
 
+.ev-pin {
+  margin-left: 0.25rem;
+  font-size: 0.625rem;
+}
+
 .ev-title {
   font-size: 0.6875rem;
   color: var(--text-secondary);
