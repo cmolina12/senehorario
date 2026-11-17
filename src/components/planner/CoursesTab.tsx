@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Chip, EmptyState, IconButton } from "@/components/ui";
 import { courseColor } from "@/lib/calendar-events";
-import { cn, plural, titleCase } from "@/lib/format";
+import { cn, plural } from "@/lib/format";
 import { buildSlots, type CourseGroups } from "@/lib/groups";
 import { formatTerm } from "@/lib/terms";
 import { sectionKey, type Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
-import { MeetingChips } from "./SectionRow";
+import { MeetingChips, ProfessorLinks } from "./SectionRow";
 import type { Selection } from "./usePlanner";
 
 interface Props {
@@ -103,9 +103,7 @@ export function CoursesTab({
                     <Chip className="bg-accent-soft text-fg">{section.ptrm}</Chip>
                   )}
                 </div>
-                {section.professors?.length > 0 && (
-                  <p className="truncate text-xs text-fg-secondary">{titleCase(section.professors.join(", "))}</p>
-                )}
+                <ProfessorLinks professors={section.professors} size="xs" />
                 <div className="flex flex-wrap gap-1">
                   <MeetingChips section={section} />
                 </div>

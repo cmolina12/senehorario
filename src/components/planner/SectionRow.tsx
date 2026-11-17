@@ -37,10 +37,11 @@ export function SeatMeter({ section }: { section: Section }) {
   );
 }
 
-export function ProfessorLinks({ professors }: { professors: string[] }) {
+/** Professor names linking to their Los Estudiantes profile. */
+export function ProfessorLinks({ professors, size = "sm" }: { professors: string[]; size?: "sm" | "xs" }) {
   if (!professors?.length) return null;
   return (
-    <p className="truncate text-sm text-fg-secondary">
+    <p className={cn("truncate text-fg-secondary", size === "xs" ? "text-xs" : "text-sm")}>
       {professors.map((prof, i) => (
         <Fragment key={i}>
           <a
