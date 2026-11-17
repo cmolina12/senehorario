@@ -775,7 +775,7 @@
 
   .changelog-tag {
     flex-shrink: 0;
-    min-width: 66px;
+    min-width: 86px;
     padding: 1px 8px;
     border-radius: 999px;
     background: var(--main);

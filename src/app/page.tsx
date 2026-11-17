@@ -134,9 +134,9 @@ export default async function LandingPage() {
                   <div className="changelog">
                     <div className="changelog-head">
                       <span>Novedades</span>
-                      <a href={`${REPO_URL}/pulls?q=is%3Apr+is%3Amerged`} target="_blank" rel="noopener">
+                      <Link href="/novedades">
                         Ver todos los cambios <i className="bi bi-arrow-right"></i>
-                      </a>
+                      </Link>
                     </div>
                     <ul>
                       {CHANGELOG.slice(0, 3).map((entry) => (
@@ -217,6 +217,8 @@ export default async function LandingPage() {
         {/* Footer */}
         <footer className="footer-modern text-center!">
           &copy; 2026 Camilo Molina
+          <span className="mx-2!">·</span>
+          <Link href="/novedades">Novedades</Link>
           <span className="mx-2!">·</span>
           <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener">
             MIT License
