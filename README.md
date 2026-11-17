@@ -26,7 +26,7 @@ A schedule planner for Universidad de los Andes students: search the official co
 
 ## Stack
 
-A single Next.js (React + TypeScript) app, deployed on Vercel. It replaces the earlier Angular frontend and Spring Boot backend ([archived](https://github.com/cmolina12/senehorario-backend)).
+A single Next.js (React + TypeScript) app styled with Tailwind CSS, deployed on Vercel. It replaces the earlier Angular frontend and Spring Boot backend ([archived](https://github.com/cmolina12/senehorario-backend)).
 
 ```
 src/
