@@ -5,7 +5,7 @@ import esLocale from "@fullcalendar/core/locales/es";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CALENDAR_BASE_DATE, type EventProps, type VisibleRange } from "@/lib/calendar-events";
 import type { SelectedEventInfo } from "./usePlanner";
 
@@ -40,7 +40,38 @@ interface Props {
   onEventClick: (info: SelectedEventInfo) => void;
 }
 
+/** Identity of a block across options: same section, same time slot. */
+function eventKey(e: EventInput): string {
+  const section = (e.extendedProps as Partial<EventProps> | undefined)?.section;
+  return section ? `${section.term}-${section.nrc}-${String(e.start)}` : String(e.id ?? e.start);
+}
+
+/**
+ * Marks blocks that weren't on screen before (new option, added section) so
+ * they animate in; blocks that stay put don't move, which makes the change
+ * easy to spot.
+ */
+function useNewEventKeys(events: EventInput[]): Set<string> {
+  const [previous, setPrevious] = useState(events);
+  const [fresh, setFresh] = useState(() => new Set(events.map(eventKey)));
+  if (events !== previous) {
+    const before = new Set(previous.map(eventKey));
+    setFresh(new Set(events.map(eventKey).filter((k) => !before.has(k))));
+    setPrevious(events);
+  }
+  return fresh;
+}
+
 export default function ScheduleCalendar({ events, range, onEventClick }: Props) {
+  const freshKeys = useNewEventKeys(events);
+  const marked = useMemo(
+    () =>
+      events.map((e) =>
+        freshKeys.has(eventKey(e)) ? { ...e, classNames: [...((e.classNames as string[]) ?? []), "ev-new"] } : e,
+      ),
+    [events, freshKeys],
+  );
+
   const options = useMemo<CalendarOptions>(
     () => ({
       plugins: [timeGridPlugin, interactionPlugin],
@@ -77,5 +108,5 @@ export default function ScheduleCalendar({ events, range, onEventClick }: Props)
     [range, onEventClick],
   );
 
-  return <FullCalendar {...options} events={events} />;
+  return <FullCalendar {...options} events={marked} />;
 }

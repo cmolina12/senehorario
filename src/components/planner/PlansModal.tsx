@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/format";
+import { usePresence } from "@/lib/use-presence";
 import { EmptyState, IconButton } from "@/components/ui";
 import { persistSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
 
 interface Props {
+  open: boolean;
   plans: SavedPlans;
   onPlansChange: (plans: SavedPlans) => void;
   currentSnapshot: () => PlanSnapshot;
@@ -25,15 +28,17 @@ function planDate(snapshot: PlanSnapshot): string {
   return date.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export function PlansModal({ plans, onPlansChange, currentSnapshot, canSave, onLoad, onClose }: Props) {
+export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSave, onLoad, onClose }: Props) {
+  const { rendered, closing } = usePresence(open ? true : null);
   const [name, setName] = useState("");
   const [importError, setImportError] = useState("");
 
   useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [open, onClose]);
 
   const update = (next: SavedPlans) => {
     onPlansChange(next);
@@ -89,10 +94,28 @@ export function PlansModal({ plans, onPlansChange, currentSnapshot, canSave, onL
 
   const names = Object.keys(plans);
 
+  if (!rendered) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="plans-title">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={onClose} />
-      <div className="relative flex max-h-[85dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl sm:max-w-lg sm:rounded-2xl">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4",
+        closing && "pointer-events-none",
+      )}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="plans-title"
+    >
+      <div
+        className={cn("absolute inset-0 bg-black/40 backdrop-blur-[1px]", closing ? "animate-fade-out" : "animate-fade-in")}
+        onClick={onClose}
+      />
+      <div
+        className={cn(
+          "relative flex max-h-[85dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl sm:max-w-lg sm:rounded-2xl",
+          closing ? "animate-sheet-out sm:animate-pop-out" : "animate-sheet-in sm:animate-pop-in",
+        )}
+      >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
             <h2 id="plans-title" className="text-base font-semibold">

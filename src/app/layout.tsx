@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./globals.css";
@@ -8,6 +9,14 @@ import { LEGACY_IMPORT_SCRIPT } from "@/lib/legacy-import-script";
 const SITE_URL = "https://senehorario.cmolina.xyz";
 const DESCRIPTION =
   "Arma tu horario de la Universidad de los Andes sin choques: busca cursos, compara todas las combinaciones, encuentra CBUs que encajan y copia los NRCs para Banner. Gratis y de código abierto.";
+
+// Self-hosted at build time: no request to Google and no jump when it loads.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -47,15 +56,10 @@ const GA_ID = "G-YQL4WC9SNL";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" className={jakarta.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: LEGACY_IMPORT_SCRIPT }} />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body>
         {children}

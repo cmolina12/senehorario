@@ -113,7 +113,7 @@ export function SectionRow({ section, selected, onToggle, showAttrs }: Props) {
         aria-label={selected ? `Quitar sección ${section.sectionId}` : `Agregar sección ${section.sectionId}`}
         title={selected ? "Quitar del horario" : "Agregar al horario"}
         className={cn(
-          "mt-0.5 grid size-8 shrink-0 place-items-center rounded-full border transition",
+          "mt-0.5 grid size-8 shrink-0 place-items-center rounded-full border transition active:scale-90",
           selected
             ? "border-accent bg-accent text-on-accent hover:bg-accent-hover"
             : "border-border-strong text-fg-secondary hover:border-fg-muted hover:text-fg",

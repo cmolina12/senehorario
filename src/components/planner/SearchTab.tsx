@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EmptyState, Spinner } from "@/components/ui";
+import { CardSkeletons, EmptyState } from "@/components/ui";
 import { formatTerm } from "@/lib/terms";
 import type { Course, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
@@ -69,7 +69,7 @@ export function SearchTab({
                   </option>
                 ))}
               </select>
-              <i className="bi bi-chevron-down pointer-events-none absolute right-2.5 text-[0.6rem] text-fg-muted" aria-hidden="true"></i>
+              <i className="bi bi-chevron-down pointer-events-none absolute right-2.5 text-2xs text-fg-muted" aria-hidden="true"></i>
             </span>
           </label>
         )}
@@ -114,11 +114,7 @@ export function SearchTab({
         </div>
       </form>
 
-      {search.loading && (
-        <div className="flex items-center justify-center gap-2 py-8 text-sm text-fg-secondary">
-          <Spinner /> Buscando cursos…
-        </div>
-      )}
+      {search.loading && <CardSkeletons label="Buscando cursos…" />}
 
       {!search.loading && courses.length > 0 && (
         <div className="space-y-2.5">

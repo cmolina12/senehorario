@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { EmptyState, Spinner } from "@/components/ui";
+import { CardSkeletons, EmptyState } from "@/components/ui";
 import { CBU_AREA_FILTERS, CBU_ATTR_FILTERS, cn, plural } from "@/lib/format";
 import { fitsInSchedule } from "@/lib/scheduler";
 import { coursesInTerm } from "@/lib/terms";
@@ -111,11 +111,7 @@ export function CbuTab({
         </FilterRow>
       </div>
 
-      {loading && (
-        <div className="flex items-center justify-center gap-2 py-8 text-sm text-fg-secondary">
-          <Spinner /> Cargando CBUs…
-        </div>
-      )}
+      {loading && <CardSkeletons count={4} label="Cargando CBUs…" />}
       {error && (
         <EmptyState icon="bi-exclamation-triangle" tone="danger" title="No pudimos cargar los CBUs">
           {error}

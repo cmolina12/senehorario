@@ -1,5 +1,8 @@
+"use client";
+
 import { Menu, type MenuItem } from "@/components/ui";
 import { cn, plural, titleCase } from "@/lib/format";
+import { usePresence } from "@/lib/use-presence";
 
 interface Props {
   code: string;
@@ -29,6 +32,8 @@ export function CourseCard({
   menu,
   children,
 }: Props) {
+  // Keep the sections mounted while they collapse, then drop them.
+  const { rendered: showBody, closing } = usePresence(expanded ? true : null, 200);
   return (
     <div className="flex rounded-xl bg-surface shadow-card ring-1 ring-border/70 transition hover:ring-border-strong dark:bg-surface-alt dark:ring-border-strong/70 dark:hover:ring-border-strong">
       <span
@@ -68,7 +73,7 @@ export function CourseCard({
                 </>
               )}
               <i
-                className={cn("bi bi-chevron-down ml-0.5 text-[0.6rem] text-fg-muted transition", expanded && "rotate-180")}
+                className={cn("bi bi-chevron-down ml-0.5 text-2xs text-fg-muted transition", expanded && "rotate-180")}
                 aria-hidden="true"
               ></i>
             </p>
@@ -79,7 +84,13 @@ export function CourseCard({
             </div>
           )}
         </div>
-        {expanded && <div className="border-t border-border px-3.5">{children}</div>}
+        {showBody && (
+          <div className="collapsible" data-closing={closing || undefined}>
+            <div>
+              <div className="border-t border-border px-3.5">{children}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

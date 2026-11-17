@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { cn } from "@/lib/format";
+import { usePresence } from "@/lib/use-presence";
 import { IconButton } from "@/components/ui";
 import {
   cicloLabel,
@@ -16,7 +18,9 @@ import { ProfessorLinks, SeatMeter } from "./SectionRow";
 import type { SelectedEventInfo } from "./usePlanner";
 
 /** Class details: a side drawer on desktop, a bottom sheet on phones. */
-export function DetailsDrawer({ event, onClose }: { event: SelectedEventInfo | null; onClose: () => void }) {
+export function DetailsDrawer({ event: openEvent, onClose }: { event: SelectedEventInfo | null; onClose: () => void }) {
+  // Keep the last event on screen while the drawer slides out.
+  const { rendered: event, closing } = usePresence(openEvent);
   useEffect(() => {
     if (!event) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -29,9 +33,17 @@ export function DetailsDrawer({ event, onClose }: { event: SelectedEventInfo | n
   const term = termLabel(section);
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label={`Detalles de ${event.courseCode}`}>
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" onClick={onClose} />
-      <aside className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-2xl border border-border bg-surface shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-[380px] sm:rounded-none sm:rounded-l-2xl">
+    <div className={cn("fixed inset-0 z-50", closing && "pointer-events-none")} role="dialog" aria-modal="true" aria-label={`Detalles de ${event.courseCode}`}>
+      <div
+        className={cn("absolute inset-0 bg-black/30 backdrop-blur-[1px]", closing ? "animate-fade-out" : "animate-fade-in")}
+        onClick={onClose}
+      />
+      <aside
+        className={cn(
+          "absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-2xl border border-border bg-surface shadow-2xl sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-[380px] sm:rounded-none sm:rounded-l-2xl",
+          closing ? "animate-sheet-out sm:animate-drawer-out" : "animate-sheet-in sm:animate-drawer-in",
+        )}
+      >
         <div className="sticky top-0 flex items-start gap-3 border-b border-border bg-surface px-5 py-4">
           <span
             className="mt-1.5 size-3 shrink-0 rounded-full"

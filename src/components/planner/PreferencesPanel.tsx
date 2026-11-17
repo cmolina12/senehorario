@@ -37,7 +37,7 @@ function Select({
         {children}
       </select>
       <i
-        className="bi bi-chevron-down pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[0.6rem] text-fg-muted"
+        className="bi bi-chevron-down pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-2xs text-fg-muted"
         aria-hidden="true"
       ></i>
     </span>

@@ -61,7 +61,7 @@
 }
 
 @theme inline {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
@@ -80,6 +80,10 @@
   --color-fg: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
   --color-fg-muted: var(--text-muted);
+
+  /* Type scale: Tailwind's xs (12px) … 3xl, plus 2xs (11px) for badges and captions. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -121,6 +125,88 @@
   }
 }
 
+/* ====================================================================== */
+/* Motion: short, purposeful, and off when the system asks for less.      */
+/* ====================================================================== */
+@theme {
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-fade-in: fade-in 160ms var(--ease-out-soft) both;
+  --animate-fade-out: fade-out 140ms ease-in both;
+  --animate-pop-in: pop-in 180ms var(--ease-out-soft) both;
+  --animate-pop-out: pop-out 140ms ease-in both;
+  --animate-drawer-in: drawer-in 220ms var(--ease-out-soft) both;
+  --animate-drawer-out: drawer-out 180ms ease-in both;
+  --animate-sheet-in: sheet-in 240ms var(--ease-out-soft) both;
+  --animate-sheet-out: sheet-out 180ms ease-in both;
+  --animate-notice-in: notice-in 220ms var(--ease-out-soft) both;
+  --animate-bump: bump 260ms var(--ease-out-soft);
+  --animate-enter: enter 260ms var(--ease-out-soft) backwards;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  }
+  @keyframes pop-out {
+    to { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  }
+  @keyframes drawer-in {
+    from { transform: translateX(100%); }
+  }
+  @keyframes drawer-out {
+    to { transform: translateX(100%); }
+  }
+  @keyframes sheet-in {
+    from { transform: translateY(100%); }
+  }
+  @keyframes sheet-out {
+    to { transform: translateY(100%); }
+  }
+  @keyframes notice-in {
+    from { opacity: 0; transform: translateY(-6px); }
+  }
+  @keyframes bump {
+    40% { transform: scale(1.25); }
+  }
+  @keyframes enter {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+}
+
+/* Smooth expand/collapse: wrap content in .collapsible > div. */
+.collapsible {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 200ms var(--ease-out-soft);
+}
+@starting-style {
+  .collapsible {
+    grid-template-rows: 0fr;
+  }
+}
+.collapsible[data-closing] {
+  grid-template-rows: 0fr;
+}
+.collapsible > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @utility shadow-card {
   box-shadow:
     0 1px 2px hsl(var(--shadow-color) / 0.06),
@@ -141,7 +227,8 @@
   --fc-page-bg-color: var(--surface);
   --fc-neutral-bg-color: var(--surface-alt);
   --fc-today-bg-color: transparent;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .fc .fc-scrollgrid {
@@ -159,7 +246,7 @@
   padding: 10px 0;
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-decoration: none;
 }
 
@@ -170,7 +257,7 @@
 
 .fc .fc-timegrid-slot-label-cushion {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.6875rem;
   padding-right: 8px;
 }
 
@@ -214,6 +301,10 @@
   box-shadow: 0 0 0 1px var(--surface);
 }
 
+.fc .fc-timegrid-event.ev-new {
+  animation: var(--animate-enter);
+}
+
 .ev {
   display: flex;
   flex-direction: column;
@@ -226,14 +317,14 @@
 
 .ev-code {
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ev-title {
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -243,7 +334,7 @@
 
 .ev-time {
   margin-top: auto;
-  font-size: 0.66rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -253,9 +344,9 @@
   margin-left: 4px;
   padding: 0 4px;
   border-radius: 4px;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.2;
   vertical-align: 1px;
   background: color-mix(in srgb, var(--ev) 30%, transparent);
 }
@@ -320,7 +411,7 @@
 
 .block-label {
   padding: 4px 6px;
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-muted);
   font-style: normal;

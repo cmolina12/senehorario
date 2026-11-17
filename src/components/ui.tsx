@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/format";
+import { usePresence } from "@/lib/use-presence";
 
 export function Spinner({ className }: { className?: string }) {
   return (
@@ -72,7 +73,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md bg-surface-alt px-1.5 py-0.5 text-[0.72rem] font-medium whitespace-nowrap text-fg-secondary",
+        "inline-flex items-center gap-1 rounded-md bg-surface-alt px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-fg-secondary",
         className,
       )}
     >
@@ -100,7 +101,8 @@ function useDismissable() {
     };
   }, [open]);
 
-  return { open, setOpen, ref };
+  const { rendered, closing } = usePresence(open ? true : null, 140);
+  return { open, setOpen, ref, rendered: !!rendered, closing };
 }
 
 export interface MenuItem {
@@ -112,7 +114,7 @@ export interface MenuItem {
 
 /** "⋯" button with a small dropdown of actions. */
 export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
-  const { open, setOpen, ref } = useDismissable();
+  const { open, setOpen, ref, rendered, closing } = useDismissable();
 
   return (
     <div ref={ref} className="relative">
@@ -124,10 +126,13 @@ export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
         className="size-8"
         onClick={() => setOpen((o) => !o)}
       />
-      {open && (
+      {rendered && (
         <div
           role="menu"
-          className="absolute top-full right-0 z-20 mt-1 min-w-52 rounded-xl border border-border bg-surface py-1 shadow-lg shadow-black/10"
+          className={cn(
+            "absolute top-full right-0 z-20 mt-1 min-w-52 origin-top-right rounded-xl border border-border bg-surface py-1 shadow-lg shadow-black/10",
+            closing ? "pointer-events-none animate-pop-out" : "animate-pop-in",
+          )}
         >
           {items.map((item) => (
             <button
@@ -169,7 +174,7 @@ export function Popover({
   panelClassName?: string;
   children: React.ReactNode;
 }) {
-  const { open, setOpen, ref } = useDismissable();
+  const { open, setOpen, ref, rendered, closing } = useDismissable();
   return (
     <div ref={ref} className="relative">
       <button
@@ -186,21 +191,44 @@ export function Popover({
         <i className={`bi ${icon}`} aria-hidden="true"></i>
         {label}
         {!!badge && (
-          <span className="rounded-full bg-accent px-1.5 text-[0.65rem] leading-4 font-bold text-on-accent">{badge}</span>
+          <span className="rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">{badge}</span>
         )}
       </button>
-      {open && (
+      {rendered && (
         <div
           role="dialog"
           aria-label={label}
           className={cn(
-            "absolute top-full left-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] sm:right-0 sm:left-auto rounded-2xl border border-border bg-surface p-4 shadow-xl shadow-black/10",
+            "absolute top-full left-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-left sm:right-0 sm:left-auto sm:origin-top-right rounded-2xl border border-border bg-surface p-4 shadow-xl shadow-black/10",
+            closing ? "pointer-events-none animate-pop-out" : "animate-pop-in",
             panelClassName,
           )}
         >
           {children}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Placeholder course cards shown while results load. */
+export function CardSkeletons({ count = 3, label }: { count?: number; label: string }) {
+  return (
+    <div className="space-y-2.5" role="status" aria-label={label}>
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className="flex animate-pulse rounded-xl bg-surface shadow-card ring-1 ring-border/70 dark:bg-surface-alt"
+          style={{ animationDelay: `${i * 120}ms` }}
+        >
+          <span className="w-2 shrink-0 rounded-l-xl bg-border" />
+          <div className="flex-1 space-y-2 px-3.5 py-3.5">
+            <div className="h-2.5 w-16 rounded-full bg-border" />
+            <div className="h-3.5 w-3/4 rounded-full bg-border" />
+            <div className="h-2.5 w-28 rounded-full bg-border" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

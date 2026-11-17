@@ -30,8 +30,8 @@ export function AgendaView({
         <section key={day} className="px-4 py-3">
           <h3 className="mb-2 text-xs font-semibold tracking-wide text-fg-muted uppercase">{dayName(day)}</h3>
           <ul className="space-y-2">
-            {items.map(({ section, meeting }, i) => (
-              <li key={i}>
+            {items.map(({ section, meeting }) => (
+              <li key={`${section.term}-${section.nrc}-${meeting.day}-${meeting.start}`} className="animate-enter">
                 <AgendaItem
                   section={section}
                   meeting={meeting}
