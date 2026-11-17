@@ -501,6 +501,76 @@
   }
 
 
+  /* Contact address with a copy button, styled like .about-link */
+  .contact-email {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 12px;
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  }
+
+  .contact-email:hover,
+  .contact-email:focus-within {
+    background: var(--main);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .contact-email-address {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px 10px 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-email-address:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .contact-email-copy {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    border: 0;
+    border-left: 1px solid var(--border);
+    border-radius: 0 11px 11px 0;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .contact-email-copy:hover {
+    color: var(--text-primary);
+    background: var(--bg-light);
+  }
+
+  .contact-email-copy.is-copied {
+    color: #16a34a;
+  }
+
+  /* Phones: keep the address on one line. */
+  @media (max-width: 575.98px) {
+    .contact-email-address {
+      gap: 6px;
+      padding: 9px 10px 9px 12px;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    .contact-email-copy {
+      width: 38px;
+    }
+  }
+
   .about-inline-link {
     color: var(--text-primary);
     font-weight: 700;

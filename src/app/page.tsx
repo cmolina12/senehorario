@@ -2,6 +2,8 @@ import Link from "next/link";
 import "./landing.css";
 import { CHANGELOG, formatMonth } from "@/content/changelog";
 import { FaqLink } from "@/components/FaqLink";
+import { ContactEmail } from "@/components/landing/ContactEmail";
+import { CONTACT_EMAIL } from "@/content/contact";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { COURSE_COLORS } from "@/lib/calendar-events";
@@ -153,9 +155,7 @@ export default async function LandingPage() {
                     <a href={REPO_URL} target="_blank" rel="noopener" className="about-link">
                       <i className="bi bi-github me-1!"></i>Repositorio
                     </a>
-                    <a href="mailto:c.molinap@uniandes.edu.co" className="about-link">
-                      <i className="bi bi-envelope me-1!"></i>Contacto
-                    </a>
+                    <ContactEmail />
                   </div>
 
                 </div>
@@ -201,7 +201,7 @@ export default async function LandingPage() {
                     MATE1203 y MATE1203C) y agrégalo también a tu plan para que entre en el horario.
                   </FaqItem>
                   <FaqItem question="Tengo una idea o encontré un error, ¿qué hago?">
-                    Escríbeme un correo y lo revisamos. Si sabes programar en TypeScript, también puedes
+                    Escríbeme a <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> y lo revisamos. Si sabes programar en TypeScript, también puedes
                     abrir un issue o un pull request en el{" "}
                     <a href={REPO_URL} target="_blank" rel="noopener">
                       repositorio
