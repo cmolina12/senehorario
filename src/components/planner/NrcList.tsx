@@ -46,7 +46,7 @@ export function NrcList({
                 aria-hidden="true"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">
+                <p className="text-sm font-semibold">
                   {s.courseCode} · Sección {s.sectionId}
                   {(s.ptrm === "8A" || s.ptrm === "8B") && (
                     <span className="ml-1 text-xs text-fg-muted">{s.ptrm}</span>

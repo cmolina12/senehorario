@@ -118,7 +118,7 @@ export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSav
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
-            <h2 id="plans-title" className="text-base font-semibold">
+            <h2 id="plans-title" className="text-base font-extrabold tracking-tight">
               Mis planes
             </h2>
             <p className="text-xs text-fg-muted">Se guardan en este navegador. Descárgalos para llevarlos a otro.</p>
@@ -156,7 +156,7 @@ export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSav
           <div>
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-xs font-semibold tracking-wide text-fg-muted uppercase">Guardados</h3>
-              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-fg-secondary transition hover:bg-surface-hover hover:text-fg">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-fg-secondary transition hover:bg-surface-hover hover:text-fg">
                 <i className="bi bi-upload" aria-hidden="true"></i> Importar
                 <input type="file" accept=".json,application/json" onChange={importPlan} className="sr-only" />
               </label>

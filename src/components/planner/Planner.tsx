@@ -176,13 +176,13 @@ export function Planner() {
         <Link href="/" className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/peluche.png" alt="" className="size-7" />
-          <span className="font-bold tracking-tight">Senéhorario</span>
+          <span className="font-extrabold tracking-tight">Senéhorario</span>
         </Link>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={openPlans}
-            className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-fg-secondary transition hover:bg-surface-hover hover:text-fg"
+            className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-fg-secondary transition hover:bg-surface-hover hover:text-fg"
           >
             <i className="bi bi-bookmark-star" aria-hidden="true"></i>
             <span className="hidden sm:inline">Mis planes</span>
@@ -207,8 +207,8 @@ export function Planner() {
                 onClick={() => showTab(t.id)}
                 aria-current={tab === t.id ? "page" : undefined}
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium whitespace-nowrap transition",
-                  tab === t.id ? "bg-accent-soft font-semibold text-fg" : "text-fg-secondary hover:bg-surface-hover hover:text-fg",
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold whitespace-nowrap transition",
+                  tab === t.id ? "bg-accent-soft text-fg" : "text-fg-secondary hover:bg-surface-hover hover:text-fg",
                 )}
               >
                 <i className={`bi ${t.icon}`} aria-hidden="true"></i>
@@ -216,7 +216,7 @@ export function Planner() {
                 {tabBadge(t.id) && (
                   <span
                     key={tabBadge(t.id)}
-                    className="animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent"
+                    className="animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-extrabold text-on-accent"
                   >
                     {tabBadge(t.id)}
                   </span>
@@ -325,7 +325,7 @@ function MobileTab({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex flex-col items-center gap-0.5 py-2 text-2xs font-medium transition",
+        "relative flex flex-col items-center gap-0.5 py-2 text-2xs font-semibold transition",
         active ? "text-fg" : "text-fg-muted",
       )}
     >
@@ -336,7 +336,7 @@ function MobileTab({
       {badge != null && (
         <span
           key={badge}
-          className="absolute top-1 left-1/2 ml-2 animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent"
+          className="absolute top-1 left-1/2 ml-2 animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-extrabold text-on-accent"
         >
           {badge > 99 ? "99+" : badge}
         </span>

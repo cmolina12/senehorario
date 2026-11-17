@@ -13,7 +13,7 @@ const DESCRIPTION =
 // Self-hosted at build time: no request to Google and no jump when it loads.
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700", "800"],
   variable: "--font-jakarta",
   display: "swap",
 });

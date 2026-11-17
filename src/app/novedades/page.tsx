@@ -29,7 +29,7 @@ export default function NovedadesPage() {
           <Link href="/" className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/peluche.png" alt="" className="size-8" />
-            <span className="text-lg font-bold tracking-tight">Senéhorario</span>
+            <span className="text-lg font-extrabold tracking-tight">Senéhorario</span>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -45,7 +45,7 @@ export default function NovedadesPage() {
 
       <main className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 lg:py-16">
         <p className="text-sm font-semibold text-accent-hover">Novedades</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Lo que ha cambiado en Senéhorario</h1>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Lo que ha cambiado en Senéhorario</h1>
         <p className="mt-3 max-w-2xl text-fg-secondary">
           Funciones nuevas, mejoras y correcciones, mes a mes desde que empezó el proyecto.
         </p>
@@ -92,7 +92,7 @@ export default function NovedadesPage() {
 
         <p className="mt-16 text-center text-sm text-fg-muted">
           ¿Buscas el detalle técnico? Está en el{" "}
-          <a href={REPO_URL} target="_blank" rel="noopener" className="font-medium underline underline-offset-2 hover:text-fg">
+          <a href={REPO_URL} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2 hover:text-fg">
             repositorio
           </a>
           .

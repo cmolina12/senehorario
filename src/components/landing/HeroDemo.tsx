@@ -88,7 +88,7 @@ export function HeroDemo() {
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-[0_24px_48px_rgba(26,26,46,0.16)] dark:shadow-[0_24px_48px_rgba(0,0,0,0.5)]">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <div className="text-sm font-bold text-fg">Tu horario</div>
+            <div className="text-sm font-extrabold text-fg">Tu horario</div>
             <div className="text-2xs text-fg-muted">4 cursos · 13 créditos · 2027-10</div>
           </div>
           <div className="flex items-center gap-1 rounded-lg border border-border px-1 py-0.5 text-xs">

@@ -85,7 +85,7 @@ export function PreferencesPanel({
             <button
               type="button"
               onClick={() => onChange(DEFAULT_PREFERENCES)}
-              className="text-xs font-medium text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+              className="text-xs font-semibold text-fg-muted underline-offset-2 hover:text-fg hover:underline"
             >
               Restablecer
             </button>
@@ -102,7 +102,7 @@ export function PreferencesPanel({
                 aria-pressed={value.sort === o.value}
                 onClick={() => update({ sort: o.value })}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-xs font-medium transition",
+                  "rounded-full border px-2.5 py-1 text-xs font-semibold transition",
                   value.sort === o.value
                     ? "border-accent bg-accent text-on-accent"
                     : "border-border text-fg-secondary hover:border-border-strong hover:text-fg",
@@ -182,7 +182,7 @@ export function PreferencesPanel({
             <ul className="mb-2 divide-y divide-border rounded-xl border border-border">
               {value.blocks.map((b) => (
                 <li key={b.id} className="flex items-center gap-2 py-1.5 pr-1 pl-3 text-sm">
-                  <span className="w-20 shrink-0 font-medium">{dayName(b.day)}</span>
+                  <span className="w-20 shrink-0 font-semibold">{dayName(b.day)}</span>
                   <span className="text-fg-secondary">
                     {b.start}–{b.end}
                   </span>

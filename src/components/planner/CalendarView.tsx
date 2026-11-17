@@ -72,7 +72,7 @@ export function CalendarView({
     <div className="mx-auto w-full max-w-6xl space-y-4 p-4 lg:p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Tu horario</h1>
+          <h1 className="text-xl font-extrabold tracking-tight">Tu horario</h1>
           <p className="text-sm text-fg-secondary">
             {courseCount === 0
               ? "Aún no has agregado cursos"
@@ -106,7 +106,7 @@ export function CalendarView({
                   title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
                 >
                   Opción{" "}
-                  <span key={optionIndex} className="inline-block animate-bump font-semibold">
+                  <span key={optionIndex} className="inline-block animate-bump font-extrabold">
                     {optionIndex + 1}
                   </span>{" "}
                   de {optionCount}

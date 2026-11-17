@@ -64,7 +64,7 @@ export function DetailsDrawer({
             aria-hidden="true"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-lg font-bold">{event.courseCode}</p>
+            <p className="text-lg font-extrabold tracking-tight">{event.courseCode}</p>
             <p className="text-sm text-fg-secondary">
               {event.courseTitle ? titleCase(event.courseTitle) : "No disponible"}
             </p>
@@ -126,7 +126,7 @@ export function DetailsDrawer({
             <ul className="divide-y divide-border rounded-xl border border-border">
               {section.meetings.map((m, i) => (
                 <li key={i} className="flex items-baseline gap-3 px-3 py-2.5 text-sm">
-                  <span className="w-20 shrink-0 font-medium">{dayName(m.day)}</span>
+                  <span className="w-20 shrink-0 font-semibold">{dayName(m.day)}</span>
                   <span className="shrink-0 text-fg-secondary">
                     {shortTime(m.start)}–{shortTime(m.end)}
                   </span>
@@ -147,7 +147,7 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs text-fg-muted">{label}</dt>
-      <dd className="font-medium">{value}</dd>
+      <dd className="font-semibold">{value}</dd>
     </div>
   );
 }
