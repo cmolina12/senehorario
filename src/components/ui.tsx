@@ -1,5 +1,8 @@
+"use client";
+
 // Small shared UI primitives.
 
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/format";
 
 export function Spinner({ className }: { className?: string }) {
@@ -75,5 +78,70 @@ export function Chip({ children, className }: { children: React.ReactNode; class
     >
       {children}
     </span>
+  );
+}
+
+export interface MenuItem {
+  label: string;
+  icon: string;
+  onSelect: () => void;
+  danger?: boolean;
+}
+
+/** "⋯" button with a small dropdown of actions. */
+export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <IconButton
+        icon="bi-three-dots"
+        label={label}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="size-8"
+        onClick={() => setOpen((o) => !o)}
+      />
+      {open && (
+        <div
+          role="menu"
+          className="absolute top-full right-0 z-20 mt-1 min-w-52 rounded-xl border border-border bg-surface py-1 shadow-lg shadow-black/10"
+        >
+          {items.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                item.onSelect();
+              }}
+              className={cn(
+                "flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm whitespace-nowrap transition hover:bg-surface-hover",
+                item.danger ? "text-danger" : "text-fg",
+              )}
+            >
+              <i className={`bi ${item.icon} w-4 text-center opacity-80`} aria-hidden="true"></i>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

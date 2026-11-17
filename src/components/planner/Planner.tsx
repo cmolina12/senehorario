@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { visibleRange } from "@/lib/calendar-events";
+import { courseColor, visibleRange } from "@/lib/calendar-events";
 import { cn } from "@/lib/format";
 import { loadSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
 import { coursesInTerm, sortTerms, termsOfCourses } from "@/lib/terms";
@@ -68,6 +68,10 @@ export function Planner() {
     (code: string) => selection.sections[code]?.length ?? 0,
     [selection],
   );
+  const colorFor = useCallback(
+    (code: string) => (selection.sections[code] ? courseColor(Object.keys(selection.sections), code) : undefined),
+    [selection],
+  );
 
   const showTab = (next: SidebarTab) => {
     setTab(next);
@@ -109,6 +113,7 @@ export function Planner() {
           locked: courseCount > 0,
         }}
         selectedCount={selectedCount}
+        colorFor={colorFor}
         isSectionSelected={planner.isSectionSelected}
         onToggleSection={planner.toggleSection}
         onAddSections={planner.addSections}
@@ -136,6 +141,7 @@ export function Planner() {
         optionNumber={scheduleIndex + 1}
         schedule={planner.currentSchedule}
         selectedCount={selectedCount}
+        colorFor={colorFor}
         isSectionSelected={planner.isSectionSelected}
         onToggleSection={planner.toggleSection}
       />

@@ -121,6 +121,12 @@
   }
 }
 
+@utility shadow-card {
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.06),
+    0 4px 14px hsl(var(--shadow-color) / 0.07);
+}
+
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
