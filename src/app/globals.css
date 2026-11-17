@@ -125,6 +125,88 @@
   }
 }
 
+/* ====================================================================== */
+/* Motion: short, purposeful, and off when the system asks for less.      */
+/* ====================================================================== */
+@theme {
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-fade-in: fade-in 160ms var(--ease-out-soft) both;
+  --animate-fade-out: fade-out 140ms ease-in both;
+  --animate-pop-in: pop-in 180ms var(--ease-out-soft) both;
+  --animate-pop-out: pop-out 140ms ease-in both;
+  --animate-drawer-in: drawer-in 220ms var(--ease-out-soft) both;
+  --animate-drawer-out: drawer-out 180ms ease-in both;
+  --animate-sheet-in: sheet-in 240ms var(--ease-out-soft) both;
+  --animate-sheet-out: sheet-out 180ms ease-in both;
+  --animate-notice-in: notice-in 220ms var(--ease-out-soft) both;
+  --animate-bump: bump 260ms var(--ease-out-soft);
+  --animate-enter: enter 260ms var(--ease-out-soft) backwards;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  }
+  @keyframes pop-out {
+    to { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  }
+  @keyframes drawer-in {
+    from { transform: translateX(100%); }
+  }
+  @keyframes drawer-out {
+    to { transform: translateX(100%); }
+  }
+  @keyframes sheet-in {
+    from { transform: translateY(100%); }
+  }
+  @keyframes sheet-out {
+    to { transform: translateY(100%); }
+  }
+  @keyframes notice-in {
+    from { opacity: 0; transform: translateY(-6px); }
+  }
+  @keyframes bump {
+    40% { transform: scale(1.25); }
+  }
+  @keyframes enter {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+}
+
+/* Smooth expand/collapse: wrap content in .collapsible > div. */
+.collapsible {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 200ms var(--ease-out-soft);
+}
+@starting-style {
+  .collapsible {
+    grid-template-rows: 0fr;
+  }
+}
+.collapsible[data-closing] {
+  grid-template-rows: 0fr;
+}
+.collapsible > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @utility shadow-card {
   box-shadow:
     0 1px 2px hsl(var(--shadow-color) / 0.06),
@@ -217,6 +299,10 @@
 
 .fc .fc-timegrid-event-harness-inset .fc-timegrid-event {
   box-shadow: 0 0 0 1px var(--surface);
+}
+
+.fc .fc-timegrid-event.ev-new {
+  animation: var(--animate-enter);
 }
 
 .ev {

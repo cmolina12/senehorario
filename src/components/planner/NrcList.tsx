@@ -64,7 +64,11 @@ export function NrcList({
                 )}
               >
                 {s.nrc}
-                <i className={cn("bi text-xs", copied === key ? "bi-check-lg" : "bi-copy text-fg-muted")} aria-hidden="true"></i>
+                <i
+                  key={copied === key ? "done" : "idle"}
+                  className={cn("bi inline-block text-xs", copied === key ? "bi-check-lg animate-bump" : "bi-copy text-fg-muted")}
+                  aria-hidden="true"
+                ></i>
               </button>
             </li>
           );

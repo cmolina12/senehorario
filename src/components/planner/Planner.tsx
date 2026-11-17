@@ -211,7 +211,10 @@ export function Planner() {
                 <i className={`bi ${t.icon}`} aria-hidden="true"></i>
                 {t.label}
                 {tabBadge(t.id) && (
-                  <span className="rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">
+                  <span
+                    key={tabBadge(t.id)}
+                    className="animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent"
+                  >
                     {tabBadge(t.id)}
                   </span>
                 )}
@@ -282,16 +285,15 @@ export function Planner() {
 
       <DetailsDrawer event={planner.selectedEvent} onClose={closeDetails} />
 
-      {plansOpen && (
-        <PlansModal
-          plans={savedPlans}
-          onPlansChange={setSavedPlans}
-          currentSnapshot={currentSnapshot}
-          canSave={courseCount > 0}
-          onLoad={loadPlan}
-          onClose={() => setPlansOpen(false)}
-        />
-      )}
+      <PlansModal
+        open={plansOpen}
+        plans={savedPlans}
+        onPlansChange={setSavedPlans}
+        currentSnapshot={currentSnapshot}
+        canSave={courseCount > 0}
+        onLoad={loadPlan}
+        onClose={() => setPlansOpen(false)}
+      />
     </div>
   );
 }
@@ -324,7 +326,10 @@ function MobileTab({
       </span>
       {label}
       {badge != null && (
-        <span className="absolute top-1 left-1/2 ml-2 rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">
+        <span
+          key={badge}
+          className="absolute top-1 left-1/2 ml-2 animate-bump rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent"
+        >
           {badge > 99 ? "99+" : badge}
         </span>
       )}

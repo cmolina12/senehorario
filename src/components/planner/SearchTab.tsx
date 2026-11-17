@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EmptyState, Spinner } from "@/components/ui";
+import { CardSkeletons, EmptyState } from "@/components/ui";
 import { formatTerm } from "@/lib/terms";
 import type { Course, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
@@ -114,11 +114,7 @@ export function SearchTab({
         </div>
       </form>
 
-      {search.loading && (
-        <div className="flex items-center justify-center gap-2 py-8 text-sm text-fg-secondary">
-          <Spinner /> Buscando cursos…
-        </div>
-      )}
+      {search.loading && <CardSkeletons label="Buscando cursos…" />}
 
       {!search.loading && courses.length > 0 && (
         <div className="space-y-2.5">

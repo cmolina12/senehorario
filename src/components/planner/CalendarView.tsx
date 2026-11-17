@@ -4,7 +4,8 @@ import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import type { VisibleRange } from "@/lib/calendar-events";
-import { plural } from "@/lib/format";
+import { cn, plural } from "@/lib/format";
+import { usePresence } from "@/lib/use-presence";
 import type { Preferences } from "@/lib/preferences";
 
 import { MAX_SCHEDULES } from "@/lib/scheduler";
@@ -66,6 +67,7 @@ export function CalendarView({
   preferences,
   onPreferencesChange,
 }: Props) {
+  const { rendered: shownNotice, closing: noticeClosing } = usePresence(notice);
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-4 lg:p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
@@ -103,7 +105,11 @@ export function CalendarView({
                   className="min-w-28 px-1 text-center text-sm"
                   title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
                 >
-                  Opción <span className="font-semibold">{optionIndex + 1}</span> de {optionCount}
+                  Opción{" "}
+                  <span key={optionIndex} className="inline-block animate-bump font-semibold">
+                    {optionIndex + 1}
+                  </span>{" "}
+                  de {optionCount}
                   {truncated && "+"}
                 </span>
                 <IconButton
@@ -119,17 +125,20 @@ export function CalendarView({
         )}
       </header>
 
-      {notice && (
+      {shownNotice && (
         <div
           role="status"
-          className="flex gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm"
+          className={cn(
+            "flex gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm",
+            noticeClosing ? "animate-fade-out" : "animate-notice-in",
+          )}
         >
           <i className="bi bi-arrow-repeat mt-0.5 text-warning" aria-hidden="true"></i>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold">{notice.title}</p>
-            {notice.lines.length > 0 && (
+            <p className="font-semibold">{shownNotice.title}</p>
+            {shownNotice.lines.length > 0 && (
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-fg-secondary">
-                {notice.lines.map((line, i) => (
+                {shownNotice.lines.map((line, i) => (
                   <li key={i}>{line}</li>
                 ))}
               </ul>
