@@ -16,10 +16,13 @@ export function toMinutes(time: string): number {
   return h * 60 + (m || 0);
 }
 
-/** Two academic periods overlap unless they are the disjoint halves 8A and 8B. */
+/**
+ * Two academic periods overlap unless they are the disjoint halves 8A and 8B.
+ * Any other period code ("1", "2", …) spans the whole semester.
+ */
 export function ptrmOverlaps(ptrm1: string, ptrm2: string): boolean {
-  if (ptrm1 === "1" || ptrm2 === "1") return true;
-  return ptrm1 === ptrm2;
+  const halves = new Set([ptrm1, ptrm2]);
+  return !(halves.size === 2 && halves.has("8A") && halves.has("8B"));
 }
 
 /** Same day and intersecting time ranges. Back-to-back meetings don't overlap. */

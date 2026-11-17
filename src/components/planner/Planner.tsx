@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { blockEvents, courseColor, visibleRange } from "@/lib/calendar-events";
 import { cn } from "@/lib/format";
 import { loadSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
+import { buildShareQuery } from "@/lib/share";
 import { coursesInTerm, sortTerms, termsOfCourses } from "@/lib/terms";
 import { CalendarView } from "./CalendarView";
 import { CbuTab } from "./CbuTab";
@@ -239,8 +240,13 @@ export function Planner() {
             onEventClick={setSelectedEvent}
             onGoToSearch={() => showTab("search")}
             refreshing={planner.refreshing}
-            planChanges={planner.planChanges}
-            onDismissChanges={planner.dismissPlanChanges}
+            notice={planner.notice}
+            onDismissNotice={planner.dismissNotice}
+            shareQuery={
+              courseCount > 0 && planner.selectionTerm
+                ? buildShareQuery(selection.sections, planner.selectionTerm, scheduleIndex)
+                : null
+            }
             preferences={preferences}
             onPreferencesChange={planner.setPreferences}
           />

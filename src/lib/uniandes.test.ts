@@ -52,6 +52,28 @@ describe("mapToDomain", () => {
     });
   });
 
+  it("keeps date ranges and merges rows that repeat the same weekly slot", () => {
+    const base = { ...raw().schedules![0], l: "L", i: null };
+    const [course] = mapToDomain([
+      raw({
+        schedules: [
+          { ...base, date_ini: "2026-09-07 00:00:00", date_fin: "2026-11-28 00:00:00" },
+          { ...base, date_ini: "2026-08-03 00:00:00", date_fin: "2026-09-06 00:00:00" },
+        ],
+      }),
+    ]);
+    expect(course.sections[0].meetings).toEqual([
+      {
+        day: "MONDAY",
+        start: "06:30:00",
+        end: "07:50:00",
+        location: ".Edif. SD .SD_205-6",
+        startDate: "2026-08-03",
+        endDate: "2026-11-28",
+      },
+    ]);
+  });
+
   it("sorts meetings by day and time across schedule rows", () => {
     const base = raw().schedules![0];
     const [course] = mapToDomain([

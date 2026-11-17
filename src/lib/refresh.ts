@@ -13,7 +13,8 @@ export type PlanChange =
   | { kind: "courseRemoved"; courseCode: string }
   | { kind: "full"; courseCode: string; sectionId: string; nrc: string }
   | { kind: "timeChanged"; courseCode: string; sectionId: string; nrc: string }
-  | { kind: "unverified"; courseCode: string };
+  | { kind: "unverified"; courseCode: string }
+  | { kind: "nrcNotFound"; courseCode: string; nrc: string };
 
 const meetingsSignature = (meetings: Meeting[]) =>
   meetings
@@ -88,5 +89,7 @@ export function describeChange(change: PlanChange): string {
       return `${change.courseCode}: la sección ${change.sectionId} (NRC ${change.nrc}) cambió de horario.`;
     case "unverified":
       return `No pudimos verificar ${change.courseCode} con la oferta actual.`;
+    case "nrcNotFound":
+      return `${change.courseCode}: el NRC ${change.nrc} ya no está en la oferta.`;
   }
 }

@@ -20,6 +20,8 @@ interface ApiSchedule {
   j: string | null;
   v: string | null;
   s: string | null;
+  date_ini?: string | null; // "2027-01-25 00:00:00"
+  date_fin?: string | null;
 }
 
 export interface ApiCourse {
@@ -100,17 +102,32 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       courses.set(code, course);
     }
 
-    const meetings: Meeting[] = [];
+    // The catalog can list the same weekly slot in several rows with
+    // different date ranges; keep one meeting per slot spanning all of them.
+    const bySlot = new Map<string, Meeting>();
     for (const s of a.schedules ?? []) {
       const start = parseTime(s.time_ini);
       const end = parseTime(s.time_fin);
       // Skip malformed entries instead of failing the whole search.
       if (!start || !end) continue;
       const location = `${s.building} ${s.classroom}`;
+      const startDate = parseDate(s.date_ini);
+      const endDate = parseDate(s.date_fin);
       for (const day of parseDays(s)) {
-        meetings.push({ day, start, end, location });
+        const key = `${day}-${start}-${end}`;
+        const existing = bySlot.get(key);
+        if (!existing) {
+          bySlot.set(key, { day, start, end, location, startDate, endDate });
+          continue;
+        }
+        if (startDate && (!existing.startDate || startDate < existing.startDate)) existing.startDate = startDate;
+        if (endDate && (!existing.endDate || endDate > existing.endDate)) existing.endDate = endDate;
       }
     }
+    // Leave dates out entirely rather than half-filled.
+    const meetings = [...bySlot.values()].map((m): Meeting =>
+      m.startDate && m.endDate ? m : { day: m.day, start: m.start, end: m.end, location: m.location },
+    );
 
     meetings.sort((x, y) => DAY_ORDER.indexOf(x.day) - DAY_ORDER.indexOf(y.day) || x.start.localeCompare(y.start));
 
@@ -133,6 +150,12 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
   }
 
   return [...courses.values()];
+}
+
+/** "2027-01-25 00:00:00" -> "2027-01-25"; undefined when missing or malformed. */
+function parseDate(value: string | null | undefined): string | undefined {
+  const match = value?.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : undefined;
 }
 
 /** "0630" -> "06:30:00"; returns null when malformed. */
