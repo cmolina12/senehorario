@@ -6,14 +6,15 @@ import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import type { VisibleRange } from "@/lib/calendar-events";
 import { plural } from "@/lib/format";
 import type { Preferences } from "@/lib/preferences";
-import { describeChange, type PlanChange } from "@/lib/refresh";
+
 import { MAX_SCHEDULES } from "@/lib/scheduler";
 import { formatTerm } from "@/lib/terms";
 import type { ScheduledSection } from "@/lib/types";
 import { AgendaView } from "./AgendaView";
 import { NrcList } from "./NrcList";
 import { PreferencesPanel } from "./PreferencesPanel";
-import type { SelectedEventInfo } from "./usePlanner";
+import { SharePanel } from "./SharePanel";
+import type { PlanNotice, SelectedEventInfo } from "./usePlanner";
 
 // FullCalendar measures the DOM, so render it only in the browser.
 const ScheduleCalendar = dynamic(() => import("./ScheduleCalendar"), { ssr: false });
@@ -33,8 +34,10 @@ interface Props {
   onEventClick: (info: SelectedEventInfo) => void;
   onGoToSearch: () => void;
   refreshing: boolean;
-  planChanges: PlanChange[];
-  onDismissChanges: () => void;
+  notice: PlanNotice | null;
+  onDismissNotice: () => void;
+  /** Query string that reproduces the current plan, or null when there's nothing to share. */
+  shareQuery: string | null;
   preferences: Preferences;
   onPreferencesChange: (next: Preferences) => void;
 }
@@ -54,8 +57,9 @@ export function CalendarView({
   onEventClick,
   onGoToSearch,
   refreshing,
-  planChanges,
-  onDismissChanges,
+  notice,
+  onDismissNotice,
+  shareQuery,
   preferences,
   onPreferencesChange,
 }: Props) {
@@ -80,6 +84,9 @@ export function CalendarView({
           <div className="flex flex-wrap items-center gap-2">
             <PreferencesPanel value={preferences} onChange={onPreferencesChange} />
             {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} />}
+            {schedule && shareQuery && term && (
+              <SharePanel shareQuery={shareQuery} schedule={schedule} term={term} optionNumber={optionIndex + 1} />
+            )}
             {optionCount > 0 && (
               <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
                 <IconButton
@@ -109,21 +116,23 @@ export function CalendarView({
         )}
       </header>
 
-      {planChanges.length > 0 && (
+      {notice && (
         <div
           role="status"
           className="flex gap-3 rounded-2xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm"
         >
           <i className="bi bi-arrow-repeat mt-0.5 text-warning" aria-hidden="true"></i>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold">Actualizamos tu plan con la oferta actual</p>
-            <ul className="mt-1 list-disc space-y-0.5 pl-4 text-fg-secondary">
-              {planChanges.map((change, i) => (
-                <li key={i}>{describeChange(change)}</li>
-              ))}
-            </ul>
+            <p className="font-semibold">{notice.title}</p>
+            {notice.lines.length > 0 && (
+              <ul className="mt-1 list-disc space-y-0.5 pl-4 text-fg-secondary">
+                {notice.lines.map((line, i) => (
+                  <li key={i}>{line}</li>
+                ))}
+              </ul>
+            )}
           </div>
-          <IconButton icon="bi-x-lg" label="Cerrar aviso" className="-mt-1.5 -mr-2 size-8 text-xs" onClick={onDismissChanges} />
+          <IconButton icon="bi-x-lg" label="Cerrar aviso" className="-mt-1.5 -mr-2 size-8 text-xs" onClick={onDismissNotice} />
         </div>
       )}
 

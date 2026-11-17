@@ -5,7 +5,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as api from "@/lib/api";
 import { scheduleToEvents } from "@/lib/calendar-events";
-import { reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
+import { describeChange, reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
+import { parseShareQuery, type SharedPlan } from "@/lib/share";
 import { MAX_SCHEDULES, generateAllSchedules, mergeHalfSemesterPairs } from "@/lib/scheduler";
 import {
   DEFAULT_PREFERENCES,
@@ -17,6 +18,8 @@ import {
 import {
   loadPlanningState,
   loadPreferences,
+  loadSavedPlans,
+  persistSavedPlans,
   savePlanningState,
   savePreferences,
   type PlanSnapshot,
@@ -44,7 +47,49 @@ export interface SelectedEventInfo {
   color?: string;
 }
 
+/** Message shown above the calendar after a plan is refreshed or a shared plan is opened. */
+export interface PlanNotice {
+  title: string;
+  lines: string[];
+}
+
 const EMPTY_SELECTION: Selection = { sections: {}, meta: {} };
+
+/** Live catalog data for each course code. */
+async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
+  return Object.fromEntries(
+    await Promise.all(
+      codes.map(async (code) => {
+        try {
+          const results = await api.searchCourses(code);
+          return [code, results.find((c) => c.code === code) ?? "missing"] as const;
+        } catch {
+          return [code, "error"] as const;
+        }
+      }),
+    ),
+  );
+}
+
+const refreshNotice = (changes: PlanChange[]): PlanNotice | null =>
+  changes.length > 0
+    ? { title: "Actualizamos tu plan con la oferta actual", lines: changes.map(describeChange) }
+    : null;
+
+/** Saves a plan under "Plan anterior (fecha)" so opening a shared link never loses it. */
+function backUpPlan(snapshot: PlanSnapshot): string {
+  const plans = loadSavedPlans();
+  const stamp = new Date().toLocaleString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  let name = `Plan anterior (${stamp})`;
+  for (let i = 2; plans[name]; i++) name = `Plan anterior (${stamp}) ${i}`;
+  persistSavedPlans({ ...plans, [name]: { ...snapshot, savedAt: new Date().toISOString() } });
+  return name;
+}
 
 const NO_SCHEDULES_ERROR =
   "Todas las combinaciones de las secciones seleccionadas tienen choques. Agrega más secciones o quita alguna que esté causando conflicto.";
@@ -56,7 +101,7 @@ export function usePlanner() {
   const [scheduleIndex, setScheduleIndex] = useState(0);
   const [scheduleError, setScheduleError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventInfo | null>(null);
-  const [planChanges, setPlanChanges] = useState<PlanChange[]>([]);
+  const [notice, setNotice] = useState<PlanNotice | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   // Bumped on every selection change so a slow catalog refresh never
@@ -209,32 +254,21 @@ export function usePlanner() {
       if (codes.length === 0) return;
       const startVersion = version.current;
       setRefreshing(true);
-      const fresh: FreshCourses = Object.fromEntries(
-        await Promise.all(
-          codes.map(async (code) => {
-            try {
-              const results = await api.searchCourses(code);
-              return [code, results.find((c) => c.code === code) ?? "missing"] as const;
-            } catch {
-              return [code, "error"] as const;
-            }
-          }),
-        ),
-      );
+      const fresh = await fetchFreshCourses(codes);
       setRefreshing(false);
       if (version.current !== startVersion) return; // the user changed the plan meanwhile
 
       // If nothing at all came back, the catalog is probably down or between
       // terms: don't wipe the plan, just say it couldn't be checked.
       if (Object.values(fresh).every((v) => v === "missing" || v === "error")) {
-        setPlanChanges(codes.map((courseCode) => ({ kind: "unverified", courseCode })));
+        setNotice(refreshNotice(codes.map((courseCode) => ({ kind: "unverified", courseCode }))));
         return;
       }
 
       const result = reconcileSelection(sel.sections, sel.meta, fresh);
       const reshaped = result.changes.some((c) => c.kind !== "full" && c.kind !== "unverified");
       applySelection({ sections: result.sections, meta: result.meta }, reshaped ? 0 : scheduleIndexRef.current);
-      setPlanChanges(result.changes);
+      setNotice(refreshNotice(result.changes));
     },
     [applySelection],
   );
@@ -246,11 +280,72 @@ export function usePlanner() {
         snapshot.selectedSectionsByCourse,
         snapshot.selectedCoursesMeta,
       );
-      setPlanChanges([]);
+      setNotice(null);
       applySelection({ sections, meta }, snapshot.selectedScheduleIndex);
       void refreshFromCatalog({ sections, meta });
     },
     [applySelection, refreshFromCatalog],
+  );
+
+  /**
+   * Opens a plan from a share link. The sections come fresh from the catalog;
+   * `previous` (the visitor's own plan, if any) is saved to "Mis planes" first.
+   */
+  const loadSharedPlan = useCallback(
+    async (shared: SharedPlan, previous: PlanSnapshot | null) => {
+      const codes = Object.keys(shared.courses);
+      const startVersion = version.current;
+      setRefreshing(true);
+      const fresh = await fetchFreshCourses(codes);
+      setRefreshing(false);
+      if (version.current !== startVersion) return;
+
+      if (Object.values(fresh).every((v) => v === "missing" || v === "error")) {
+        if (previous) loadSnapshot(previous);
+        setNotice({
+          title: "No pudimos abrir el plan compartido",
+          lines: ["La oferta de cursos no respondió o ya no tiene estos cursos. Intenta de nuevo más tarde."],
+        });
+        return;
+      }
+
+      const sections: Selection["sections"] = {};
+      const meta: Selection["meta"] = {};
+      const changes: PlanChange[] = [];
+      for (const code of codes) {
+        const live = fresh[code];
+        if (live === "error") {
+          changes.push({ kind: "unverified", courseCode: code });
+          continue;
+        }
+        if (live === "missing") {
+          changes.push({ kind: "courseRemoved", courseCode: code });
+          continue;
+        }
+        const found = live.sections.filter((s) => s.term === shared.term && shared.courses[code].includes(s.nrc));
+        for (const nrc of shared.courses[code]) {
+          if (!found.some((s) => s.nrc === nrc)) {
+            changes.push({ kind: "nrcNotFound", courseCode: code, nrc });
+          }
+        }
+        if (found.length > 0) {
+          sections[code] = found;
+          meta[code] = { title: live.title, credits: live.credits };
+        }
+      }
+
+      const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
+      const savedAs = hasPrevious ? backUpPlan(previous) : null;
+      applySelection({ sections, meta }, shared.optionIndex);
+      setNotice({
+        title: "Abriste un plan compartido",
+        lines: [
+          ...(savedAs ? [`Tu plan anterior quedó guardado en Mis planes como “${savedAs}”.`] : []),
+          ...changes.map(describeChange),
+        ],
+      });
+    },
+    [applySelection, loadSnapshot],
   );
 
   /** Updates preferences and regenerates the options from the first one. */
@@ -272,8 +367,15 @@ export function usePlanner() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreferencesState(prefs);
     const saved = loadPlanningState();
-    if (saved) loadSnapshot(saved);
-  }, [loadSnapshot]);
+    const shared = parseShareQuery(window.location.search);
+    if (shared) {
+      // Drop the share parameters so a reload doesn't reopen the link.
+      window.history.replaceState(null, "", window.location.pathname);
+      void loadSharedPlan(shared, saved);
+    } else if (saved) {
+      loadSnapshot(saved);
+    }
+  }, [loadSnapshot, loadSharedPlan]);
 
   // --- Schedule navigation ---
 
@@ -311,8 +413,8 @@ export function usePlanner() {
     scheduleError,
     selectedEvent,
     setSelectedEvent,
-    planChanges,
-    dismissPlanChanges: () => setPlanChanges([]),
+    notice,
+    dismissNotice: () => setNotice(null),
     preferences,
     setPreferences,
     refreshing,
