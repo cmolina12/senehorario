@@ -17,7 +17,7 @@ export function CourseCard({ course, expanded, onToggleExpanded, selectedCount, 
     <div
       className={cn(
         "rounded-xl border bg-surface transition",
-        selectedCount > 0 ? "border-accent/60" : "border-border",
+        selectedCount > 0 ? "border-accent ring-1 ring-accent/30" : "border-border",
       )}
     >
       <button

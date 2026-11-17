@@ -147,7 +147,7 @@ export function Planner() {
   return (
     <div className="flex h-dvh flex-col bg-bg">
       {/* Top bar */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-3 sm:px-4">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b-[3px] border-accent bg-surface px-3 sm:px-4">
         <Link href="/" className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/peluche.png" alt="" className="size-7" />
@@ -183,7 +183,7 @@ export function Planner() {
                 aria-current={tab === t.id ? "page" : undefined}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium whitespace-nowrap transition",
-                  tab === t.id ? "bg-surface-alt text-fg" : "text-fg-secondary hover:bg-surface-hover hover:text-fg",
+                  tab === t.id ? "bg-accent-soft font-semibold text-fg" : "text-fg-secondary hover:bg-surface-hover hover:text-fg",
                 )}
               >
                 <i className={`bi ${t.icon}`} aria-hidden="true"></i>

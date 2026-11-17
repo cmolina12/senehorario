@@ -72,13 +72,12 @@ export function CoursesTab({
           const meta = selection.meta[code];
           const open = openCode === code;
           return (
-            <div key={code} className="rounded-xl border border-border bg-surface">
+            <div
+              key={code}
+              className="rounded-xl border border-l-4 border-border bg-surface"
+              style={{ borderLeftColor: courseColor(codes, code) }}
+            >
               <div className="flex items-start gap-3 px-4 py-3">
-                <span
-                  className="mt-1.5 size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: courseColor(codes, code) }}
-                  aria-hidden="true"
-                />
                 <button
                   type="button"
                   onClick={() => setOpenCode(open ? null : code)}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { COURSE_COLORS } from "@/lib/calendar-events";
 
 const REPO_URL = "https://github.com/cmolina12/senehorario";
 
@@ -172,21 +173,31 @@ export default function LandingPage() {
         </section>
 
         {/* Features */}
-        <section className="border-y border-border bg-surface py-16 lg:py-20">
+        <section className="bg-band py-16 text-white lg:py-20">
           <div className={container}>
-            <h2 className="max-w-2xl text-2xl font-bold tracking-tight sm:text-3xl">
+            <p className="text-sm font-semibold text-accent">Funcionalidades</p>
+            <h2 className="mt-2 max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Todo lo que necesitas para armar tu semestre
             </h2>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="rounded-2xl border border-border bg-bg/40 p-5">
-                  <span className="grid size-10 place-items-center rounded-xl bg-accent-soft text-lg">
-                    <i className={`bi ${f.icon}`} aria-hidden="true"></i>
-                  </span>
-                  <h3 className="mt-4 font-semibold">{f.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-fg-secondary">{f.text}</p>
-                </div>
-              ))}
+              {FEATURES.map((f, i) => {
+                const color = COURSE_COLORS[i % COURSE_COLORS.length];
+                return (
+                  <div
+                    key={f.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/20 hover:bg-white/[0.07]"
+                  >
+                    <span
+                      className="grid size-11 place-items-center rounded-xl text-lg"
+                      style={{ backgroundColor: `color-mix(in srgb, ${color} 22%, transparent)`, color }}
+                    >
+                      <i className={`bi ${f.icon}`} aria-hidden="true"></i>
+                    </span>
+                    <h3 className="mt-4 font-semibold text-white">{f.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-white/70">{f.text}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -227,6 +238,24 @@ export default function LandingPage() {
                 </details>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Closing call to action */}
+        <section className="bg-accent py-14 text-on-accent">
+          <div className={`${container} flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center`}>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-on-accent sm:text-3xl">
+                ¿Listo para armar tu semestre?
+              </h2>
+              <p className="mt-1 text-on-accent/75">Es gratis y no necesitas crear una cuenta.</p>
+            </div>
+            <Link
+              href="/planning"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#1a1a2e] px-5 py-3 font-semibold text-white transition hover:bg-[#16213e]"
+            >
+              Comienza a planear <i className="bi bi-arrow-right" aria-hidden="true"></i>
+            </Link>
           </div>
         </section>
 
