@@ -52,7 +52,7 @@ export function CourseCard({
             aria-expanded={expanded}
             className="min-w-0 flex-1 rounded-r-xl py-3 pr-2 pl-3.5 text-left"
           >
-            <p className="text-xs font-medium tracking-wide text-fg-muted">{code}</p>
+            <p className="text-xs font-semibold tracking-wide text-fg-muted">{code}</p>
             <p className="mt-0.5 line-clamp-2 leading-snug font-semibold">
               {title ? titleCase(title) : "No disponible"}
             </p>

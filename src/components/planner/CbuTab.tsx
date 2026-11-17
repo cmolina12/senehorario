@@ -70,7 +70,7 @@ export function CbuTab({
   return (
     <div className="space-y-4 p-4">
       <div>
-        <h2 className="text-base font-semibold">CBUs para la opción {optionNumber}</h2>
+        <h2 className="text-base font-extrabold tracking-tight">CBUs para la opción {optionNumber}</h2>
         <p className="text-sm text-fg-secondary">
           {loading
             ? "Cargando CBUs…"
@@ -103,7 +103,7 @@ export function CbuTab({
                 setAttrFilters([]);
                 setAreaFilter("");
               }}
-              className="px-1.5 text-xs font-medium text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+              className="px-1.5 text-xs font-semibold text-fg-muted underline-offset-2 hover:text-fg hover:underline"
             >
               Limpiar
             </button>
@@ -158,7 +158,7 @@ export function CbuTab({
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="w-10 text-xs font-medium text-fg-muted">{label}</span>
+      <span className="w-10 text-xs text-fg-muted">{label}</span>
       {children}
     </div>
   );
@@ -179,7 +179,7 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full border px-2.5 py-1 text-xs font-medium transition",
+        "rounded-full border px-2.5 py-1 text-xs font-semibold transition",
         active
           ? "border-accent bg-accent text-on-accent"
           : "border-border bg-surface text-fg-secondary hover:border-border-strong hover:text-fg",

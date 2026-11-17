@@ -87,7 +87,7 @@ export function SharePanel({ shareQuery, schedule, term, optionNumber }: Props) 
             <button
               type="button"
               onClick={nativeShare}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-fg-secondary hover:text-fg"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-fg-secondary hover:text-fg"
             >
               <i className="bi bi-box-arrow-up" aria-hidden="true"></i> Compartir con otra app…
             </button>

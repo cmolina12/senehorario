@@ -49,7 +49,7 @@ export function SearchTab({
   return (
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold">Buscar cursos</h2>
+        <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
         {term.active && (
           <label
             className="flex items-center gap-2 text-xs text-fg-secondary"
@@ -209,8 +209,8 @@ function ActionButton({
       onClick={onClick}
       className={
         danger
-          ? "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-danger transition hover:bg-danger/10"
-          : "inline-flex items-center gap-1.5 rounded-lg bg-surface-inset px-2.5 py-1.5 text-xs font-medium text-fg-secondary transition hover:bg-border hover:text-fg"
+          ? "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger/10"
+          : "inline-flex items-center gap-1.5 rounded-lg bg-surface-inset px-2.5 py-1.5 text-xs font-semibold text-fg-secondary transition hover:bg-border hover:text-fg"
       }
     >
       <i className={`bi ${icon}`} aria-hidden="true"></i>
