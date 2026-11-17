@@ -10,7 +10,7 @@ import {
 } from "./preferences";
 import type { DayOfWeek, Section } from "./types";
 
-const section = (nrc: string, meetings: [DayOfWeek, string, string][]): Section => ({
+const section = (nrc: string, meetings: [DayOfWeek, string, string][], availableSeats = 1): Section => ({
   nrc,
   sectionId: nrc,
   term: "202710",
@@ -18,7 +18,7 @@ const section = (nrc: string, meetings: [DayOfWeek, string, string][]): Section 
   campus: "",
   meetings: meetings.map(([day, start, end]) => ({ day, start: `${start}:00`, end: `${end}:00`, location: "" })),
   professors: [],
-  availableSeats: 1,
+  availableSeats,
   totalSeats: 1,
   attrs: [],
 });
@@ -76,6 +76,13 @@ describe("sortSchedules", () => {
     expect(sortSchedules([spread, compact], "fewestDays")[0]).toBe(compact);
     expect(sortSchedules([compact, gappy], "lateStart")[0]).toBe(gappy);
     expect(sortSchedules([gappy, compact], "earlyEnd")[0]).toBe(compact);
+  });
+
+  it("orders by the fullest section's free seats, then total free seats", () => {
+    const tight = [section("e", [], 50), section("f", [], 2)]; // min 2
+    const even = [section("g", [], 20), section("h", [], 20)]; // min 20, total 40
+    const evenMore = [section("i", [], 20), section("j", [], 30)]; // min 20, total 50
+    expect(sortSchedules([tight, even, evenMore], "mostSeats")).toEqual([evenMore, even, tight]);
   });
 });
 

@@ -2,7 +2,8 @@
 
 // Small shared UI primitives.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/format";
 import { usePresence } from "@/lib/use-presence";
 
@@ -82,15 +83,19 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   );
 }
 
-/** Open/closed state that closes on outside click or Escape. */
-function useDismissable() {
+/**
+ * Open/closed state that closes on outside click or Escape. `inside` is
+ * another element that counts as inside (a panel rendered in a portal).
+ */
+function useDismissable(inside?: React.RefObject<HTMLElement | null>) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const onPointer = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (!ref.current?.contains(target) && !inside?.current?.contains(target)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("mousedown", onPointer);
@@ -99,7 +104,7 @@ function useDismissable() {
       document.removeEventListener("mousedown", onPointer);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [open, inside]);
 
   const { rendered, closing } = usePresence(open ? true : null, 140);
   return { open, setOpen, ref, rendered: !!rendered, closing };
@@ -158,7 +163,13 @@ export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
   );
 }
 
-/** Button that opens a floating panel below it. */
+const VIEWPORT_MARGIN = 16;
+
+/**
+ * Button that opens a floating panel below it. The panel is rendered at the
+ * page root (scrolling columns would clip it) and placed with its right edge
+ * on the button's, shifted as needed to stay on screen.
+ */
 export function Popover({
   icon,
   label,
@@ -174,7 +185,31 @@ export function Popover({
   panelClassName?: string;
   children: React.ReactNode;
 }) {
-  const { open, setOpen, ref, rendered, closing } = useDismissable();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { open, setOpen, ref, rendered, closing } = useDismissable(panelRef);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!rendered) return;
+    const place = () => {
+      const button = ref.current?.getBoundingClientRect();
+      const panel = panelRef.current;
+      if (!button || !panel) return;
+      const width = panel.offsetWidth;
+      const maxLeft = document.documentElement.clientWidth - width - VIEWPORT_MARGIN;
+      const left = Math.max(VIEWPORT_MARGIN, Math.min(button.right - width, maxLeft));
+      setPosition({ top: button.bottom + 8, left });
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true); // any scrolling column moves the button
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+      setPosition(null);
+    };
+  }, [rendered, ref]);
+
   return (
     <div ref={ref} className="relative">
       <button
@@ -194,19 +229,29 @@ export function Popover({
           <span className="rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">{badge}</span>
         )}
       </button>
-      {rendered && (
-        <div
-          role="dialog"
-          aria-label={label}
-          className={cn(
-            "absolute top-full left-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-left sm:right-0 sm:left-auto sm:origin-top-right rounded-2xl border border-border bg-surface p-4 shadow-xl shadow-black/10",
-            closing ? "pointer-events-none animate-pop-out" : "animate-pop-in",
-            panelClassName,
-          )}
-        >
-          {children}
-        </div>
-      )}
+      {rendered &&
+        createPortal(
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-label={label}
+            style={{
+              top: position?.top ?? 0,
+              left: position?.left ?? 0,
+              // Measured first, shown once placed.
+              visibility: position ? undefined : "hidden",
+              maxHeight: position ? `calc(100dvh - ${position.top + VIEWPORT_MARGIN}px)` : undefined,
+            }}
+            className={cn(
+              "fixed z-50 w-80 max-w-[calc(100vw-2rem)] origin-top-right overflow-y-auto rounded-2xl border border-border bg-surface p-4 text-fg shadow-xl shadow-black/10",
+              closing ? "pointer-events-none animate-pop-out" : "animate-pop-in",
+              panelClassName,
+            )}
+          >
+            {children}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

@@ -93,6 +93,12 @@ export default function ScheduleCalendar({ events, range, onEventClick }: Props)
         const name = arg.date.toLocaleDateString("es-ES", { weekday: "short" }).replace(".", "");
         return name.charAt(0).toUpperCase() + name.slice(1);
       },
+      // The grid shows a fixed sample week, so FullCalendar's screen-reader
+      // label ("28 de julio de 2025") would announce a meaningless date.
+      dayHeaderDidMount: (arg) => {
+        const weekday = arg.date.toLocaleDateString("es-ES", { weekday: "long" });
+        arg.el.querySelector(".fc-col-header-cell-cushion")?.setAttribute("aria-label", weekday);
+      },
       // Titles are pre-escaped HTML built in lib/calendar-events.ts
       eventContent: (arg) => ({ html: arg.event.title }),
       eventDidMount: (info) => {

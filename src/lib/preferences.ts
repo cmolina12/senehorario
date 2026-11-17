@@ -4,7 +4,7 @@
 import { meetingsOverlap, toMinutes } from "./scheduler";
 import type { DayOfWeek, Section } from "./types";
 
-export type SortMode = "default" | "fewestGaps" | "fewestDays" | "lateStart" | "earlyEnd";
+export type SortMode = "default" | "fewestGaps" | "fewestDays" | "lateStart" | "earlyEnd" | "mostSeats";
 
 export const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "default", label: "Recomendado" },
@@ -12,6 +12,7 @@ export const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "fewestDays", label: "Menos días" },
   { value: "lateStart", label: "Empezar más tarde" },
   { value: "earlyEnd", label: "Terminar más temprano" },
+  { value: "mostSeats", label: "Más cupos libres" },
 ];
 
 export interface TimeBlock {
@@ -71,6 +72,10 @@ export interface ScheduleStats {
   avgStart: number;
   /** Average last-class end across days with classes (minutes). */
   avgEnd: number;
+  /** Free seats in the option's fullest section: the one most likely to fill up first. */
+  minSeats: number;
+  /** Free seats across all its sections. */
+  totalSeats: number;
 }
 
 export function scheduleStats(sections: Section[]): ScheduleStats {
@@ -105,6 +110,8 @@ export function scheduleStats(sections: Section[]): ScheduleStats {
     latestEnd: ends.length ? Math.max(...ends) : 0,
     avgStart: avg(starts),
     avgEnd: avg(ends),
+    minSeats: sections.length ? Math.min(...sections.map((s) => s.availableSeats)) : 0,
+    totalSeats: sections.reduce((sum, s) => sum + s.availableSeats, 0),
   };
 }
 
@@ -117,6 +124,7 @@ export function sortSchedules<T extends Section>(schedules: T[][], mode: SortMod
     fewestDays: (a, b) => a.days - b.days || a.gapMinutes - b.gapMinutes,
     lateStart: (a, b) => b.earliestStart - a.earliestStart || b.avgStart - a.avgStart,
     earlyEnd: (a, b) => a.latestEnd - b.latestEnd || a.avgEnd - b.avgEnd,
+    mostSeats: (a, b) => b.minSeats - a.minSeats || b.totalSeats - a.totalSeats,
   };
   keyed.sort((a, b) => cmp[mode](a.s, b.s) || a.i - b.i);
   return keyed.map((k) => k.schedule);
