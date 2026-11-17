@@ -1,10 +1,15 @@
 # Senéhorario
 
+<a href="https://senehorario.cmolina.xyz">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/banner-dark.png">
+    <img alt="Senéhorario: tu horario sin choques, directo a Banner" src=".github/banner-light.png">
+  </picture>
+</a>
+
 A free, open-source schedule planner for Universidad de los Andes students. Search the official course catalog, pick the sections that work for you, browse every clash-free combination, and copy the NRCs straight into Banner.
 
 **Live:** [senehorario.cmolina.xyz](https://senehorario.cmolina.xyz) · **What's new:** [senehorario.cmolina.xyz/novedades](https://senehorario.cmolina.xyz/novedades)
-
-![Senéhorario](https://senehorario.cmolina.xyz/opengraph-image)
 
 ## Features
 
@@ -60,6 +65,7 @@ src/
     api/courses/route.ts      GET /api/courses?q=&professor=   (catalog search)
     api/courses/cbu/route.ts  GET /api/courses/cbu             (all CBU courses)
     opengraph-image.tsx       link-preview image
+    brand/[theme]/route.tsx   README banner at 2× (/brand/light, /brand/dark)
     sitemap.ts, robots.ts
   components/
     planner/                  planner UI: search, courses, CBUs, calendar, agenda,
@@ -76,6 +82,7 @@ src/
     preferences.ts            filters, blocked time, sorting
     refresh.ts                re-checking saved plans against the catalog
     share.ts, ics.ts          share links and calendar export
+    brand-card.tsx            link-preview / README banner design (next/og)
     calendar-events.ts        schedules → FullCalendar events (8A/8B handling)
     terms.ts, storage.ts, format.ts, types.ts, …
 ```
