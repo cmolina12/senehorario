@@ -1,11 +1,20 @@
 import Link from "next/link";
 import "./landing.css";
 import { FaqLink } from "@/components/FaqLink";
+import { HeroDemo } from "@/components/landing/HeroDemo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { COURSE_COLORS } from "@/lib/calendar-events";
+import { formatTerm } from "@/lib/terms";
+import { getCBUStats } from "@/lib/uniandes";
 
 const REPO_URL = "https://github.com/cmolina12/senehorario";
 
-export default function LandingPage() {
+// Re-render at most every few hours so the CBU count stays current.
+export const revalidate = 21600;
+
+export default async function LandingPage() {
+  const cbus = await getCBUStats();
+
   return (
     <div className="landing-page">
       <div className="landing-wrapper">
@@ -44,34 +53,25 @@ export default function LandingPage() {
             <div className="lp-row items-center! py-6!">
               <div className="lp-col-lg-6 animate-fadein hero-text">
                 <h1 className="hero-title mb-4!">
-                  Planifica tu horario académico <span className="highlight">sin conflictos</span>.
+                  Tu horario <span className="highlight">sin choques</span>, directo a Banner.
                 </h1>
                 <p className="hero-subtitle mb-6!">
-                  <strong>Senéhorario</strong> es una herramienta de planificación diseñada para
-                  estudiantes de la Universidad de los Andes.{" "}
-                  <strong>Construye tu horario ideal</strong> explorando combinaciones de cursos,
-                  evitando conflictos y optimizando tu semestre.
+                  Busca tus cursos, compara <strong>todas las combinaciones posibles</strong> y copia
+                  los <strong>NRCs listos para inscribir</strong>. Hecho por y para estudiantes de la
+                  Universidad de los Andes.
                 </p>
+                <ul className="hero-assurance" aria-label="Por qué usar Senéhorario">
+                  {["Gratis", "Sin cuenta", "Código abierto", "Datos oficiales de Uniandes"].map((item) => (
+                    <li key={item}>
+                      <i className="bi bi-check2" aria-hidden="true"></i>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="lp-col-lg-6 hidden! min-[992px]:block! text-center!">
+              <div className="lp-col-lg-6 mt-6 min-[992px]:mt-0 text-center!">
                 <div className="hero-visual">
-                  <div className="laptop">
-                    <div className="laptop-screen">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/images/planner-light.jpg"
-                        alt="Vista del planificador de Senéhorario con un horario semanal"
-                        className="block dark:hidden"
-                      />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/images/planner-dark.jpg"
-                        alt="Vista del planificador de Senéhorario con un horario semanal"
-                        className="hidden dark:block"
-                      />
-                    </div>
-                    <div className="laptop-base" aria-hidden="true" />
-                  </div>
+                  <HeroDemo />
                 </div>
               </div>
             </div>
@@ -81,18 +81,24 @@ export default function LandingPage() {
         {/* Features Section */}
         <section className="features-section py-12!">
           <div className="lp-container">
+            {cbus && (
+              <p className="features-stat">
+                <span>{cbus.courses} CBUs</span> en la oferta de {formatTerm(cbus.term)}. Te mostramos cuáles caben
+                en los huecos de tu horario.
+              </p>
+            )}
             <div className="lp-row lp-g-4">
-              <Feature icon="bi-search" title="Búsqueda y selección de secciones">
-                Busca por NRC, código o nombre, revisa horarios y agrega secciones a tu selección en
-                segundos.
+              <Feature icon="bi-calendar-week" title="Todas las opciones, ninguna con choques" mock={<OptionsMock />}>
+                Agrega las secciones que te sirven y recorre cada combinación posible. Se actualizan al
+                instante mientras armas tu semestre.
               </Feature>
-              <Feature icon="bi-calendar-week" title="Opciones sin choques, en vivo">
-                Las opciones se actualizan al instante mientras agregas o quitas secciones, y solo
-                ves horarios válidos en una vista semanal.
+              <Feature icon="bi-cup-hot" title="Tu tiempo también cuenta" mock={<TimeMock />}>
+                Bloquea el almuerzo o el trabajo, deja libres los viernes y agrupa electivas para que entre
+                solo una.
               </Feature>
-              <Feature icon="bi-stars" title="CBUs y planes guardados">
-                Descubre los CBUs que caben en los huecos de tu horario y guarda varios planes para
-                compararlos cuando quieras.
+              <Feature icon="bi-clipboard-check" title="Directo a Banner" mock={<BannerMock />}>
+                Copia los NRCs de tu opción para inscribirlos, comparte el plan con un enlace o llévalo a tu
+                calendario.
               </Feature>
             </div>
           </div>
@@ -188,15 +194,116 @@ export default function LandingPage() {
   );
 }
 
-function Feature({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+function Feature({
+  icon,
+  title,
+  mock,
+  children,
+}: {
+  icon: string;
+  title: string;
+  mock: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="lp-col-md-4">
-      <div className="feature-item h-full!">
+      <div className="feature-item flex! h-full! flex-col!">
         <div className="feature-icon">
           <i className={`bi ${icon}`}></i>
         </div>
         <h5 className="feature-title">{title}</h5>
         <p className="feature-desc">{children}</p>
+        <div className="feature-mock" aria-hidden="true">
+          {mock}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Small illustrations of each feature, drawn with the planner's own styles. */
+
+function MiniBlock({ color, label, className = "" }: { color: string; label: string; className?: string }) {
+  return (
+    <div
+      className={`rounded-md border-l-[3px] px-1.5 py-1 text-2xs font-bold text-[var(--text-primary)] ${className}`}
+      style={{ borderColor: color, background: `color-mix(in srgb, ${color} var(--event-tint), var(--main))` }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function OptionsMock() {
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+        <span>
+          Opción <strong className="text-[var(--text-primary)]">3</strong> de 28
+        </span>
+        <span className="flex gap-2 text-2xs">
+          <i className="bi bi-chevron-left"></i>
+          <i className="bi bi-chevron-right"></i>
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5">
+        <MiniBlock color={COURSE_COLORS[0]} label="MATE1203" />
+        <MiniBlock color={COURSE_COLORS[1]} label="ISIS1221" className="mt-4" />
+        <MiniBlock color={COURSE_COLORS[2]} label="FISI1018" />
+      </div>
+    </div>
+  );
+}
+
+function TimeMock() {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 rounded-md bg-[repeating-linear-gradient(-45deg,color-mix(in_srgb,var(--text-secondary)_14%,transparent)_0_5px,transparent_5px_10px)] px-2 py-1.5 text-2xs font-semibold text-[var(--text-secondary)]">
+        <i className="bi bi-slash-circle"></i> Almuerzo · 12:30–13:30
+      </div>
+      <div className="flex gap-1">
+        {["L", "M", "I", "J", "V"].map((d) => (
+          <span
+            key={d}
+            className={`grid h-6 flex-1 place-items-center rounded text-2xs font-semibold ${
+              d === "V" ? "bg-[var(--accent)] text-[#1a1a2e]" : "bg-[var(--main)] text-[var(--text-secondary)]"
+            }`}
+          >
+            {d}
+          </span>
+        ))}
+      </div>
+      <div className="rounded-md border border-dashed border-[var(--accent)] px-2 py-1 text-2xs text-[var(--text-secondary)]">
+        <strong className="text-[var(--text-primary)]">Elige uno:</strong> CBUH1003 · CBUT1044
+      </div>
+    </div>
+  );
+}
+
+function BannerMock() {
+  return (
+    <div className="space-y-1.5 tabular-nums">
+      {[
+        ["MATE1203 · 1", "36109", COURSE_COLORS[0]],
+        ["ISIS1221 · 3", "41893", COURSE_COLORS[1]],
+      ].map(([label, nrc, color]) => (
+        <div key={nrc} className="flex items-center gap-2 text-2xs">
+          <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
+          <span className="flex-1 text-[var(--text-secondary)]">{label}</span>
+          <span className="font-mono font-semibold text-[var(--text-primary)]">{nrc}</span>
+          <i className="bi bi-copy text-[var(--text-secondary)]"></i>
+        </div>
+      ))}
+      <div className="flex gap-1.5 pt-1">
+        <span className="flex-1 rounded-md bg-[var(--accent)] py-1 text-center text-2xs font-semibold text-[#1a1a2e]">
+          Copiar todos
+        </span>
+        <span className="rounded-md bg-[var(--main)] px-2 py-1 text-2xs text-[var(--text-secondary)]">
+          <i className="bi bi-link-45deg"></i> Enlace
+        </span>
+        <span className="rounded-md bg-[var(--main)] px-2 py-1 text-2xs text-[var(--text-secondary)]">
+          <i className="bi bi-calendar-plus"></i> .ics
+        </span>
       </div>
     </div>
   );
