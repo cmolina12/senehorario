@@ -81,22 +81,25 @@ export default async function LandingPage() {
         {/* Features Section */}
         <section className="features-section py-12!">
           <div className="lp-container">
-            {cbus && (
-              <p className="features-stat">
-                <span>{cbus.courses} CBUs</span> en la oferta de {formatTerm(cbus.term)}. Te mostramos cuáles caben
-                en los huecos de tu horario.
-              </p>
-            )}
+            <div className="features-heading">
+              {cbus && (
+                <span className="features-stat">
+                  <span className="live-dot" aria-hidden="true" />
+                  {cbus.courses} CBUs en {formatTerm(cbus.term)}, filtrados según los huecos de tu horario
+                </span>
+              )}
+              <h2>Todo lo que necesitas para armar tu semestre</h2>
+            </div>
             <div className="lp-row lp-g-4">
-              <Feature icon="bi-calendar-week" title="Todas las opciones, ninguna con choques" mock={<OptionsMock />}>
+              <Feature title="Todas las opciones, sin choques" mock={<OptionsMock />}>
                 Agrega las secciones que te sirven y recorre cada combinación posible. Se actualizan al
                 instante mientras armas tu semestre.
               </Feature>
-              <Feature icon="bi-cup-hot" title="Tu tiempo también cuenta" mock={<TimeMock />}>
+              <Feature title="Tu tiempo también cuenta" mock={<TimeMock />}>
                 Bloquea el almuerzo o el trabajo, deja libres los viernes y agrupa electivas para que entre
                 solo una.
               </Feature>
-              <Feature icon="bi-clipboard-check" title="Directo a Banner" mock={<BannerMock />}>
+              <Feature title="Directo a Banner" mock={<BannerMock />}>
                 Copia los NRCs de tu opción para inscribirlos, comparte el plan con un enlace o llévalo a tu
                 calendario.
               </Feature>
@@ -194,28 +197,16 @@ export default async function LandingPage() {
   );
 }
 
-function Feature({
-  icon,
-  title,
-  mock,
-  children,
-}: {
-  icon: string;
-  title: string;
-  mock: React.ReactNode;
-  children: React.ReactNode;
-}) {
+/** Feature card: the mock on top (same height in every card), then title and text. */
+function Feature({ title, mock, children }: { title: string; mock: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="lp-col-md-4">
-      <div className="feature-item flex! h-full! flex-col!">
-        <div className="feature-icon">
-          <i className={`bi ${icon}`}></i>
+      <div className="feature-item h-full!">
+        <div className="feature-mock" aria-hidden="true">
+          <div className="w-full">{mock}</div>
         </div>
         <h5 className="feature-title">{title}</h5>
         <p className="feature-desc">{children}</p>
-        <div className="feature-mock" aria-hidden="true">
-          {mock}
-        </div>
       </div>
     </div>
   );
