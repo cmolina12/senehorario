@@ -26,7 +26,7 @@
 
 ## Funcionalidades
 
-| | |
+| Función | Qué hace |
 |---|---|
 | 🔎 **Busca** | Por código, nombre, NRC o profesor, con cupos, ciclo (16 semanas, 8A, 8B), profesores y horarios de cada sección. Agrega secciones una por una, todas o solo las que tienen cupos. |
 | 🗓️ **Todas las combinaciones** | Cada horario posible sin choques en un calendario semanal, con las secciones 8A/8B combinadas. Al cambiar de opción solo se animan las clases que cambian. |
