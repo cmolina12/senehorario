@@ -77,11 +77,11 @@
 
     @media (min-width: 1200px) {
       h1 {
-        font-size: 2.5rem;
+        font-size: 2.25rem;
       }
 
       h3 {
-        font-size: 1.75rem;
+        font-size: 1.875rem;
       }
     }
 
@@ -109,7 +109,7 @@
     background: var(--footer-bg);
     color: #fff;
     font-weight: 400;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     padding: 16px 0;
   }
 
@@ -230,7 +230,7 @@
   }
 
   .brand-text {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.5px;
@@ -266,7 +266,7 @@
     padding: 8px 14px;
     border-radius: 12px;
     font-weight: 400;
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .header-actions {
@@ -277,7 +277,7 @@
     padding: 4px 8px;
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     text-decoration: none;
     transition: color 0.2s ease;
   }
@@ -322,7 +322,7 @@
   }
 
   .hero-title {
-    font-size: 3.2rem;
+    font-size: 3rem;
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1.15;
@@ -337,7 +337,7 @@
   }
 
   .hero-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: var(--text-secondary);
     line-height: 1.6;
     font-weight: 300;
@@ -400,7 +400,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 16px;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     color: var(--primary);
   }
 
@@ -411,7 +411,7 @@
   }
 
   .feature-desc {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     margin-bottom: 0;
     line-height: 1.5;
@@ -449,7 +449,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
   }
 
   .about-title {
@@ -459,7 +459,7 @@
 
   .about-desc {
     color: var(--text-secondary);
-    font-size: 0.98rem;
+    font-size: 1rem;
   }
 
   .about-links {
@@ -493,7 +493,7 @@
 
   .about-stack {
     color: var(--text-secondary);
-    font-size: 0.92rem;
+    font-size: 0.875rem;
   }
 
   .about-inline-link {
@@ -549,7 +549,7 @@
   .faq-answer {
     color: var(--text-secondary);
     line-height: 1.55;
-    font-size: 0.97rem;
+    font-size: 1rem;
   }
 
   .faq-answer a {
@@ -567,21 +567,21 @@
   /* Responsive */
   @media (max-width: 991px) {
     .hero-title {
-      font-size: 2.2rem;
+      font-size: 2.25rem;
     }
 
     .hero-subtitle {
-      font-size: 1.05rem;
+      font-size: 1rem;
     }
   }
 
   @media (max-width: 576px) {
     .hero-title {
-      font-size: 1.8rem;
+      font-size: 1.875rem;
     }
 
     .brand-text {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
     }
 
     .floating-header {
@@ -604,12 +604,12 @@
 
     .floating-header .btn-uniandes {
       padding: 6px 10px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     .floating-header .theme-toggle {
       padding: 2px 4px;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
     }
   }
 

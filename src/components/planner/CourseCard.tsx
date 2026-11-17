@@ -68,7 +68,7 @@ export function CourseCard({
                 </>
               )}
               <i
-                className={cn("bi bi-chevron-down ml-0.5 text-[0.6rem] text-fg-muted transition", expanded && "rotate-180")}
+                className={cn("bi bi-chevron-down ml-0.5 text-2xs text-fg-muted transition", expanded && "rotate-180")}
                 aria-hidden="true"
               ></i>
             </p>

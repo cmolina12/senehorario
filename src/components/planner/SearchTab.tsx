@@ -69,7 +69,7 @@ export function SearchTab({
                   </option>
                 ))}
               </select>
-              <i className="bi bi-chevron-down pointer-events-none absolute right-2.5 text-[0.6rem] text-fg-muted" aria-hidden="true"></i>
+              <i className="bi bi-chevron-down pointer-events-none absolute right-2.5 text-2xs text-fg-muted" aria-hidden="true"></i>
             </span>
           </label>
         )}

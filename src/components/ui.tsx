@@ -72,7 +72,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md bg-surface-alt px-1.5 py-0.5 text-[0.72rem] font-medium whitespace-nowrap text-fg-secondary",
+        "inline-flex items-center gap-1 rounded-md bg-surface-alt px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-fg-secondary",
         className,
       )}
     >
@@ -186,7 +186,7 @@ export function Popover({
         <i className={`bi ${icon}`} aria-hidden="true"></i>
         {label}
         {!!badge && (
-          <span className="rounded-full bg-accent px-1.5 text-[0.65rem] leading-4 font-bold text-on-accent">{badge}</span>
+          <span className="rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">{badge}</span>
         )}
       </button>
       {open && (

@@ -61,7 +61,7 @@
 }
 
 @theme inline {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
@@ -80,6 +80,10 @@
   --color-fg: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
   --color-fg-muted: var(--text-muted);
+
+  /* Type scale: Tailwind's xs (12px) … 3xl, plus 2xs (11px) for badges and captions. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
 
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -141,7 +145,8 @@
   --fc-page-bg-color: var(--surface);
   --fc-neutral-bg-color: var(--surface-alt);
   --fc-today-bg-color: transparent;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .fc .fc-scrollgrid {
@@ -159,7 +164,7 @@
   padding: 10px 0;
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-decoration: none;
 }
 
@@ -170,7 +175,7 @@
 
 .fc .fc-timegrid-slot-label-cushion {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.6875rem;
   padding-right: 8px;
 }
 
@@ -226,14 +231,14 @@
 
 .ev-code {
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ev-title {
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -243,7 +248,7 @@
 
 .ev-time {
   margin-top: auto;
-  font-size: 0.66rem;
+  font-size: 0.6875rem;
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -253,9 +258,9 @@
   margin-left: 4px;
   padding: 0 4px;
   border-radius: 4px;
-  font-size: 0.6rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.2;
   vertical-align: 1px;
   background: color-mix(in srgb, var(--ev) 30%, transparent);
 }
@@ -320,7 +325,7 @@
 
 .block-label {
   padding: 4px 6px;
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-muted);
   font-style: normal;

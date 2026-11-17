@@ -167,7 +167,7 @@ export function Planner() {
   const tabBadge = (id: SidebarTab) => (id === "courses" && courseCount > 0 ? courseCount : null);
 
   return (
-    <div className="flex h-dvh flex-col bg-bg">
+    <div className="flex h-dvh flex-col bg-bg tabular-nums">
       {/* Top bar */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b-[3px] border-accent bg-surface px-3 sm:px-4">
         <Link href="/" className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
@@ -211,7 +211,7 @@ export function Planner() {
                 <i className={`bi ${t.icon}`} aria-hidden="true"></i>
                 {t.label}
                 {tabBadge(t.id) && (
-                  <span className="rounded-full bg-accent px-1.5 text-[0.65rem] leading-4 font-bold text-on-accent">
+                  <span className="rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">
                     {tabBadge(t.id)}
                   </span>
                 )}
@@ -315,7 +315,7 @@ function MobileTab({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex flex-col items-center gap-0.5 py-2 text-[0.68rem] font-medium transition",
+        "relative flex flex-col items-center gap-0.5 py-2 text-2xs font-medium transition",
         active ? "text-fg" : "text-fg-muted",
       )}
     >
@@ -324,7 +324,7 @@ function MobileTab({
       </span>
       {label}
       {badge != null && (
-        <span className="absolute top-1 left-1/2 ml-2 rounded-full bg-accent px-1.5 text-[0.6rem] leading-4 font-bold text-on-accent">
+        <span className="absolute top-1 left-1/2 ml-2 rounded-full bg-accent px-1.5 text-2xs leading-4 font-bold text-on-accent">
           {badge > 99 ? "99+" : badge}
         </span>
       )}
