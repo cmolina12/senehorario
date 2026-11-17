@@ -2,19 +2,27 @@
 // Only the term, each course's NRCs and the option number travel in the link;
 // everything else is fetched fresh from the catalog when it's opened.
 
+import type { CourseGroups } from "./groups";
 import type { SelectedSections } from "./types";
 
 export interface SharedPlan {
   term: string;
   courses: Record<string, string[]>; // course code -> NRCs
+  groups: CourseGroups; // "elige uno" groups, e.g. g=CBUH1003~CBUT1044
   optionIndex: number; // 0-based
 }
 
-export function buildShareQuery(sections: SelectedSections, term: string, optionIndex: number): string {
+export function buildShareQuery(
+  sections: SelectedSections,
+  term: string,
+  optionIndex: number,
+  groups: CourseGroups = [],
+): string {
   const params = new URLSearchParams({ t: term });
   for (const [code, list] of Object.entries(sections)) {
     params.append("c", [code, ...list.map((s) => s.nrc)].join("-"));
   }
+  for (const group of groups) params.append("g", group.join("~"));
   params.set("o", String(optionIndex + 1));
   return params.toString();
 }
@@ -35,6 +43,11 @@ export function parseShareQuery(search: string): SharedPlan | null {
     courses[code.toUpperCase()] = valid;
   }
 
+  const groups = params
+    .getAll("g")
+    .map((g) => g.split("~").map((c) => c.toUpperCase()).filter((c) => c in courses))
+    .filter((g) => g.length >= 2);
+
   const option = Number.parseInt(params.get("o") ?? "1", 10);
-  return { term, courses, optionIndex: Number.isFinite(option) && option > 0 ? option - 1 : 0 };
+  return { term, courses, groups, optionIndex: Number.isFinite(option) && option > 0 ? option - 1 : 0 };
 }
