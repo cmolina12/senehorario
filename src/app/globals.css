@@ -30,7 +30,6 @@
   --danger: #e5484d;
 
   --event-tint: 30%;
-  --band: #1a1a2e;
   --shadow-color: 220 30% 15%;
 }
 
@@ -58,7 +57,6 @@
   --danger: #ff7b7f;
 
   --event-tint: 40%;
-  --band: #121933;
   --shadow-color: 0 0% 0%;
 }
 
@@ -67,7 +65,6 @@
 
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
-  --color-band: var(--band);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
