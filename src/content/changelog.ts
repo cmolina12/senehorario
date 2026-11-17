@@ -18,6 +18,16 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Nuevo",
+    text: "Ordena las opciones por más cupos libres, para empezar por los horarios con menos riesgo de llenarse.",
+  },
+  {
+    date: "2026-11",
+    tag: "Corrección",
+    text: "Los paneles de Preferencias, NRCs y Compartir ya no se cortan en ventanas angostas.",
+  },
+  {
+    date: "2026-11",
+    tag: "Nuevo",
     text: "Fija una sección: elige exactamente la que quieres de un curso y el resto de tu horario sigue variando.",
   },
   {
