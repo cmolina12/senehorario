@@ -52,15 +52,32 @@ export default function LandingPage() {
                   <strong>Construye tu horario ideal</strong> explorando combinaciones de cursos,
                   evitando conflictos y optimizando tu semestre.
                 </p>
+                <Link
+                  href="/planning"
+                  className="inline-flex w-fit items-center gap-2 self-start rounded-xl bg-primary px-5 py-3 font-semibold text-white no-underline shadow-sm transition hover:-translate-y-px hover:bg-primary-light dark:bg-accent dark:text-on-accent dark:hover:bg-accent-hover"
+                >
+                  Comienza a planear <i className="bi bi-arrow-right" aria-hidden="true"></i>
+                </Link>
               </div>
               <div className="lp-col-lg-6 hidden! min-[992px]:block! text-center!">
                 <div className="hero-visual">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/mac2.png"
-                    alt="Senéhorario planner schedule view"
-                    className="planner-preview-img"
-                  />
+                  <div className="laptop">
+                    <div className="laptop-screen">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/planner-light.jpg"
+                        alt="Vista del planificador de Senéhorario con un horario semanal"
+                        className="block dark:hidden"
+                      />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/planner-dark.jpg"
+                        alt="Vista del planificador de Senéhorario con un horario semanal"
+                        className="hidden dark:block"
+                      />
+                    </div>
+                    <div className="laptop-base" aria-hidden="true" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -75,13 +92,13 @@ export default function LandingPage() {
                 Busca por NRC, código o nombre, revisa horarios y agrega secciones a tu selección en
                 segundos.
               </Feature>
-              <Feature icon="bi-calendar-week" title="Generación en vivo">
-                Las opciones de horario se actualizan automáticamente a medida que agregas o quitas
-                secciones.
+              <Feature icon="bi-calendar-week" title="Opciones sin choques, en vivo">
+                Las opciones se actualizan al instante mientras agregas o quitas secciones, y solo
+                ves horarios válidos en una vista semanal.
               </Feature>
-              <Feature icon="bi-arrows-angle-expand" title="Opciones compatibles, al instante">
-                Visualiza únicamente horarios válidos y recórrelos en una vista semanal para comparar
-                rápidamente cuál te conviene.
+              <Feature icon="bi-stars" title="CBUs y planes guardados">
+                Descubre los CBUs que caben en los huecos de tu horario y guarda varios planes para
+                compararlos cuando quieras.
               </Feature>
             </div>
           </div>
