@@ -33,6 +33,15 @@
   --glass-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
+@keyframes live-pulse {
+  70% {
+    box-shadow: 0 0 0 8px rgba(240, 200, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 200, 0, 0);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -491,10 +500,6 @@
     color: var(--text-primary);
   }
 
-  .about-stack {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-  }
 
   .about-inline-link {
     color: var(--text-primary);
@@ -641,62 +646,176 @@
   .floating-header .brand-stack {
     margin-left: -4px;
   }
+}
 
-  /* Laptop frame around the planner screenshot */
-  .laptop {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+
+/* --- Hero assurance line, feature mocks, live stat ---------------------- */
+.landing-page {
+  .hero-assurance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
   }
 
-  .laptop-screen {
-    padding: 10px 10px 12px;
-    background: #16171d;
-    border: 1px solid #2c2e38;
-    border-radius: 16px 16px 4px 4px;
-    box-shadow: 0 24px 48px rgba(26, 26, 46, 0.18);
+  .hero-assurance li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  .laptop-screen img {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
+  .hero-assurance i {
+    color: var(--accent-hover);
+    font-size: 1rem;
   }
 
-  .laptop-base {
-    position: relative;
-    width: 114%;
-    height: 14px;
-    margin-left: -7%;
-    background: linear-gradient(#e2e3e8, #b3b5bd);
-    border-radius: 2px 2px 14px 14px;
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+  .features-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 36px;
+    text-align: center;
   }
 
-  .laptop-base::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 16%;
-    height: 6px;
-    transform: translateX(-50%);
-    background: linear-gradient(#a3a5ad, #c4c6cd);
-    border-radius: 0 0 8px 8px;
+  .features-heading h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .features-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(240, 200, 0, 0.35);
+    background: rgba(240, 200, 0, 0.1);
+    color: var(--accent);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(240, 200, 0, 0.6);
+    animation: live-pulse 2s ease-out infinite;
+  }
+
+  .feature-mock {
+    display: flex;
+    align-items: center;
+    min-height: 132px;
+    margin-bottom: 20px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border-light);
   }
 }
 
-:root[data-theme="dark"] .landing-page {
-  .laptop-screen {
-    border-color: #343847;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+/* --- "Novedades" (changelog) inside the open-source card ------------------ */
+.landing-page {
+  .changelog {
+    margin: 0 auto 24px;
+    max-width: 640px;
+    text-align: left;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    background: var(--surface-alt);
   }
 
-  .laptop-base {
-    background: linear-gradient(#4a4f5e, #2a2e3a);
+  .changelog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 
-  .laptop-base::before {
-    background: linear-gradient(#20232c, #353a48);
+  .changelog-head a {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .changelog-head a:hover {
+    color: var(--text-primary);
+  }
+
+  .changelog ul {
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+  }
+
+  .changelog li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .changelog-tag {
+    flex-shrink: 0;
+    min-width: 66px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--main);
+    border: 1px solid var(--border-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .changelog-tag.is-new {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1a2e;
+  }
+
+  .changelog-text {
+    flex: 1;
+    line-height: 1.45;
+  }
+
+  .changelog time {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 575px) {
+    .changelog li {
+      flex-wrap: wrap;
+    }
+
+    .changelog time {
+      margin-left: auto;
+    }
+
+    .changelog-text {
+      order: 1;
+      flex-basis: 100%;
+    }
   }
 }

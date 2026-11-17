@@ -41,7 +41,18 @@ export interface ApiCourse {
   attr: { code: string | null }[] | null;
 }
 
-async function fetchRaw(nameInput: string, profesorName: string, limit: number): Promise<ApiCourse[]> {
+interface FetchOptions {
+  /** Cache the catalog response for this many seconds instead of always fetching. */
+  revalidate?: number;
+  timeoutMs?: number;
+}
+
+async function fetchRaw(
+  nameInput: string,
+  profesorName: string,
+  limit: number,
+  { revalidate, timeoutMs }: FetchOptions = {},
+): Promise<ApiCourse[]> {
   const params = new URLSearchParams({
     term: "",
     ptrm: "",
@@ -61,8 +72,10 @@ async function fetchRaw(nameInput: string, profesorName: string, limit: number):
   });
 
   const res = await fetch(`${API_BASE_URL}?${params}`, {
-    // Seat counts change constantly; always hit the catalog.
-    cache: "no-store",
+    // Seat counts change constantly, so searches always hit the catalog;
+    // only aggregate stats opt into caching.
+    ...(revalidate ? { next: { revalidate } } : { cache: "no-store" as const }),
+    ...(timeoutMs ? { signal: AbortSignal.timeout(timeoutMs) } : {}),
     // The catalog's firewall rejects some default client user agents.
     headers: { "User-Agent": "Mozilla/5.0 (compatible; Senehorario)", Accept: "application/json" },
   });
@@ -103,6 +116,26 @@ export async function searchCourses(query: string, professor = ""): Promise<Sear
 export async function getCBUCourses(): Promise<Course[]> {
   const raw = await fetchRaw("CB", "", MAX_ROWS);
   return mapToDomain(raw).filter((c) => c.code.startsWith("CBU"));
+}
+
+/**
+ * How many CBUs the newest term offers, for the landing page. Cached for a
+ * few hours; null if the catalog doesn't answer in time.
+ */
+export async function getCBUStats(): Promise<{ term: string; courses: number } | null> {
+  try {
+    const raw = await fetchRaw("CB", "", MAX_ROWS, { revalidate: 6 * 60 * 60, timeoutMs: 15_000 });
+    const courses = mapToDomain(raw).filter((c) => c.code.startsWith("CBU"));
+    // Prefer the newest regular semester (…10 or …20) over short special terms.
+    const terms = [...new Set(courses.flatMap((c) => c.sections.map((s) => s.term)))].sort();
+    const regular = terms.filter((t) => /(10|20)$/.test(t));
+    const term = (regular.length ? regular : terms).at(-1);
+    if (!term) return null;
+    const count = courses.filter((c) => c.sections.some((s) => s.term === term)).length;
+    return { term, courses: count };
+  } catch {
+    return null;
+  }
 }
 
 export function mapToDomain(raw: ApiCourse[]): Course[] {
