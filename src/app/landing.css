@@ -645,7 +645,7 @@
   /* Laptop frame around the planner screenshot */
   .laptop {
     width: 100%;
-    max-width: 560px;
+    max-width: 600px;
     margin: 0 auto;
   }
 

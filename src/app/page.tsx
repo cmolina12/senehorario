@@ -52,12 +52,6 @@ export default function LandingPage() {
                   <strong>Construye tu horario ideal</strong> explorando combinaciones de cursos,
                   evitando conflictos y optimizando tu semestre.
                 </p>
-                <Link
-                  href="/planning"
-                  className="inline-flex w-fit items-center gap-2 self-start rounded-xl bg-primary px-5 py-3 font-semibold text-white no-underline shadow-sm transition hover:-translate-y-px hover:bg-primary-light dark:bg-accent dark:text-on-accent dark:hover:bg-accent-hover"
-                >
-                  Comienza a planear <i className="bi bi-arrow-right" aria-hidden="true"></i>
-                </Link>
               </div>
               <div className="lp-col-lg-6 hidden! min-[992px]:block! text-center!">
                 <div className="hero-visual">
