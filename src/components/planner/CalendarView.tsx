@@ -5,12 +5,14 @@ import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import type { VisibleRange } from "@/lib/calendar-events";
 import { plural } from "@/lib/format";
+import type { Preferences } from "@/lib/preferences";
 import { describeChange, type PlanChange } from "@/lib/refresh";
 import { MAX_SCHEDULES } from "@/lib/scheduler";
 import { formatTerm } from "@/lib/terms";
 import type { ScheduledSection } from "@/lib/types";
 import { AgendaView } from "./AgendaView";
 import { NrcList } from "./NrcList";
+import { PreferencesPanel } from "./PreferencesPanel";
 import type { SelectedEventInfo } from "./usePlanner";
 
 // FullCalendar measures the DOM, so render it only in the browser.
@@ -33,6 +35,8 @@ interface Props {
   refreshing: boolean;
   planChanges: PlanChange[];
   onDismissChanges: () => void;
+  preferences: Preferences;
+  onPreferencesChange: (next: Preferences) => void;
 }
 
 export function CalendarView({
@@ -52,6 +56,8 @@ export function CalendarView({
   refreshing,
   planChanges,
   onDismissChanges,
+  preferences,
+  onPreferencesChange,
 }: Props) {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-4 lg:p-6">
@@ -70,32 +76,35 @@ export function CalendarView({
           )}
         </div>
 
-        {optionCount > 0 && (
-          <div className="flex items-center gap-2">
+        {courseCount > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <PreferencesPanel value={preferences} onChange={onPreferencesChange} />
             {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} />}
-            <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
-              <IconButton
-                icon="bi-chevron-left"
-                label="Opción anterior"
-                className="size-8"
-                disabled={optionIndex === 0}
-                onClick={() => onOptionChange(optionIndex - 1)}
-              />
-              <span
-                className="min-w-28 px-1 text-center text-sm"
-                title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
-              >
-                Opción <span className="font-semibold">{optionIndex + 1}</span> de {optionCount}
-                {truncated && "+"}
-              </span>
-              <IconButton
-                icon="bi-chevron-right"
-                label="Opción siguiente"
-                className="size-8"
-                disabled={optionIndex >= optionCount - 1}
-                onClick={() => onOptionChange(optionIndex + 1)}
-              />
-            </div>
+            {optionCount > 0 && (
+              <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
+                <IconButton
+                  icon="bi-chevron-left"
+                  label="Opción anterior"
+                  className="size-8"
+                  disabled={optionIndex === 0}
+                  onClick={() => onOptionChange(optionIndex - 1)}
+                />
+                <span
+                  className="min-w-28 px-1 text-center text-sm"
+                  title={truncated ? `Se muestran las primeras ${MAX_SCHEDULES} combinaciones` : undefined}
+                >
+                  Opción <span className="font-semibold">{optionIndex + 1}</span> de {optionCount}
+                  {truncated && "+"}
+                </span>
+                <IconButton
+                  icon="bi-chevron-right"
+                  label="Opción siguiente"
+                  className="size-8"
+                  disabled={optionIndex >= optionCount - 1}
+                  onClick={() => onOptionChange(optionIndex + 1)}
+                />
+              </div>
+            )}
           </div>
         )}
       </header>
@@ -121,8 +130,7 @@ export function CalendarView({
       <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_hsl(var(--shadow-color)/0.04)]">
         {error ? (
           <EmptyState icon="bi-exclamation-triangle" tone="danger" title="No hay horarios compatibles">
-            Todas las combinaciones de las secciones seleccionadas tienen choques. Agrega más secciones o
-            quita alguna que esté causando conflicto.
+            {error}
           </EmptyState>
         ) : courseCount === 0 || !schedule ? (
           <EmptyState icon="bi-calendar-week" title="Tu semana aparecerá aquí">

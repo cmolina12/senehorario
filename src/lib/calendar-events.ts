@@ -212,8 +212,8 @@ const DEFAULT_END_HOUR = 18;
  * fitted to their meetings (so switching options doesn't make the grid jump),
  * never narrower than 7:00–18:00, and Saturday only when something meets then.
  */
-export function visibleRange(sections: Section[]): VisibleRange {
-  const meetings = sections.flatMap((s) => s.meetings);
+export function visibleRange(sections: Section[], extra: Meeting[] = []): VisibleRange {
+  const meetings = [...sections.flatMap((s) => s.meetings), ...extra];
   let start = DEFAULT_START_HOUR;
   let end = DEFAULT_END_HOUR;
   for (const m of meetings) {
@@ -227,4 +227,16 @@ export function visibleRange(sections: Section[]): VisibleRange {
     slotMaxTime: hh(end),
     hiddenDays: hasSaturday ? [0] : [0, 6],
   };
+}
+
+/** Blocked time drawn as striped background areas (not clickable). */
+export function blockEvents(blocks: { id: string; day: DayOfWeek; start: string; end: string; label?: string }[]): EventInput[] {
+  return blocks.map((b) => ({
+    id: `block-${b.id}`,
+    start: toDateTime(b.day, b.start),
+    end: toDateTime(b.day, b.end),
+    display: "background",
+    classNames: ["block-event"],
+    title: `<div class="block-label"><i class="bi bi-slash-circle"></i> ${escapeHtml(b.label || "Bloqueado")}</div>`,
+  }));
 }

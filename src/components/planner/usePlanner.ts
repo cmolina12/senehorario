@@ -7,7 +7,20 @@ import * as api from "@/lib/api";
 import { scheduleToEvents } from "@/lib/calendar-events";
 import { reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
 import { MAX_SCHEDULES, generateAllSchedules, mergeHalfSemesterPairs } from "@/lib/scheduler";
-import { loadPlanningState, savePlanningState, type PlanSnapshot } from "@/lib/storage";
+import {
+  DEFAULT_PREFERENCES,
+  activeFilterCount,
+  sectionConflict,
+  sortSchedules,
+  type Preferences,
+} from "@/lib/preferences";
+import {
+  loadPlanningState,
+  loadPreferences,
+  savePlanningState,
+  savePreferences,
+  type PlanSnapshot,
+} from "@/lib/storage";
 import { keepNewestTerm } from "@/lib/terms";
 import {
   sectionKey,
@@ -34,7 +47,7 @@ export interface SelectedEventInfo {
 const EMPTY_SELECTION: Selection = { sections: {}, meta: {} };
 
 const NO_SCHEDULES_ERROR =
-  "No se encontraron horarios compatibles para las secciones seleccionadas. Por favor, seleccione secciones diferentes o verifique si hay conflictos.";
+  "Todas las combinaciones de las secciones seleccionadas tienen choques. Agrega más secciones o quita alguna que esté causando conflicto.";
 
 export function usePlanner() {
   const [selection, setSelection] = useState<Selection>(EMPTY_SELECTION);
@@ -50,6 +63,8 @@ export function usePlanner() {
   // overwrites edits made while it was running.
   const version = useRef(0);
   const scheduleIndexRef = useRef(0);
+  const [preferences, setPreferencesState] = useState<Preferences>(DEFAULT_PREFERENCES);
+  const preferencesRef = useRef<Preferences>(DEFAULT_PREFERENCES);
 
   const persist = useCallback((sel: Selection, index: number) => {
     savePlanningState({
@@ -61,31 +76,44 @@ export function usePlanner() {
 
   /** Stores a new selection and regenerates its schedule options, keeping `preferredIndex` if still valid. */
   const applySelection = useCallback(
-    (sel: Selection, preferredIndex = 0) => {
+    (sel: Selection, preferredIndex = 0, prefs = preferencesRef.current) => {
       version.current++;
       setSelection(sel);
       setSelectedEvent(null);
 
+      // Sections that break a filter or blocked time never enter generation.
       const codes = Object.keys(sel.sections);
       const candidates = codes.map((code) =>
-        sel.sections[code].map(
-          (s): ScheduledSection => ({
-            ...s,
-            courseCode: code,
-            courseTitle: sel.meta[code]?.title,
-            courseCredits: sel.meta[code]?.credits,
-          }),
-        ),
+        sel.sections[code]
+          .filter((s) => sectionConflict(s, prefs) === null)
+          .map(
+            (s): ScheduledSection => ({
+              ...s,
+              courseCode: code,
+              courseTitle: sel.meta[code]?.title,
+              courseCredits: sel.meta[code]?.credits,
+            }),
+          ),
       );
-      const raw = generateAllSchedules(candidates);
-      const merged = mergeHalfSemesterPairs(raw);
-      const index = preferredIndex >= 0 && preferredIndex < merged.length ? preferredIndex : 0;
+      const blockedCodes = codes.filter((_, i) => candidates[i].length === 0);
+      const raw = blockedCodes.length > 0 ? [] : generateAllSchedules(candidates);
+      const sorted = sortSchedules(mergeHalfSemesterPairs(raw), prefs.sort);
+      const index = preferredIndex >= 0 && preferredIndex < sorted.length ? preferredIndex : 0;
 
-      setSchedules(merged);
+      let error = "";
+      if (blockedCodes.length > 0) {
+        error = `Ninguna sección de ${blockedCodes.join(", ")} cumple tus preferencias. Ajusta los horarios, días libres o bloques en Preferencias.`;
+      } else if (codes.length > 0 && raw.length === 0) {
+        error = activeFilterCount(prefs) > 0
+          ? `${NO_SCHEDULES_ERROR} También puedes relajar tus preferencias.`
+          : NO_SCHEDULES_ERROR;
+      }
+
+      setSchedules(sorted);
       setTruncated(raw.length >= MAX_SCHEDULES);
       setScheduleIndex(index);
       scheduleIndexRef.current = index;
-      setScheduleError(codes.length > 0 && raw.length === 0 ? NO_SCHEDULES_ERROR : "");
+      setScheduleError(error);
       persist(sel, index);
     },
     [persist],
@@ -225,11 +253,25 @@ export function usePlanner() {
     [applySelection, refreshFromCatalog],
   );
 
-  // Restore the last session on mount. localStorage isn't available during
-  // server rendering, so this has to happen after hydration.
+  /** Updates preferences and regenerates the options from the first one. */
+  const setPreferences = useCallback(
+    (next: Preferences) => {
+      preferencesRef.current = next;
+      setPreferencesState(next);
+      savePreferences(next);
+      applySelection(selection, 0, next);
+    },
+    [applySelection, selection],
+  );
+
+  // Restore preferences and the last session on mount. localStorage isn't
+  // available during server rendering, so this has to happen after hydration.
   useEffect(() => {
-    const saved = loadPlanningState();
+    const prefs = loadPreferences();
+    preferencesRef.current = prefs;
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPreferencesState(prefs);
+    const saved = loadPlanningState();
     if (saved) loadSnapshot(saved);
   }, [loadSnapshot]);
 
@@ -271,6 +313,8 @@ export function usePlanner() {
     setSelectedEvent,
     planChanges,
     dismissPlanChanges: () => setPlanChanges([]),
+    preferences,
+    setPreferences,
     refreshing,
     toggleSection,
     addSections,

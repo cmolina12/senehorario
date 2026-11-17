@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { courseColor, visibleRange } from "@/lib/calendar-events";
+import { blockEvents, courseColor, visibleRange } from "@/lib/calendar-events";
 import { cn } from "@/lib/format";
 import { loadSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
 import { coursesInTerm, sortTerms, termsOfCourses } from "@/lib/terms";
@@ -62,7 +62,19 @@ export function Planner() {
   );
 
   // Fit the calendar to every candidate section so switching options doesn't resize it.
-  const range = useMemo(() => visibleRange(Object.values(selection.sections).flat()), [selection]);
+  const { preferences } = planner;
+  const range = useMemo(
+    () =>
+      visibleRange(
+        Object.values(selection.sections).flat(),
+        preferences.blocks.map((b) => ({ day: b.day, start: b.start, end: b.end, location: "" })),
+      ),
+    [selection, preferences.blocks],
+  );
+  const events = useMemo(
+    () => [...planner.events, ...blockEvents(preferences.blocks)],
+    [planner.events, preferences.blocks],
+  );
 
   const selectedCount = useCallback(
     (code: string) => selection.sections[code]?.length ?? 0,
@@ -221,7 +233,7 @@ export function Planner() {
             truncated={planner.truncated}
             onOptionChange={goToSchedule}
             schedule={planner.currentSchedule}
-            events={planner.events}
+            events={events}
             range={range}
             error={planner.scheduleError}
             onEventClick={setSelectedEvent}
@@ -229,6 +241,8 @@ export function Planner() {
             refreshing={planner.refreshing}
             planChanges={planner.planChanges}
             onDismissChanges={planner.dismissPlanChanges}
+            preferences={preferences}
+            onPreferencesChange={planner.setPreferences}
           />
         </main>
       </div>
