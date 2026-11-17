@@ -139,7 +139,6 @@ export default async function LandingPage() {
                     </a>
                   </div>
 
-                  <div className="about-stack mt-6!">Stack: Next.js · React · TypeScript</div>
                 </div>
               </div>
             </div>
@@ -159,24 +158,36 @@ export default async function LandingPage() {
                 </h3>
                 <div className="faq-list">
                   <FaqItem question="¿Cómo uso Senéhorario?">
-                    Ingresa a <strong>Comienza</strong>, busca tus cursos por NRC o código y agrega
-                    las secciones. El generador arma combinaciones sin choques y puedes revisar cada
-                    horario en el calendario.
+                    Entra a <strong>Comienza</strong>, busca tus cursos por nombre, código o NRC y agrega
+                    las secciones que te sirven. Senéhorario arma todas las combinaciones sin choques
+                    para que las recorras en el calendario y elijas la tuya.
                   </FaqItem>
-                  <FaqItem question="¿De dónde salen los datos de cursos y horarios?">
-                    Los datos provienen de la <strong>oferta oficial</strong> de la universidad. Usa
-                    el enlace “Oferta de cursos” para validar cualquier cambio reciente.
+                  <FaqItem question="¿Senéhorario me inscribe los cursos?">
+                    No. Aquí planeas; la inscripción la haces tú en <strong>Banner</strong>. Cuando
+                    tengas tu opción, usa <strong>NRCs → Copiar todos</strong> y pégalos en Banner.
                   </FaqItem>
-                  <FaqItem question="¿Qué pasa si hay cambios de salón u horario?">
-                    Cualquier cambio en los horarios o salones se reflejará en la aplicación en tiempo
-                    real. Si ves algo desactualizado, escribeme al correo y lo revisamos de inmediato.
+                  <FaqItem question="¿De dónde salen los datos y qué pasa si cambian?">
+                    De la <strong>oferta oficial</strong> de la universidad, consultada en tiempo real.
+                    Si un salón, horario o cupo cambia, lo verás al buscar, y tus planes guardados se
+                    revisan contra la oferta cada vez que los abres: te avisamos si una sección se
+                    llenó, cambió o ya no existe.
                   </FaqItem>
-                  <FaqItem question="Tengo una idea o sugerencia, ¿qué hago?">
-                    Si sabes programar en TypeScript, abre un pull request en el{" "}
+                  <FaqItem question="¿Dónde se guardan mis planes?">
+                    En tu navegador. No necesitas cuenta y no guardamos tus datos en ningún servidor.
+                    Para abrir un plan en otro dispositivo o compartirlo, usa{" "}
+                    <strong>Compartir</strong> (un enlace) o descárgalo desde <strong>Mis planes</strong>.
+                  </FaqItem>
+                  <FaqItem question="¿Revisa si un curso tiene laboratorio o curso complementario?">
+                    No automáticamente. Revisa en la oferta si tu curso tiene uno (por ejemplo,
+                    MATE1203 y MATE1203C) y agrégalo también a tu plan para que entre en el horario.
+                  </FaqItem>
+                  <FaqItem question="Tengo una idea o encontré un error, ¿qué hago?">
+                    Escríbeme un correo y lo revisamos. Si sabes programar en TypeScript, también puedes
+                    abrir un issue o un pull request en el{" "}
                     <a href={REPO_URL} target="_blank" rel="noopener">
                       repositorio
                     </a>
-                    . Si no, escríbeme un correo y lo revisamos juntos.
+                    .
                   </FaqItem>
                 </div>
               </div>
