@@ -3,10 +3,12 @@
 // keep working. (Old snapshots also carry `scheduleOptions`; it is ignored
 // because schedules are regenerated from the selected sections.)
 
+import { toPreferences, type Preferences } from "./preferences";
 import type { SelectedMeta, SelectedSections } from "./types";
 
 const STATE_KEY = "planningState";
 const PLANS_KEY = "savedPlans";
+const PREFERENCES_KEY = "schedulePreferences";
 
 export interface PlanSnapshot {
   selectedSectionsByCourse: SelectedSections;
@@ -82,3 +84,6 @@ export function loadSavedPlans(): SavedPlans {
   return plans;
 }
 export const persistSavedPlans = (plans: SavedPlans) => write(PLANS_KEY, plans);
+
+export const loadPreferences = (): Preferences => toPreferences(read(PREFERENCES_KEY));
+export const savePreferences = (prefs: Preferences) => write(PREFERENCES_KEY, prefs);

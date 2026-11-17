@@ -88,6 +88,8 @@ describe("generateAllSchedules", () => {
     expect(sectionsConflict(section("1", [m], "8A"), section("2", [m], "8B"))).toBe(false);
     expect(sectionsConflict(section("1", [m], "8A"), section("2", [m], "8A"))).toBe(true);
     expect(sectionsConflict(section("1", [m], "1"), section("2", [m], "8B"))).toBe(true);
+    // Other period codes (e.g. "2") span the whole semester too.
+    expect(sectionsConflict(section("1", [m], "2"), section("2", [m], "8A"))).toBe(true);
   });
 
   it("sections from different terms never conflict", () => {

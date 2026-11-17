@@ -16,6 +16,8 @@ export interface Meeting {
   start: string; // "HH:mm:ss" (older saved plans may contain "HH:mm")
   end: string;
   location: string; // building + classroom
+  startDate?: string; // first day the meeting runs, "YYYY-MM-DD" (missing in older saved plans)
+  endDate?: string; // last day it runs
 }
 
 export interface Section {

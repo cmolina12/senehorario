@@ -306,6 +306,26 @@
   background: color-mix(in srgb, var(--ev-b) 30%, transparent);
 }
 
+/* Blocked time (from Preferencias) */
+.fc .fc-bg-event.block-event {
+  opacity: 1;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--text-muted) 10%, transparent),
+    color-mix(in srgb, var(--text-muted) 10%, transparent) 6px,
+    color-mix(in srgb, var(--text-muted) 4%, transparent) 6px,
+    color-mix(in srgb, var(--text-muted) 4%, transparent) 12px
+  );
+}
+
+.block-label {
+  padding: 4px 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-style: normal;
+}
+
 @media (max-width: 767px) {
   .ev-title {
     display: none;

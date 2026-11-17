@@ -159,10 +159,12 @@ export function Popover({
   label,
   className,
   panelClassName,
+  badge,
   children,
 }: {
   icon: string;
   label: string;
+  badge?: number;
   className?: string;
   panelClassName?: string;
   children: React.ReactNode;
@@ -183,6 +185,9 @@ export function Popover({
       >
         <i className={`bi ${icon}`} aria-hidden="true"></i>
         {label}
+        {!!badge && (
+          <span className="rounded-full bg-accent px-1.5 text-[0.65rem] leading-4 font-bold text-on-accent">{badge}</span>
+        )}
       </button>
       {open && (
         <div

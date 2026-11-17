@@ -65,11 +65,14 @@ export default function ScheduleCalendar({ events, range, onEventClick }: Props)
       // Titles are pre-escaped HTML built in lib/calendar-events.ts
       eventContent: (arg) => ({ html: arg.event.title }),
       eventDidMount: (info) => {
-        const { color, splitColorB } = info.event.extendedProps as EventProps;
-        info.el.style.setProperty("--ev", color);
+        const { color, splitColorB } = info.event.extendedProps as Partial<EventProps>;
+        if (color) info.el.style.setProperty("--ev", color);
         if (splitColorB) info.el.style.setProperty("--ev-b", splitColorB);
       },
-      eventClick: (arg) => onEventClick(eventInfoFromClick(arg)),
+      eventClick: (arg) => {
+        if (arg.event.display === "background") return;
+        onEventClick(eventInfoFromClick(arg));
+      },
     }),
     [range, onEventClick],
   );
