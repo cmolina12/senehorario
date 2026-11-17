@@ -34,11 +34,31 @@ function write(key: string, value: unknown) {
   }
 }
 
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === "object" && !Array.isArray(v);
+
+/** Enough structure for the scheduler and UI not to crash on stored/imported data. */
+function isSectionLike(v: unknown): boolean {
+  return (
+    isObject(v) &&
+    typeof v.nrc === "string" &&
+    typeof v.term === "string" &&
+    Array.isArray(v.meetings) &&
+    v.meetings.every(
+      (m) => isObject(m) && typeof m.day === "string" && typeof m.start === "string" && typeof m.end === "string",
+    )
+  );
+}
+
 /** Normalizes anything that looks like a plan snapshot; null if it isn't one. */
 export function toSnapshot(data: unknown): PlanSnapshot | null {
-  if (!data || typeof data !== "object") return null;
+  if (!isObject(data)) return null;
   const d = data as Partial<PlanSnapshot>;
-  if (!d.selectedSectionsByCourse || !d.selectedCoursesMeta) return null;
+  if (!isObject(d.selectedSectionsByCourse) || !isObject(d.selectedCoursesMeta)) return null;
+  const sectionsValid = Object.values(d.selectedSectionsByCourse).every(
+    (list) => Array.isArray(list) && list.every(isSectionLike),
+  );
+  if (!sectionsValid) return null;
   return {
     selectedSectionsByCourse: d.selectedSectionsByCourse,
     selectedCoursesMeta: d.selectedCoursesMeta,
@@ -50,5 +70,15 @@ export function toSnapshot(data: unknown): PlanSnapshot | null {
 export const loadPlanningState = () => toSnapshot(read(STATE_KEY));
 export const savePlanningState = (state: PlanSnapshot) => write(STATE_KEY, state);
 
-export const loadSavedPlans = (): SavedPlans => read<SavedPlans>(PLANS_KEY) ?? {};
+/** Saved plans, skipping any entry that isn't a valid snapshot. */
+export function loadSavedPlans(): SavedPlans {
+  const raw = read<unknown>(PLANS_KEY);
+  if (!isObject(raw)) return {};
+  const plans: SavedPlans = {};
+  for (const [name, value] of Object.entries(raw)) {
+    const snapshot = toSnapshot(value);
+    if (snapshot) plans[name] = snapshot;
+  }
+  return plans;
+}
 export const persistSavedPlans = (plans: SavedPlans) => write(PLANS_KEY, plans);
