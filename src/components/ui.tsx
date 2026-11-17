@@ -73,7 +73,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md bg-surface-alt px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-fg-secondary",
+        "inline-flex items-center gap-1 rounded-md bg-surface-inset px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-fg-secondary",
         className,
       )}
     >

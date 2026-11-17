@@ -24,7 +24,7 @@ export function SeatMeter({ section }: { section: Section }) {
   const ratio = section.totalSeats > 0 ? section.availableSeats / section.totalSeats : 0;
   return (
     <span className="inline-flex items-center gap-2 text-xs text-fg-secondary">
-      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-surface-alt">
+      <span className="h-1.5 w-14 overflow-hidden rounded-full bg-surface-inset">
         <span
           className={cn("block h-full rounded-full", SEAT_COLORS[level])}
           style={{ width: `${Math.max(ratio * 100, ratio > 0 ? 6 : 0)}%` }}
