@@ -165,6 +165,13 @@ export function SearchTab({
         </div>
       )}
 
+      {!search.loading && search.truncated && courses.length > 0 && (
+        <p className="flex gap-2 rounded-xl bg-surface-alt px-3 py-2.5 text-xs text-fg-secondary">
+          <i className="bi bi-info-circle mt-px" aria-hidden="true"></i>
+          Hay demasiados resultados y solo se muestran algunos. Escribe un código o un nombre más específico.
+        </p>
+      )}
+
       {!search.loading && search.empty && (
         <EmptyState icon="bi-search" title="No se encontraron cursos">
           Prueba con el código (p. ej. MATE1203), el NRC o parte del nombre.

@@ -81,13 +81,27 @@ export function toNameInput(query: string): string {
   return query.trim().replace(/\s+/g, "%").toUpperCase();
 }
 
-export async function searchCourses(query: string, professor = ""): Promise<Course[]> {
-  return mapToDomain(await fetchRaw(toNameInput(query), professor.trim(), 25));
+/**
+ * Most rows the catalog is asked for. Each row is one section, and a single
+ * course can have dozens (MATE1203 has ~80 across terms), so this must be
+ * generous; only very broad searches (e.g. "a") reach it.
+ */
+export const MAX_ROWS = 1000;
+
+export interface SearchResult {
+  courses: Course[];
+  /** The catalog returned MAX_ROWS rows, so there may be more. */
+  truncated: boolean;
+}
+
+export async function searchCourses(query: string, professor = ""): Promise<SearchResult> {
+  const raw = await fetchRaw(toNameInput(query), professor.trim(), MAX_ROWS);
+  return { courses: mapToDomain(raw), truncated: raw.length >= MAX_ROWS };
 }
 
 /** All CBU (Ciclo Básico Uniandino) courses with their sections. */
 export async function getCBUCourses(): Promise<Course[]> {
-  const raw = await fetchRaw("CB", "", 500);
+  const raw = await fetchRaw("CB", "", MAX_ROWS);
   return mapToDomain(raw).filter((c) => c.code.startsWith("CBU"));
 }
 

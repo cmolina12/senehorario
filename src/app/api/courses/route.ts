@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    return NextResponse.json(await searchCourses(q, professor));
+    const { courses, truncated } = await searchCourses(q, professor);
+    return NextResponse.json(courses, { headers: { "X-Results-Truncated": truncated ? "1" : "0" } });
   } catch (error) {
     console.error("Course search failed:", error);
     return NextResponse.json({ error: "Upstream catalog error" }, { status: 502 });
