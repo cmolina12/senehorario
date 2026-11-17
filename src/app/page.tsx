@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "./landing.css";
+import { CHANGELOG, formatMonth } from "@/content/changelog";
 import { FaqLink } from "@/components/FaqLink";
 import { HeroDemo } from "@/components/landing/HeroDemo";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -129,6 +130,24 @@ export default async function LandingPage() {
                     </a>
                     . Las contribuciones y comentarios son bienvenidos.
                   </p>
+
+                  <div className="changelog">
+                    <div className="changelog-head">
+                      <span>Novedades</span>
+                      <a href={`${REPO_URL}/pulls?q=is%3Apr+is%3Amerged`} target="_blank" rel="noopener">
+                        Ver todos los cambios <i className="bi bi-arrow-right"></i>
+                      </a>
+                    </div>
+                    <ul>
+                      {CHANGELOG.slice(0, 3).map((entry) => (
+                        <li key={entry.text}>
+                          <span className={`changelog-tag ${entry.tag === "Nuevo" ? "is-new" : ""}`}>{entry.tag}</span>
+                          <span className="changelog-text">{entry.text}</span>
+                          <time dateTime={entry.date}>{formatMonth(entry.date)}</time>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
                   <div className="about-links flex! justify-center! gap-4! flex-wrap!">
                     <a href={REPO_URL} target="_blank" rel="noopener" className="about-link">

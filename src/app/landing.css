@@ -724,3 +724,98 @@
     border: 1px solid var(--border-light);
   }
 }
+
+/* --- "Novedades" (changelog) inside the open-source card ------------------ */
+.landing-page {
+  .changelog {
+    margin: 0 auto 24px;
+    max-width: 640px;
+    text-align: left;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    background: var(--surface-alt);
+  }
+
+  .changelog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .changelog-head a {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .changelog-head a:hover {
+    color: var(--text-primary);
+  }
+
+  .changelog ul {
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
+  }
+
+  .changelog li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .changelog-tag {
+    flex-shrink: 0;
+    min-width: 66px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--main);
+    border: 1px solid var(--border-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .changelog-tag.is-new {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1a2e;
+  }
+
+  .changelog-text {
+    flex: 1;
+    line-height: 1.45;
+  }
+
+  .changelog time {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 575px) {
+    .changelog li {
+      flex-wrap: wrap;
+    }
+
+    .changelog time {
+      margin-left: auto;
+    }
+
+    .changelog-text {
+      order: 1;
+      flex-basis: 100%;
+    }
+  }
+}
