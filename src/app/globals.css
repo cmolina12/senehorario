@@ -259,15 +259,24 @@
   border-color: var(--border);
 }
 
+/* Hour labels at the top of their row, right under the line where the hour
+   starts (FullCalendar centers them, which reads as half past once rows are
+   stretched). Only typography here: layout changes make it re-measure. */
 .fc .fc-timegrid-slot-label-cushion {
   color: var(--text-muted);
   font-size: 0.6875rem;
+  line-height: 1;
+  padding-top: 4px;
   padding-right: 8px;
 }
 
 .fc .fc-timegrid-axis,
 .fc td.fc-timegrid-slot-label {
   border-color: transparent;
+}
+
+.fc .fc-timegrid-slot-label {
+  vertical-align: top;
 }
 
 .fc .fc-timegrid-col.fc-day-today {
