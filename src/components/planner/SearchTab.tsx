@@ -210,7 +210,7 @@ function ActionButton({
       className={
         danger
           ? "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-danger transition hover:bg-danger/10"
-          : "inline-flex items-center gap-1.5 rounded-lg bg-surface-alt px-2.5 py-1.5 text-xs font-medium text-fg-secondary transition hover:bg-surface-hover hover:text-fg"
+          : "inline-flex items-center gap-1.5 rounded-lg bg-surface-inset px-2.5 py-1.5 text-xs font-medium text-fg-secondary transition hover:bg-border hover:text-fg"
       }
     >
       <i className={`bi ${icon}`} aria-hidden="true"></i>
