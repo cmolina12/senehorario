@@ -7,116 +7,118 @@
   </picture>
 </a>
 
-A free, open-source schedule planner for Universidad de los Andes students. Search the official course catalog, pick the sections that work for you, browse every clash-free combination, and copy the NRCs straight into Banner.
+Planificador de horarios gratuito y de código abierto para estudiantes de la Universidad de los Andes. Busca en la oferta oficial de cursos, elige las secciones que te sirven, recorre todas las combinaciones sin choques y copia los NRCs directo a Banner.
 
-**Live:** [senehorario.cmolina.xyz](https://senehorario.cmolina.xyz) · **What's new:** [senehorario.cmolina.xyz/novedades](https://senehorario.cmolina.xyz/novedades)
+**Sitio:** [senehorario.cmolina.xyz](https://senehorario.cmolina.xyz) · **Novedades:** [senehorario.cmolina.xyz/novedades](https://senehorario.cmolina.xyz/novedades)
 
-## Features
+> **English:** a schedule planner for Universidad de los Andes students. The app and its docs are in Spanish; code and commits are in English.
 
-**Plan**
-- Search the catalog by course code, name, NRC or professor, with seats, cycle (16 weeks, 8A, 8B), professors and meeting times for every section.
-- Pick the term to plan for; when the catalog publishes two semesters at once, schedules never mix them.
-- Add sections one by one, all of a course's sections, or only those with open seats.
-- Every combination without clashes, shown on a weekly calendar. Half-semester (8A/8B) sections are combined into one view, and only the classes that change animate when you switch options.
-- **"Elige uno" groups:** group electives or CBUs and every schedule includes exactly one of them.
-- **CBUs that fit:** see which CBUs fit into the gaps of the option on screen, filtered by type and area.
+## Funcionalidades
 
-**Refine**
-- **Preferences:** sort options by fewest gaps, fewest days, latest start or earliest end; set no classes before/after a time; keep days free; block time for lunch, work or sports (drawn on the calendar).
+**Planea**
+- Busca por código, nombre, NRC o profesor, con cupos, ciclo (16 semanas, 8A, 8B), profesores y horarios de cada sección.
+- Elige el periodo a planear; cuando la oferta publica dos semestres a la vez, los horarios nunca los mezclan.
+- Agrega secciones una por una, todas las de un curso o solo las que tienen cupos.
+- Todas las combinaciones sin choques en un calendario semanal. Las secciones de medio semestre (8A/8B) se combinan en una sola vista, y al cambiar de opción solo se animan las clases que cambian.
+- **Grupos «elige uno»:** agrupa electivas o CBUs y cada horario incluye exactamente uno de ellos.
+- **CBUs que encajan:** mira qué CBUs caben en los huecos de la opción en pantalla, filtrados por tipo y área.
 
-**Register and share**
-- **NRCs for Banner:** copy one NRC or the whole option's list.
-- **Share links** that reopen the plan, with fresh data, on any device.
-- **Calendar export** (`.ics`) of the chosen option, as weekly classes in Bogotá time for Google Calendar, Apple Calendar or Outlook.
-- **Saved plans:** save, download and import several plans.
+**Ajusta**
+- **Preferencias:** ordena las opciones por menos huecos, menos días, entrada más tarde o salida más temprano; evita clases antes o después de cierta hora; deja días libres; bloquea tiempo para almorzar, trabajar o hacer deporte (se dibuja en el calendario).
 
-**Stay current**
-- Saved sessions and plans are re-checked against the live catalog when opened; a notice lists sections that filled up, changed time or were removed.
+**Inscribe y comparte**
+- **NRCs para Banner:** copia un NRC o la lista completa de la opción.
+- **Links para compartir** que abren el plan, con datos actualizados, en cualquier dispositivo.
+- **Exportar al calendario** (`.ics`) la opción elegida, como clases semanales en hora de Bogotá para Google Calendar, Apple Calendar u Outlook.
+- **Planes guardados:** guarda, descarga e importa varios planes.
 
-Also: light and dark themes, a phone layout with a bottom tab bar and day-by-day agenda, and reduced motion respected throughout.
+**Mantente al día**
+- La sesión y los planes guardados se revisan contra la oferta en vivo al abrirlos; un aviso muestra las secciones que se llenaron, cambiaron de horario o desaparecieron.
 
-## How it works
+Además: tema claro y oscuro, una versión para celular con barra inferior y agenda día por día, y respeto por la preferencia de movimiento reducido.
 
-- **Catalog data** comes from the public Uniandes course catalog through two small API routes (`/api/courses`, `/api/courses/cbu`) that normalize it into courses, sections and meetings. Searches always hit the live catalog; only the landing page's CBU count is cached (6 hours).
-- **Schedule generation runs in the browser** (backtracking over one slot per course, or per "elige uno" group), so every change is instant. It's capped at 2,000 combinations to keep the page responsive.
-- **Your data stays in your browser.** Selections, saved plans and preferences live in `localStorage`; there are no accounts and no database. Share links only carry the term, course codes and NRCs.
-- **Analytics:** the site uses Google Analytics to count visits.
+## Cómo funciona
 
-## Roadmap
+- **Los datos de la oferta** vienen del catálogo público de cursos de Uniandes a través de dos rutas de API (`/api/courses`, `/api/courses/cbu`) que los normalizan en cursos, secciones y sesiones. Las búsquedas siempre consultan la oferta en vivo; solo el conteo de CBUs de la página de inicio se guarda en caché (6 horas).
+- **Los horarios se generan en el navegador** (backtracking con un espacio por curso o por grupo «elige uno»), así que cada cambio es instantáneo. El límite es de 2.000 combinaciones para que la página siga respondiendo.
+- **Tus datos se quedan en tu navegador.** Las selecciones, los planes y las preferencias viven en `localStorage`; no hay cuentas ni base de datos. Los links para compartir solo llevan el periodo, los códigos de los cursos y los NRCs.
+- **Analítica:** el sitio usa Google Analytics para contar visitas.
 
-- [x] Search by professor.
-- [x] Suggest CBUs that fit into the gaps of your schedule.
-- [x] Save, view and switch between multiple plans.
-- [x] Choose between courses ("elige uno" groups), e.g. electives where you only need one.
-- [x] Block time for non-class commitments.
-- [x] Copy NRCs for Banner, share plans by link, export to calendar.
-- [ ] Show professor ratings from Los Estudiantes inside the app.
+## Hoja de ruta
 
-## Project structure
+- [x] Buscar por profesor.
+- [x] Sugerir CBUs que encajen en los huecos del horario.
+- [x] Guardar, ver y cambiar entre varios planes.
+- [x] Elegir entre cursos (grupos «elige uno»), por ejemplo electivas de las que solo necesitas una.
+- [x] Bloquear tiempo para compromisos fuera de clase.
+- [x] Copiar NRCs para Banner, compartir planes por link y exportar al calendario.
+- [ ] Mostrar las calificaciones de profesores de Los Estudiantes dentro de la app.
 
-A single Next.js app (React, TypeScript, Tailwind CSS, FullCalendar), deployed on Vercel.
+## Estructura del proyecto
+
+Una sola app de Next.js (React, TypeScript, Tailwind CSS, FullCalendar), desplegada en Vercel.
 
 ```
 src/
   app/
-    page.tsx                  landing page (+ landing.css, the original page's styles)
-    planning/page.tsx         planner
-    novedades/page.tsx        changelog page
-    api/courses/route.ts      GET /api/courses?q=&professor=   (catalog search)
-    api/courses/cbu/route.ts  GET /api/courses/cbu             (all CBU courses)
-    opengraph-image.tsx       link-preview image
-    brand/[theme]/route.tsx   README banner at 2× (/brand/light, /brand/dark)
+    page.tsx                  página de inicio (+ landing.css, estilos de la página original)
+    planning/page.tsx         planificador
+    novedades/page.tsx        página de novedades
+    api/courses/route.ts      GET /api/courses?q=&professor=   (búsqueda en la oferta)
+    api/courses/cbu/route.ts  GET /api/courses/cbu             (todos los CBUs)
+    opengraph-image.tsx       imagen de vista previa de links
+    brand/[theme]/route.tsx   banner del README a 2× (/brand/light, /brand/dark)
     sitemap.ts, robots.ts
   components/
-    planner/                  planner UI: search, courses, CBUs, calendar, agenda,
-                              details drawer, preferences, NRCs, sharing, plans
-      usePlanner.ts           selection state, generation, refresh, persistence
-    landing/HeroDemo.tsx      the live mini-planner on the landing page
-    ui.tsx                    shared primitives (buttons, menu, popover, skeletons)
+    planner/                  interfaz del planificador: búsqueda, cursos, CBUs, calendario,
+                              agenda, detalles, preferencias, NRCs, compartir, planes
+      usePlanner.ts           estado de la selección, generación, revisión, persistencia
+    landing/HeroDemo.tsx      el mini planificador animado de la página de inicio
+    ui.tsx                    componentes base (botones, menú, popover, skeletons)
   content/
-    changelog.ts              entries for /novedades and the landing page
+    changelog.ts              entradas de /novedades y de la página de inicio
   lib/
-    uniandes.ts               catalog client + mapping (server only)
-    scheduler.ts              conflict detection and schedule generation
-    groups.ts                 "elige uno" groups → generation slots
-    preferences.ts            filters, blocked time, sorting
-    refresh.ts                re-checking saved plans against the catalog
-    share.ts, ics.ts          share links and calendar export
-    brand-card.tsx            link-preview / README banner design (next/og)
-    calendar-events.ts        schedules → FullCalendar events (8A/8B handling)
+    uniandes.ts               cliente de la oferta + transformación (solo servidor)
+    scheduler.ts              detección de choques y generación de horarios
+    groups.ts                 grupos «elige uno» → espacios de generación
+    preferences.ts            filtros, tiempo bloqueado y orden
+    refresh.ts                revisión de planes guardados contra la oferta
+    share.ts, ics.ts          links para compartir y exportación al calendario
+    brand-card.tsx            diseño de la vista previa y del banner (next/og)
+    calendar-events.ts        horarios → eventos de FullCalendar (manejo de 8A/8B)
     terms.ts, storage.ts, format.ts, types.ts, …
 ```
 
-## Development
+## Desarrollo
 
-Requires Node.js 20.9+.
+Requiere Node.js 20.9 o superior.
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm test           # unit tests (Vitest)
+npm test           # pruebas unitarias (Vitest)
 npm run lint
 npm run typecheck
 npm run build
 ```
 
-Optional environment variable: `UNIANDES_API_BASE_URL` (defaults to `https://ofertadecursos.uniandes.edu.co/api/courses`).
+Variable de entorno opcional: `UNIANDES_API_BASE_URL` (por defecto `https://ofertadecursos.uniandes.edu.co/api/courses`).
 
-## Contributing
+## Contribuir
 
-Issues and pull requests are welcome.
+Los issues y pull requests son bienvenidos.
 
-- The scheduling, data and sharing logic lives in `src/lib/` and is covered by unit tests next to each file (`*.test.ts`); please add tests for changes there.
-- When you ship something students would notice, add an entry at the top of `CHANGELOG` in `src/content/changelog.ts`. It appears on [/novedades](https://senehorario.cmolina.xyz/novedades) and, if it's among the newest three, on the landing page.
+- La lógica de horarios, datos y links vive en `src/lib/` y tiene pruebas unitarias junto a cada archivo (`*.test.ts`); agrega pruebas si cambias algo ahí.
+- Si haces un cambio que los estudiantes van a notar, agrega una entrada al inicio de `CHANGELOG` en `src/content/changelog.ts`. Aparece en [/novedades](https://senehorario.cmolina.xyz/novedades) y, si está entre las tres más recientes, en la página de inicio.
 
-## Deployment
+## Despliegue
 
-Every push to `main` deploys to Vercel; pull requests get preview URLs. The `gh-pages` branch only holds a redirect from the old address (`cmolina.xyz/senehorario/`), which also carries visitors' saved plans over to the new site.
+Cada push a `main` se despliega en Vercel; los pull requests reciben un link de vista previa. La rama `gh-pages` solo contiene una redirección desde la dirección anterior (`cmolina.xyz/senehorario/`), que además trae los planes guardados de los visitantes al nuevo sitio.
 
-## History
+## Historia
 
-Senéhorario started in June 2025 as an Angular frontend with a Spring Boot backend ([archived](https://github.com/cmolina12/senehorario-backend)) and launched on 30 July 2025. In November 2026 it became a single Next.js app. The full, student-facing history is on [/novedades](https://senehorario.cmolina.xyz/novedades).
+Senéhorario empezó en junio de 2025 como un frontend en Angular con un backend en Spring Boot ([archivado](https://github.com/cmolina12/senehorario-backend)) y se lanzó el 30 de julio de 2025. En noviembre de 2026 pasó a ser una sola app de Next.js. La historia completa, pensada para estudiantes, está en [/novedades](https://senehorario.cmolina.xyz/novedades).
 
-## License
+## Licencia
 
-MIT, see [LICENSE](LICENSE).
+MIT, ver [LICENSE](LICENSE).
