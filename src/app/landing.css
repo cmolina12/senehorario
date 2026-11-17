@@ -501,6 +501,11 @@
   }
 
 
+  .about-repo-note {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
   .about-inline-link {
     color: var(--text-primary);
     font-weight: 700;
