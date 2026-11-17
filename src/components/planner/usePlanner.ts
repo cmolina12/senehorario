@@ -361,10 +361,15 @@ export function usePlanner() {
 
   // Restore preferences and the last session on mount. localStorage isn't
   // available during server rendering, so this has to happen after hydration.
+  // Runs once even when React re-runs effects (Strict Mode in development):
+  // a second run would no longer see the share link and would cancel it.
+  const initialized = useRef(false);
+  /* eslint-disable react-hooks/set-state-in-effect -- restoring from localStorage/URL after hydration */
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
     const prefs = loadPreferences();
     preferencesRef.current = prefs;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreferencesState(prefs);
     const saved = loadPlanningState();
     const shared = parseShareQuery(window.location.search);
@@ -376,6 +381,7 @@ export function usePlanner() {
       loadSnapshot(saved);
     }
   }, [loadSnapshot, loadSharedPlan]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // --- Schedule navigation ---
 
