@@ -61,8 +61,11 @@ async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
     await Promise.all(
       codes.map(async (code) => {
         try {
-          const results = await api.searchCourses(code);
-          return [code, results.find((c) => c.code === code) ?? "missing"] as const;
+          const { courses, truncated } = await api.searchCourses(code);
+          const course = courses.find((c) => c.code === code);
+          // Never drop sections based on a partial answer.
+          if (truncated) return [code, "error"] as const;
+          return [code, course ?? "missing"] as const;
         } catch {
           return [code, "error"] as const;
         }

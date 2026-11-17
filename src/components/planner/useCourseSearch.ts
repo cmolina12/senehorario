@@ -14,12 +14,14 @@ export function useCourseSearch() {
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
   const [error, setError] = useState("");
+  const [truncated, setTruncated] = useState(false);
   const requestId = useRef(0);
 
   const search = useCallback(async (q: string, prof: string) => {
     const id = ++requestId.current;
     if (!q.trim() && !prof.trim()) {
       setCourses([]);
+      setTruncated(false);
       setEmpty(false);
       setError("");
       setLoading(false);
@@ -29,13 +31,15 @@ export function useCourseSearch() {
     try {
       const result = await api.searchCourses(q, prof);
       if (id !== requestId.current) return;
-      setCourses(result);
-      setEmpty(result.length === 0);
+      setCourses(result.courses);
+      setTruncated(result.truncated);
+      setEmpty(result.courses.length === 0);
       setError("");
     } catch (e) {
       if (id !== requestId.current) return;
       console.error("Error fetching courses:", e);
       setCourses([]);
+      setTruncated(false);
       setEmpty(false);
       setError(SEARCH_ERROR);
     } finally {
@@ -61,6 +65,7 @@ export function useCourseSearch() {
     loading,
     empty,
     error,
+    truncated,
     submit: () => void search(query, professor),
     searchFor,
   };
