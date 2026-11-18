@@ -74,6 +74,22 @@ describe("buildIcs", () => {
     expect(content).toContain("LOCATION:Salón por asignar");
   });
 
+  it("exports a section's one-off sessions as single events", () => {
+    const withSessions = section([
+      { day: "MONDAY", start: "18:00:00", end: "20:50:00", location: "", startDate: "2026-08-03", endDate: "2026-11-28" },
+    ]);
+    withSessions.sessions = [
+      { day: "SATURDAY", start: "07:00:00", end: "09:50:00", location: "", startDate: "2026-08-22", endDate: "2026-08-22" },
+      { day: "SATURDAY", start: "07:00:00", end: "09:50:00", location: "", startDate: "2026-10-17", endDate: "2026-10-17" },
+    ];
+    const { content } = buildIcs([withSessions], "x", now);
+    expect(content.match(/BEGIN:VEVENT/g)).toHaveLength(3);
+    expect(content.match(/RRULE/g)).toHaveLength(1);
+    expect(content).toContain("DTSTART;TZID=America/Bogota:20261017T070000");
+    const uids = content.match(/^UID:.*$/gm) ?? [];
+    expect(new Set(uids).size).toBe(3);
+  });
+
   it("folds long lines to 75 octets", () => {
     const long = section([
       { day: "MONDAY", start: "08:00:00", end: "09:00:00", location: "Á".repeat(80), startDate: "2027-01-25", endDate: "2027-05-22" },

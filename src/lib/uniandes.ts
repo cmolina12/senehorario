@@ -2,6 +2,7 @@
 // Port of the Spring Boot CourseService: fetches raw sections and groups them
 // into Course -> Section -> Meeting.
 
+import { firstOccurrence } from "./ics";
 import type { Course, DayOfWeek, Meeting, Section } from "./types";
 
 const API_BASE_URL =
@@ -150,34 +151,53 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       courses.set(code, course);
     }
 
-    // The catalog can list the same weekly slot in several rows with
-    // different date ranges; keep one meeting per slot spanning all of them.
-    const bySlot = new Map<string, Meeting>();
-    for (const s of a.schedules ?? []) {
+    const rows = (a.schedules ?? []).flatMap((s) => {
       const start = parseTime(s.time_ini);
       const end = parseTime(s.time_fin);
       // Skip malformed entries instead of failing the whole search.
-      if (!start || !end) continue;
+      if (!start || !end) return [];
       const room = `${s.building} ${s.classroom}`;
       // Fully online sections often list "- -" as the room; keep them recognizable.
       const location = a.campus?.toUpperCase() === "VIRTUAL" && !/[\p{L}\p{N}]/u.test(room) ? "VIRTUAL" : room;
       const startDate = parseDate(s.date_ini);
       const endDate = parseDate(s.date_fin);
-      for (const day of parseDays(s)) {
-        const key = `${day}-${start}-${end}`;
-        const existing = bySlot.get(key);
-        if (!existing) {
-          bySlot.set(key, { day, start, end, location, startDate, endDate });
-          continue;
-        }
-        if (startDate && (!existing.startDate || startDate < existing.startDate)) existing.startDate = startDate;
-        if (endDate && (!existing.endDate || endDate > existing.endDate)) existing.endDate = endDate;
+      return parseDays(s).map((day): Meeting => ({ day, start, end, location, startDate, endDate }));
+    });
+    const slotKey = (m: Meeting) => `${m.day}-${m.start}-${m.end}`;
+    const longest = Math.max(0, ...rows.map(spanDays));
+    const isShort = (m: Meeting) => longest >= MIN_TERM_DAYS && spanDays(m) <= ONE_OFF_MAX_DAYS;
+    // In a section that runs for weeks, a slot that only shows up in rows
+    // lasting a week or less is a one-off session (an exam, a Saturday
+    // workshop), not a weekly class. Short rows in a slot that also has a long
+    // row are just that class split into date ranges (room changes).
+    const weeklySlots = new Set(rows.filter((m) => !isShort(m)).map(slotKey));
+    const isOneOff = (m: Meeting) => isShort(m) && !weeklySlots.has(slotKey(m));
+
+    // The catalog can list the same weekly slot in several rows with
+    // different date ranges; keep one meeting per slot spanning all of them.
+    const bySlot = new Map<string, Meeting>();
+    for (const row of rows) {
+      if (isOneOff(row)) continue;
+      const existing = bySlot.get(slotKey(row));
+      if (!existing) {
+        bySlot.set(slotKey(row), { ...row });
+        continue;
       }
+      if (row.startDate && (!existing.startDate || row.startDate < existing.startDate)) existing.startDate = row.startDate;
+      if (row.endDate && (!existing.endDate || row.endDate > existing.endDate)) existing.endDate = row.endDate;
     }
     // Leave dates out entirely rather than half-filled.
     const meetings = [...bySlot.values()].map((m): Meeting =>
       m.startDate && m.endDate ? m : { day: m.day, start: m.start, end: m.end, location: m.location },
     );
+
+    const sessions = new Map<string, Meeting>();
+    for (const row of rows) {
+      if (!isOneOff(row)) continue;
+      const date = firstOccurrence(row.startDate!, row.day);
+      if (date > row.endDate!) continue; // the range never includes that weekday
+      sessions.set(`${date}-${row.start}-${row.end}`, { ...row, startDate: date, endDate: date });
+    }
 
     meetings.sort((x, y) => DAY_ORDER.indexOf(x.day) - DAY_ORDER.indexOf(y.day) || x.start.localeCompare(y.start));
 
@@ -191,6 +211,11 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       ptrm: a.ptrm,
       campus: a.campus,
       meetings: mergeOverlapping(meetings),
+      ...(sessions.size > 0 && {
+        sessions: [...sessions.values()].sort(
+          (x, y) => x.startDate!.localeCompare(y.startDate!) || x.start.localeCompare(y.start),
+        ),
+      }),
       professors: (a.instructors ?? []).map((i) => reorderProfessorName(i.name ?? "")),
       availableSeats,
       totalSeats,
@@ -231,6 +256,15 @@ function mergeOverlapping(meetings: Meeting[]): Meeting[] {
     }
   }
   return merged;
+}
+
+const MIN_TERM_DAYS = 28;
+const ONE_OFF_MAX_DAYS = 6;
+
+/** Days between a meeting's first and last date; -1 when it has no dates. */
+function spanDays(m: Meeting): number {
+  if (!m.startDate || !m.endDate) return -1;
+  return (Date.parse(m.endDate) - Date.parse(m.startDate)) / 86_400_000;
 }
 
 /** "2027-01-25 00:00:00" -> "2027-01-25"; undefined when missing or malformed. */

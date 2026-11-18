@@ -18,6 +18,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Corrección",
+    text: "Las sesiones de un solo día (parciales, talleres de sábado) ya no aparecen como clases semanales ni bloquean ese horario todo el semestre; se listan con su fecha debajo del calendario.",
+  },
+  {
+    date: "2026-11",
+    tag: "Corrección",
     text: "Las clases de domingo ya aparecen en el calendario y cuentan para los choques, y los nombres de cursos con caracteres extraños se ven bien.",
   },
   {

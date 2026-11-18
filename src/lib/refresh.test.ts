@@ -43,6 +43,18 @@ describe("reconcileSelection", () => {
     ]);
   });
 
+  it("doesn't report a time change when one-off rows moved into sessions", () => {
+    const old = section("11", "MONDAY", "08:00:00");
+    old.meetings.push({ day: "SATURDAY", start: "07:00:00", end: "09:50:00", location: "" });
+    const live = section("11", "MONDAY", "08:00:00");
+    live.sessions = [
+      { day: "SATURDAY", start: "07:00:00", end: "09:50:00", location: "", startDate: "2026-08-22", endDate: "2026-08-22" },
+      { day: "SATURDAY", start: "07:00:00", end: "09:50:00", location: "", startDate: "2026-10-17", endDate: "2026-10-17" },
+    ];
+    const result = reconcileSelection({ A: [old] }, meta, { A: course("A", [live]) });
+    expect(result.changes).toEqual([]);
+  });
+
   it("reports a single course-level change when none of its sections remain", () => {
     const saved = { A: [section("11", "MONDAY", "08:00:00")], B: [section("21", "MONDAY", "10:00:00")] };
     const result = reconcileSelection(saved, meta, { A: course("A", []), B: "missing" });

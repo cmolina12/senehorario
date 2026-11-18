@@ -9,6 +9,7 @@ import {
   dayName,
   formatLocation,
   plural,
+  shortDate,
   shortTime,
   termLabel,
   titleCase,
@@ -142,6 +143,30 @@ export function DetailsDrawer({
               )}
             </ul>
           </div>
+
+          {section.sessions && section.sessions.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-xs text-fg-muted">Sesiones con fecha</h3>
+              <ul className="divide-y divide-border rounded-xl border border-border">
+                {section.sessions.map((m, i) => (
+                  <li key={i} className="flex items-baseline gap-3 px-3 py-2.5 text-sm">
+                    <span className="w-20 shrink-0 font-semibold">
+                      {dayName(m.day).slice(0, 3)} {shortDate(m.startDate!)}
+                    </span>
+                    <span className="shrink-0 text-fg-secondary">
+                      {shortTime(m.start)}–{shortTime(m.end)}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-right text-xs text-fg-muted" title={formatLocation(m.location)}>
+                      {formatLocation(m.location)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-fg-muted">
+                Solo esos días, no cada semana. Se tienen en cuenta al buscar choques.
+              </p>
+            </div>
+          )}
         </div>
       </aside>
     </div>

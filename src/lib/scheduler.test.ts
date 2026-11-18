@@ -110,6 +110,42 @@ describe("generateAllSchedules", () => {
   });
 });
 
+describe("sectionsConflict with dates", () => {
+  const dated = (m: Meeting, startDate: string, endDate: string): Meeting => ({ ...m, startDate, endDate });
+
+  it("ignores same-slot meetings that run in different weeks", () => {
+    // DECA1101: a Wednesday slot only during the first month.
+    const early = section("1", [dated(meeting("WEDNESDAY", "14:00", "15:20"), "2027-01-25", "2027-02-20")], "2");
+    const late = section("2", [dated(meeting("WEDNESDAY", "14:00", "15:20"), "2027-03-29", "2027-05-22")], "8B");
+    expect(sectionsConflict(early, late)).toBe(false);
+  });
+
+  it("still clashes when the date ranges share a week, whatever the period code", () => {
+    const sports = section("1", [dated(meeting("TUESDAY", "06:30", "07:50"), "2027-01-25", "2027-05-22")], "D");
+    const half = section("2", [dated(meeting("TUESDAY", "07:00", "08:20"), "2027-01-25", "2027-03-20")], "8A");
+    expect(sectionsConflict(sports, half)).toBe(true);
+  });
+
+  it("checks one-off sessions only on their date", () => {
+    const weekly = section("1", [dated(meeting("SATURDAY", "08:00", "10:00"), "2026-08-03", "2026-11-28")]);
+    const workshop = section("2", []);
+    workshop.sessions = [dated(meeting("SATURDAY", "07:00", "09:50"), "2026-08-22", "2026-08-22")];
+    const otherWorkshop = section("3", []);
+    otherWorkshop.sessions = [dated(meeting("SATURDAY", "07:00", "09:50"), "2026-10-17", "2026-10-17")];
+    expect(sectionsConflict(weekly, workshop)).toBe(true);
+    expect(sectionsConflict(workshop, otherWorkshop)).toBe(false);
+    expect(fitsInSchedule(workshop, [weekly])).toBe(false);
+  });
+
+  it("falls back to the period when saved meetings have no dates", () => {
+    const a = section("1", [meeting("MONDAY", "09:00", "10:00")], "8A");
+    const b = section("2", [meeting("MONDAY", "09:00", "10:00")], "8B");
+    const c = section("3", [meeting("MONDAY", "09:00", "10:00")], "D");
+    expect(sectionsConflict(a, b)).toBe(false);
+    expect(sectionsConflict(a, c)).toBe(true);
+  });
+});
+
 describe("mergeHalfSemesterPairs", () => {
   const tag = (s: Section, courseCode: string): ScheduledSection => ({ ...s, courseCode });
 

@@ -4,7 +4,7 @@ import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import { courseColor, type VisibleRange } from "@/lib/calendar-events";
-import { cn, plural, titleCase } from "@/lib/format";
+import { cn, dayLabel, plural, shortDate, shortTime, titleCase } from "@/lib/format";
 import { usePresence } from "@/lib/use-presence";
 import type { Preferences } from "@/lib/preferences";
 
@@ -172,7 +172,7 @@ export function CalendarView({
             <div className="sm:hidden">
               <AgendaView schedule={schedule} onSelect={onEventClick} courseOrder={courseOrder} />
             </div>
-            <UnscheduledList schedule={schedule} courseOrder={courseOrder} onSelect={onEventClick} />
+            <OffGridLists schedule={schedule} courseOrder={courseOrder} onSelect={onEventClick} />
           </>
         )}
       </div>
@@ -180,32 +180,77 @@ export function CalendarView({
   );
 }
 
-/**
- * Sections without a weekly time (theses, practicums) never show up on the
- * grid, so list them under it to keep the whole schedule visible.
- */
-function UnscheduledList({
-  schedule,
-  courseOrder,
-  onSelect,
-}: {
+interface OffGridProps {
   schedule: ScheduledSection[];
   courseOrder: string[];
   onSelect: (info: SelectedEventInfo) => void;
+}
+
+/**
+ * What the weekly grid can't show, listed under it: sections without a
+ * weekly time (theses, practicums) and one-off dated sessions (exams,
+ * Saturday workshops), in date order.
+ */
+function OffGridLists({ schedule, courseOrder, onSelect }: OffGridProps) {
+  const unscheduled = schedule.filter((s) => s.meetings.length === 0 && !s.sessions?.length);
+  const sessions = schedule
+    .flatMap((section) => (section.sessions ?? []).map((meeting) => ({ section, meeting })))
+    .sort(
+      (a, b) =>
+        a.meeting.startDate!.localeCompare(b.meeting.startDate!) || a.meeting.start.localeCompare(b.meeting.start),
+    );
+  const strip = { courseOrder, onSelect };
+  return (
+    <>
+      <ChipStrip
+        {...strip}
+        icon="bi-clock-history"
+        label="Sin horario fijo"
+        items={unscheduled.map((section) => ({
+          key: `${section.term}-${section.nrc}`,
+          section,
+          heading: `${section.courseCode} · ${section.sectionId}`,
+          detail: titleCase(section.courseTitle ?? ""),
+        }))}
+      />
+      <ChipStrip
+        {...strip}
+        icon="bi-calendar-event"
+        label="Sesiones con fecha"
+        items={sessions.map(({ section, meeting }) => ({
+          key: `${section.term}-${section.nrc}-${meeting.startDate}-${meeting.start}`,
+          section,
+          heading: section.courseCode,
+          detail: `${dayLabel(meeting.day)} ${shortDate(meeting.startDate!)} · ${shortTime(meeting.start)}–${shortTime(meeting.end)}`,
+        }))}
+      />
+    </>
+  );
+}
+
+function ChipStrip({
+  icon,
+  label,
+  items,
+  courseOrder,
+  onSelect,
+}: Omit<OffGridProps, "schedule"> & {
+  icon: string;
+  label: string;
+  items: { key: string; section: ScheduledSection; heading: string; detail: string }[];
 }) {
-  const unscheduled = schedule.filter((s) => s.meetings.length === 0);
-  if (unscheduled.length === 0) return null;
+  if (items.length === 0) return null;
   return (
     <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 py-3 text-sm">
       <span className="inline-flex items-center gap-1.5 text-fg-secondary">
-        <i className="bi bi-clock-history" aria-hidden="true"></i>
-        Sin horario fijo:
+        <i className={cn("bi", icon)} aria-hidden="true"></i>
+        {label}:
       </span>
-      {unscheduled.map((section) => {
+      {items.map(({ key, section, heading, detail }) => {
         const color = courseColor(courseOrder, section.courseCode);
         return (
           <button
-            key={`${section.term}-${section.nrc}`}
+            key={key}
             type="button"
             onClick={() =>
               onSelect({
@@ -222,10 +267,8 @@ function UnscheduledList({
               background: `color-mix(in srgb, ${color} var(--event-tint), var(--surface))`,
             }}
           >
-            <span className="font-semibold">
-              {section.courseCode} · {section.sectionId}
-            </span>
-            <span className="truncate text-fg-secondary">{titleCase(section.courseTitle ?? "")}</span>
+            <span className="font-semibold">{heading}</span>
+            <span className="truncate text-fg-secondary">{detail}</span>
           </button>
         );
       })}
