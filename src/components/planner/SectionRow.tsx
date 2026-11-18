@@ -5,6 +5,7 @@ import {
   cicloLabel,
   cn,
   dayLabel,
+  deliveryLabel,
   professorUrl,
   seatLevel,
   shortTime,
@@ -62,11 +63,22 @@ export function ProfessorLinks({ professors, size = "sm" }: { professors: string
 
 export function MeetingChips({ section }: { section: Section }) {
   if (section.meetings.length === 0) return <Chip>Sin horario</Chip>;
-  return section.meetings.map((m, i) => (
-    <Chip key={i}>
-      {dayLabel(m.day)} {shortTime(m.start)}–{shortTime(m.end)}
-    </Chip>
-  ));
+  const delivery = deliveryLabel(section);
+  return (
+    <>
+      {section.meetings.map((m, i) => (
+        <Chip key={i}>
+          {dayLabel(m.day)} {shortTime(m.start)}–{shortTime(m.end)}
+        </Chip>
+      ))}
+      {delivery && (
+        <Chip>
+          <i className="bi bi-camera-video mr-1" aria-hidden="true"></i>
+          {delivery}
+        </Chip>
+      )}
+    </>
+  );
 }
 
 interface Props {
@@ -79,6 +91,7 @@ interface Props {
 export function SectionRow({ section, selected, onToggle, showAttrs }: Props) {
   const isHalf = section.ptrm === "8A" || section.ptrm === "8B";
   const term = termLabel(section);
+  const delivery = deliveryLabel(section);
   return (
     <div className="flex items-start gap-3 py-3">
       <div className="min-w-0 flex-1 space-y-1.5">
@@ -98,7 +111,7 @@ export function SectionRow({ section, selected, onToggle, showAttrs }: Props) {
         </div>
         {showAttrs && section.attrs?.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {section.attrs.map((attr) => (
+            {section.attrs.filter((attr) => !(delivery && attr === "VIRT")).map((attr) => (
               <Chip key={attr} className="bg-primary/10 text-fg dark:bg-primary-light/40">
                 {cbuAttrLabel(attr)}
               </Chip>

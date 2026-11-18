@@ -3,7 +3,7 @@
 // .ev* rules in globals.css.
 
 import type { EventInput } from "@fullcalendar/core";
-import { shortTime, titleCase } from "./format";
+import { isVirtualLocation, shortTime, titleCase } from "./format";
 import { meetingsOverlap, toMinutes } from "./scheduler";
 import { sectionKey, type DayOfWeek, type Meeting, type ScheduledSection, type Section } from "./types";
 
@@ -93,6 +93,8 @@ function makeEvent(
   };
 }
 
+const VIRTUAL_TAG = `<span class="ev-virtual"><i class="bi bi-camera-video" aria-hidden="true"></i>Virtual</span>`;
+
 const badge = (ptrm: string) => `<span class="ev-badge">${escapeHtml(ptrm)}</span>`;
 
 function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): string {
@@ -100,7 +102,7 @@ function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): st
     `<div class="ev">` +
     `<div class="ev-code">${heading}</div>` +
     `<div class="ev-title">${escapeHtml(titleCase(sec.courseTitle ?? ""))}</div>` +
-    `<div class="ev-time">${shortTime(meeting.start)}–${shortTime(meeting.end)}</div>` +
+    `<div class="ev-time">${shortTime(meeting.start)}–${shortTime(meeting.end)}${isVirtualLocation(meeting.location) ? VIRTUAL_TAG : ""}</div>` +
     `</div>`
   );
 }

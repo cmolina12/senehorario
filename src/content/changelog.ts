@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Mejora",
+    text: "Las clases virtuales se marcan como «Virtual» en el calendario, y los cursos sin horario fijo (prácticas, créditos de investigación) aparecen debajo de la semana.",
+  },
+  {
+    date: "2026-11",
     tag: "Nuevo",
     text: "Ordena las opciones por más cupos libres, para empezar por los horarios con menos riesgo de llenarse.",
   },

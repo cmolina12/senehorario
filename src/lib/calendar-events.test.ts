@@ -91,6 +91,17 @@ describe("helpers", () => {
     expect(formatLocation("- - - -")).toBe("Salón por asignar");
     expect(formatLocation(" .Edif. SD .SD_402 ")).toBe(".Edif. SD .SD_402");
   });
+
+  it("labels online classes as virtual", async () => {
+    const { deliveryLabel } = await import("./format");
+    expect(formatLocation(".VIRTUAL .VIRT")).toBe("Virtual");
+    const meeting = { day: "MONDAY" as const, start: "17:00", end: "18:50", location: ".VIRTUAL .VIRT" };
+    const inPerson = { ...meeting, location: ".Edif. SD .SD_402" };
+    expect(deliveryLabel({ attrs: [], meetings: [meeting] })).toBe("Virtual");
+    expect(deliveryLabel({ attrs: [], meetings: [inPerson, meeting] })).toBe("Híbrida");
+    expect(deliveryLabel({ attrs: ["VIRT"], meetings: [] })).toBe("Virtual");
+    expect(deliveryLabel({ attrs: [], meetings: [inPerson] })).toBeNull();
+  });
 });
 
 describe("titleCase", async () => {

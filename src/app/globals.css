@@ -357,6 +357,14 @@
   white-space: nowrap;
 }
 
+.ev-virtual {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  font-weight: 600;
+}
+
 .ev-badge {
   display: inline-block;
   margin-left: 4px;

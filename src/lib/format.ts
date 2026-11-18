@@ -31,8 +31,19 @@ const DAY_NAMES: Record<DayOfWeek, string> = {
 
 export const dayName = (day: DayOfWeek) => DAY_NAMES[day] ?? day;
 
+/** Online classes come as ".VIRTUAL .VIRT" instead of a building and room. */
+export const isVirtualLocation = (location: string) => /(^|\s)\.VIRT/i.test(location);
+
+/** "Virtual" when every meeting is online, "Híbrida" when only some are. */
+export function deliveryLabel(section: Pick<Section, "attrs" | "meetings">): string | null {
+  const online = section.meetings.filter((m) => isVirtualLocation(m.location)).length;
+  if (online > 0) return online === section.meetings.length ? "Virtual" : "Híbrida";
+  return section.attrs?.includes("VIRT") ? "Virtual" : null;
+}
+
 /** The catalog fills unassigned rooms with dashes. */
 export function formatLocation(location: string): string {
+  if (isVirtualLocation(location)) return "Virtual";
   return /[\p{L}\p{N}]/u.test(location) ? location.trim() : "Salón por asignar";
 }
 
