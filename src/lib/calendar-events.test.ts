@@ -35,6 +35,11 @@ describe("visibleRange", () => {
     ]);
     expect(range).toEqual({ slotMinTime: "06:00:00", slotMaxTime: "21:00:00", hiddenDays: [0] });
   });
+
+  it("shows Sunday when something meets then", () => {
+    const range = visibleRange([section("1", "MEDI", [["SUNDAY", "07:00:00", "13:00:00"]])]);
+    expect(range.hiddenDays).toEqual([6]);
+  });
 });
 
 describe("scheduleToEvents", () => {
@@ -90,6 +95,27 @@ describe("helpers", () => {
   it("formats unassigned locations", () => {
     expect(formatLocation("- - - -")).toBe("Salón por asignar");
     expect(formatLocation(" .Edif. SD .SD_402 ")).toBe(".Edif. SD .SD_402");
+  });
+
+  it("labels online classes as virtual", async () => {
+    const { deliveryLabel } = await import("./format");
+    expect(formatLocation(".VIRTUAL .VIRT")).toBe("Virtual");
+    const meeting = { day: "MONDAY" as const, start: "17:00", end: "18:50", location: ".VIRTUAL .VIRT" };
+    const inPerson = { ...meeting, location: ".Edif. SD .SD_402" };
+    const main = "CAMPUS PRINCIPAL";
+    expect(deliveryLabel({ attrs: [], campus: main, meetings: [meeting] })).toBe("Virtual");
+    expect(deliveryLabel({ attrs: [], campus: main, meetings: [inPerson, meeting] })).toBe("Híbrida");
+    expect(deliveryLabel({ attrs: ["VIRT"], campus: main, meetings: [] })).toBe("Virtual");
+    expect(deliveryLabel({ attrs: [], campus: main, meetings: [inPerson] })).toBeNull();
+    expect(deliveryLabel({ attrs: [], campus: "PPAL-PRESENCIAL/VIRTUAL", meetings: [inPerson] })).toBe("Híbrida");
+  });
+
+  it("formats merged blocks with several locations", async () => {
+    const { meetingDelivery } = await import("./format");
+    expect(formatLocation(".Edif. AU .AU_207 / .VIRTUAL .VIRT")).toBe(".Edif. AU .AU_207 / Virtual");
+    expect(formatLocation("- - / - -")).toBe("Salón por asignar");
+    expect(meetingDelivery(".Edif. AU .AU_207 / .VIRTUAL .VIRT")).toBe("Híbrida");
+    expect(meetingDelivery("VIRTUAL")).toBe("Virtual");
   });
 });
 

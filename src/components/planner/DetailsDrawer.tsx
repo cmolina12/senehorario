@@ -135,6 +135,11 @@ export function DetailsDrawer({
                   </span>
                 </li>
               ))}
+              {section.meetings.length === 0 && (
+                <li className="px-3 py-2.5 text-sm text-fg-secondary">
+                  Esta sección no tiene horario fijo en la oferta de cursos.
+                </li>
+              )}
             </ul>
           </div>
         </div>

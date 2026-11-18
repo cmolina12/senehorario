@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapToDomain, reorderProfessorName, toNameInput, type ApiCourse } from "./uniandes";
+import { cleanTitle, mapToDomain, reorderProfessorName, toNameInput, type ApiCourse } from "./uniandes";
 
 const raw = (overrides: Partial<ApiCourse> = {}): ApiCourse => ({
   nrc: "75548",
@@ -74,6 +74,34 @@ describe("mapToDomain", () => {
     ]);
   });
 
+  it("merges overlapping meetings of one section into a single block", () => {
+    // CIDE4705: Thursday in a classroom, plus an overlapping online slot.
+    const base = { ...raw().schedules![0], l: null, i: null, j: "J" };
+    const [course] = mapToDomain([
+      raw({
+        schedules: [
+          { ...base, time_ini: "0630", time_fin: "0920", building: ".Edif. AU", classroom: ".AU_207" },
+          { ...base, time_ini: "0700", time_fin: "0850", building: ".VIRTUAL", classroom: ".VIRT" },
+        ],
+      }),
+    ]);
+    expect(course.sections[0].meetings).toEqual([
+      { day: "THURSDAY", start: "06:30:00", end: "09:20:00", location: ".Edif. AU .AU_207 / .VIRTUAL .VIRT" },
+    ]);
+  });
+
+  it("reads Sunday meetings", () => {
+    const [course] = mapToDomain([raw({ schedules: [{ ...raw().schedules![0], l: null, i: null, d: "D" }] })]);
+    expect(course.sections[0].meetings.map((m) => m.day)).toEqual(["SUNDAY"]);
+  });
+
+  it("marks rooms of fully online sections as virtual", () => {
+    const [course] = mapToDomain([
+      raw({ campus: "VIRTUAL", schedules: [{ ...raw().schedules![0], building: "-", classroom: "-" }] }),
+    ]);
+    expect(course.sections[0].meetings.map((m) => m.location)).toEqual(["VIRTUAL", "VIRTUAL"]);
+  });
+
   it("sorts meetings by day and time across schedule rows", () => {
     const base = raw().schedules![0];
     const [course] = mapToDomain([
@@ -107,6 +135,12 @@ describe("mapToDomain", () => {
 });
 
 describe("helpers", () => {
+  it("cleans catalog titles", () => {
+    expect(cleanTitle("TALLER DE ANÁ\x81LISIS DEL TERRITORIO")).toBe("TALLER DE ANÁLISIS DEL TERRITORIO");
+    expect(cleanTitle("CUIDADO CRITICO IV\u00a0\u00a0")).toBe("CUIDADO CRITICO IV");
+    expect(cleanTitle("CREACIÓN  Y GESTIÓN ")).toBe("CREACIÓN Y GESTIÓN");
+  });
+
   it("reorders professor names", () => {
     expect(reorderProfessorName("PEREZ JUAN")).toBe("JUAN PEREZ");
     expect(reorderProfessorName("PEREZ GOMEZ JUAN")).toBe("JUAN PEREZ GOMEZ");

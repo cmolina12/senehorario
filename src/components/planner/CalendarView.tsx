@@ -3,8 +3,8 @@
 import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
-import type { VisibleRange } from "@/lib/calendar-events";
-import { cn, plural } from "@/lib/format";
+import { courseColor, type VisibleRange } from "@/lib/calendar-events";
+import { cn, plural, titleCase } from "@/lib/format";
 import { usePresence } from "@/lib/use-presence";
 import type { Preferences } from "@/lib/preferences";
 
@@ -172,9 +172,63 @@ export function CalendarView({
             <div className="sm:hidden">
               <AgendaView schedule={schedule} onSelect={onEventClick} courseOrder={courseOrder} />
             </div>
+            <UnscheduledList schedule={schedule} courseOrder={courseOrder} onSelect={onEventClick} />
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Sections without a weekly time (theses, practicums) never show up on the
+ * grid, so list them under it to keep the whole schedule visible.
+ */
+function UnscheduledList({
+  schedule,
+  courseOrder,
+  onSelect,
+}: {
+  schedule: ScheduledSection[];
+  courseOrder: string[];
+  onSelect: (info: SelectedEventInfo) => void;
+}) {
+  const unscheduled = schedule.filter((s) => s.meetings.length === 0);
+  if (unscheduled.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-t border-border px-4 py-3 text-sm">
+      <span className="inline-flex items-center gap-1.5 text-fg-secondary">
+        <i className="bi bi-clock-history" aria-hidden="true"></i>
+        Sin horario fijo:
+      </span>
+      {unscheduled.map((section) => {
+        const color = courseColor(courseOrder, section.courseCode);
+        return (
+          <button
+            key={`${section.term}-${section.nrc}`}
+            type="button"
+            onClick={() =>
+              onSelect({
+                section,
+                courseCode: section.courseCode,
+                courseTitle: section.courseTitle,
+                courseCredits: section.courseCredits,
+                color,
+              })
+            }
+            className="inline-flex max-w-full items-center gap-1.5 rounded-lg border-l-[3px] px-2.5 py-1 text-left text-xs transition hover:brightness-[0.97]"
+            style={{
+              borderColor: color,
+              background: `color-mix(in srgb, ${color} var(--event-tint), var(--surface))`,
+            }}
+          >
+            <span className="font-semibold">
+              {section.courseCode} · {section.sectionId}
+            </span>
+            <span className="truncate text-fg-secondary">{titleCase(section.courseTitle ?? "")}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
