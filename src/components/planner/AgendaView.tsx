@@ -15,7 +15,7 @@ export function AgendaView({
   courseOrder: string[];
 }) {
   const codes = courseOrder;
-  const days = WEEK_DAYS.map((day) => ({
+  const days = [...WEEK_DAYS, "SUNDAY" as const].map((day) => ({
     day,
     items: schedule
       .flatMap((section) =>

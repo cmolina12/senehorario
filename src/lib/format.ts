@@ -32,19 +32,39 @@ const DAY_NAMES: Record<DayOfWeek, string> = {
 export const dayName = (day: DayOfWeek) => DAY_NAMES[day] ?? day;
 
 /** Online classes come as ".VIRTUAL .VIRT" instead of a building and room. */
-export const isVirtualLocation = (location: string) => /(^|\s)\.VIRT/i.test(location);
+const isVirtualPart = (location: string) => /(^|[\s.])VIRT/i.test(location);
+
+// Overlapping meetings merged into one block keep each location, " / "-separated.
+const locationParts = (location: string) => location.split(" / ");
+
+export type Delivery = "Virtual" | "Híbrida";
+
+/** Whether a meeting is online, partly online (merged blocks) or in person (null). */
+export function meetingDelivery(location: string): Delivery | null {
+  const parts = locationParts(location);
+  const online = parts.filter(isVirtualPart).length;
+  if (online === 0) return null;
+  return online === parts.length ? "Virtual" : "Híbrida";
+}
 
 /** "Virtual" when every meeting is online, "Híbrida" when only some are. */
-export function deliveryLabel(section: Pick<Section, "attrs" | "meetings">): string | null {
-  const online = section.meetings.filter((m) => isVirtualLocation(m.location)).length;
-  if (online > 0) return online === section.meetings.length ? "Virtual" : "Híbrida";
-  return section.attrs?.includes("VIRT") ? "Virtual" : null;
+export function deliveryLabel(section: Pick<Section, "attrs" | "campus" | "meetings">): Delivery | null {
+  const kinds = section.meetings.map((m) => meetingDelivery(m.location));
+  if (kinds.length > 0 && kinds.every((k) => k === "Virtual")) return "Virtual";
+  if (kinds.some((k) => k !== null)) return "Híbrida";
+  const campus = section.campus?.toUpperCase() ?? "";
+  if (campus.endsWith("/VIRTUAL")) return "Híbrida";
+  if (campus === "VIRTUAL" || section.attrs?.includes("VIRT")) return "Virtual";
+  return null;
 }
 
 /** The catalog fills unassigned rooms with dashes. */
 export function formatLocation(location: string): string {
-  if (isVirtualLocation(location)) return "Virtual";
-  return /[\p{L}\p{N}]/u.test(location) ? location.trim() : "Salón por asignar";
+  const parts = locationParts(location).map((part) => {
+    if (isVirtualPart(part)) return "Virtual";
+    return /[\p{L}\p{N}]/u.test(part) ? part.trim() : "Salón por asignar";
+  });
+  return [...new Set(parts)].join(" / ");
 }
 
 /** Joins class names, skipping falsy values. */

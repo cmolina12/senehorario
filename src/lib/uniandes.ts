@@ -20,6 +20,7 @@ interface ApiSchedule {
   j: string | null;
   v: string | null;
   s: string | null;
+  d?: string | null;
   date_ini?: string | null; // "2027-01-25 00:00:00"
   date_fin?: string | null;
 }
@@ -145,7 +146,7 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
     const code = `${a.class}${a.course}`;
     let course = courses.get(code);
     if (!course) {
-      course = { code, title: a.title, credits: parseIntSafe(a.credits), sections: [] };
+      course = { code, title: cleanTitle(a.title), credits: parseIntSafe(a.credits), sections: [] };
       courses.set(code, course);
     }
 
@@ -157,7 +158,9 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       const end = parseTime(s.time_fin);
       // Skip malformed entries instead of failing the whole search.
       if (!start || !end) continue;
-      const location = `${s.building} ${s.classroom}`;
+      const room = `${s.building} ${s.classroom}`;
+      // Fully online sections often list "- -" as the room; keep them recognizable.
+      const location = a.campus?.toUpperCase() === "VIRTUAL" && !/[\p{L}\p{N}]/u.test(room) ? "VIRTUAL" : room;
       const startDate = parseDate(s.date_ini);
       const endDate = parseDate(s.date_fin);
       for (const day of parseDays(s)) {
@@ -187,7 +190,7 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       term: a.term,
       ptrm: a.ptrm,
       campus: a.campus,
-      meetings,
+      meetings: mergeOverlapping(meetings),
       professors: (a.instructors ?? []).map((i) => reorderProfessorName(i.name ?? "")),
       availableSeats,
       totalSeats,
@@ -197,6 +200,37 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
   }
 
   return [...courses.values()];
+}
+
+/** Drops stray control characters (e.g. "ANÁ\x81LISIS") and repeated or non-breaking spaces. */
+export function cleanTitle(title: string): string {
+  return title.replace(/[\u0000-\u001f\u007f-\u009f]/g, "").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Some sections list overlapping times on the same day (in person some weeks,
+ * online others); show them as one block spanning both. Expects meetings
+ * sorted by day and start.
+ */
+function mergeOverlapping(meetings: Meeting[]): Meeting[] {
+  const merged: Meeting[] = [];
+  for (const m of meetings) {
+    const prev = merged.at(-1);
+    if (!prev || prev.day !== m.day || m.start >= prev.end) {
+      merged.push({ ...m });
+      continue;
+    }
+    if (m.end > prev.end) prev.end = m.end;
+    if (!prev.location.split(" / ").includes(m.location)) prev.location += ` / ${m.location}`;
+    if (prev.startDate && prev.endDate && m.startDate && m.endDate) {
+      if (m.startDate < prev.startDate) prev.startDate = m.startDate;
+      if (m.endDate > prev.endDate) prev.endDate = m.endDate;
+    } else {
+      delete prev.startDate;
+      delete prev.endDate;
+    }
+  }
+  return merged;
 }
 
 /** "2027-01-25 00:00:00" -> "2027-01-25"; undefined when missing or malformed. */
@@ -221,6 +255,7 @@ function parseDays(s: ApiSchedule): DayOfWeek[] {
   if (s.j?.toUpperCase() === "J") days.push("THURSDAY");
   if (s.v?.toUpperCase() === "V") days.push("FRIDAY");
   if (s.s?.toUpperCase() === "S") days.push("SATURDAY");
+  if (s.d?.toUpperCase() === "D") days.push("SUNDAY");
   return days;
 }
 

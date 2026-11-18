@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Corrección",
+    text: "Las clases de domingo ya aparecen en el calendario y cuentan para los choques, y los nombres de cursos con caracteres extraños se ven bien.",
+  },
+  {
+    date: "2026-11",
     tag: "Mejora",
     text: "Las clases virtuales se marcan como «Virtual» en el calendario, y los cursos sin horario fijo (prácticas, créditos de investigación) aparecen debajo de la semana.",
   },

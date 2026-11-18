@@ -3,7 +3,7 @@
 // .ev* rules in globals.css.
 
 import type { EventInput } from "@fullcalendar/core";
-import { isVirtualLocation, shortTime, titleCase } from "./format";
+import { meetingDelivery, shortTime, titleCase, type Delivery } from "./format";
 import { meetingsOverlap, toMinutes } from "./scheduler";
 import { sectionKey, type DayOfWeek, type Meeting, type ScheduledSection, type Section } from "./types";
 
@@ -93,7 +93,8 @@ function makeEvent(
   };
 }
 
-const VIRTUAL_TAG = `<span class="ev-virtual"><i class="bi bi-camera-video" aria-hidden="true"></i>Virtual</span>`;
+const deliveryTag = (delivery: Delivery | null) =>
+  delivery ? `<span class="ev-virtual"><i class="bi bi-camera-video" aria-hidden="true"></i>${delivery}</span>` : "";
 
 const badge = (ptrm: string) => `<span class="ev-badge">${escapeHtml(ptrm)}</span>`;
 
@@ -102,7 +103,7 @@ function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): st
     `<div class="ev">` +
     `<div class="ev-code">${heading}</div>` +
     `<div class="ev-title">${escapeHtml(titleCase(sec.courseTitle ?? ""))}</div>` +
-    `<div class="ev-time">${shortTime(meeting.start)}–${shortTime(meeting.end)}${isVirtualLocation(meeting.location) ? VIRTUAL_TAG : ""}</div>` +
+    `<div class="ev-time">${shortTime(meeting.start)}–${shortTime(meeting.end)}${deliveryTag(meetingDelivery(meeting.location))}</div>` +
     `</div>`
   );
 }
@@ -232,11 +233,12 @@ export function visibleRange(sections: Section[], extra: Meeting[] = []): Visibl
     end = Math.max(end, Math.ceil(toMinutes(m.end) / 60));
   }
   const hh = (h: number) => `${String(Math.max(0, Math.min(24, h))).padStart(2, "0")}:00:00`;
-  const hasSaturday = meetings.some((m) => m.day === "SATURDAY");
+  // Weekends only when something meets then (Sunday: medicine rotations).
+  const hiddenDays = [0, 6].filter((n) => !meetings.some((m) => m.day === (n === 0 ? "SUNDAY" : "SATURDAY")));
   return {
     slotMinTime: hh(start),
     slotMaxTime: hh(end),
-    hiddenDays: hasSaturday ? [0] : [0, 6],
+    hiddenDays,
   };
 }
 
