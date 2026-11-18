@@ -27,6 +27,8 @@ export interface Section {
   ptrm: string; // "1" (16 weeks), "8A" or "8B"
   campus: string;
   meetings: Meeting[];
+  /** One-off dated sessions (exams, workshops) outside the weekly meetings; startDate === endDate. */
+  sessions?: Meeting[];
   professors: string[];
   availableSeats: number;
   totalSeats: number;

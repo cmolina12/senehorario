@@ -58,6 +58,14 @@ export function deliveryLabel(section: Pick<Section, "attrs" | "campus" | "meeti
   return null;
 }
 
+const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/** "2026-08-22" -> "22 ago" */
+export function shortDate(iso: string): string {
+  const [, month, day] = iso.split("-").map(Number);
+  return `${day} ${MONTHS[month - 1] ?? ""}`.trim();
+}
+
 /** The catalog fills unassigned rooms with dashes. */
 export function formatLocation(location: string): string {
   const parts = locationParts(location).map((part) => {

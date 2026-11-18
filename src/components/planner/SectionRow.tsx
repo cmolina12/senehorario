@@ -8,6 +8,7 @@ import {
   deliveryLabel,
   professorUrl,
   seatLevel,
+  shortDate,
   shortTime,
   termLabel,
   titleCase,
@@ -62,7 +63,8 @@ export function ProfessorLinks({ professors, size = "sm" }: { professors: string
 }
 
 export function MeetingChips({ section }: { section: Section }) {
-  if (section.meetings.length === 0) return <Chip>Sin horario</Chip>;
+  const sessions = section.sessions ?? [];
+  if (section.meetings.length === 0 && sessions.length === 0) return <Chip>Sin horario</Chip>;
   const delivery = deliveryLabel(section);
   return (
     <>
@@ -76,6 +78,16 @@ export function MeetingChips({ section }: { section: Section }) {
           <i className="bi bi-camera-video mr-1" aria-hidden="true"></i>
           {delivery}
         </Chip>
+      )}
+      {sessions.length > 0 && (
+        <span title={sessions.map((m) => `${dayLabel(m.day)} ${shortDate(m.startDate!)} ${shortTime(m.start)}–${shortTime(m.end)}`).join("\n")}>
+          <Chip>
+            <i className="bi bi-calendar-event mr-1" aria-hidden="true"></i>
+            {sessions.length === 1
+              ? `${dayLabel(sessions[0].day)} ${shortDate(sessions[0].startDate!)}`
+              : `+${sessions.length} sesiones con fecha`}
+          </Chip>
+        </span>
       )}
     </>
   );

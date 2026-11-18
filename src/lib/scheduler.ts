@@ -34,10 +34,26 @@ export function meetingsOverlap(m1: Meeting, m2: Meeting): boolean {
   );
 }
 
+/**
+ * Whether two meetings run during some common week. Uses their dates when
+ * both have them; older saved plans have none, so fall back to the period.
+ */
+function sameWeeks(m1: Meeting, a: Section, m2: Meeting, b: Section): boolean {
+  if (m1.startDate && m1.endDate && m2.startDate && m2.endDate) {
+    return m1.startDate <= m2.endDate && m2.startDate <= m1.endDate;
+  }
+  return ptrmOverlaps(a.ptrm, b.ptrm);
+}
+
+/** Weekly meetings plus one-off dated sessions. */
+const allMeetings = (s: Section) => (s.sessions?.length ? [...s.meetings, ...s.sessions] : s.meetings);
+
 export function sectionsConflict(a: Section, b: Section): boolean {
   if (a.term !== b.term) return false; // different semesters never clash
-  if (!ptrmOverlaps(a.ptrm, b.ptrm)) return false;
-  return a.meetings.some((m1) => b.meetings.some((m2) => meetingsOverlap(m1, m2)));
+  const mb = allMeetings(b);
+  return allMeetings(a).some((m1) =>
+    mb.some((m2) => meetingsOverlap(m1, m2) && sameWeeks(m1, a, m2, b)),
+  );
 }
 
 /**
@@ -117,6 +133,6 @@ function tryMerge(a: ScheduledSection[], b: ScheduledSection[]): ScheduledSectio
 
 /** Whether a section can be added to an existing schedule without conflicts. */
 export function fitsInSchedule(section: Section, schedule: Section[]): boolean {
-  if (section.meetings.length === 0) return true;
+  if (section.meetings.length === 0 && !section.sessions?.length) return true;
   return !schedule.some((s) => sectionsConflict(section, s));
 }

@@ -3,7 +3,7 @@
 // plan from last week can be stale.
 
 import { toMinutes } from "./scheduler";
-import { sectionKey, type Course, type Meeting, type SelectedMeta, type SelectedSections } from "./types";
+import { sectionKey, type Course, type Section, type SelectedMeta, type SelectedSections } from "./types";
 
 /** Live data per selected course: the course, "missing" if the catalog no longer has it, or "error" if it couldn't be checked. */
 export type FreshCourses = Record<string, Course | "missing" | "error">;
@@ -16,9 +16,10 @@ export type PlanChange =
   | { kind: "unverified"; courseCode: string }
   | { kind: "nrcNotFound"; courseCode: string; nrc: string };
 
-const meetingsSignature = (meetings: Meeting[]) =>
-  meetings
-    .map((m) => `${m.day}-${toMinutes(m.start)}-${toMinutes(m.end)}`)
+// Weekly slots and one-off sessions together, so a plan saved before
+// sessions were split out of the weekly meetings doesn't read as changed.
+const meetingsSignature = (s: Pick<Section, "meetings" | "sessions">) =>
+  [...new Set([...s.meetings, ...(s.sessions ?? [])].map((m) => `${m.day}-${toMinutes(m.start)}-${toMinutes(m.end)}`))]
     .sort()
     .join("|");
 
@@ -55,7 +56,7 @@ export function reconcileSelection(
         courseChanges.push({ kind: "removed", ...ref });
         continue;
       }
-      if (meetingsSignature(current.meetings) !== meetingsSignature(old.meetings)) {
+      if (meetingsSignature(current) !== meetingsSignature(old)) {
         courseChanges.push({ kind: "timeChanged", ...ref });
       }
       if (current.availableSeats === 0 && old.availableSeats > 0) {

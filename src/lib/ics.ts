@@ -1,5 +1,5 @@
 // Calendar export (.ics) for one schedule option: one weekly repeating event
-// per class meeting, in Bogotá time, between the meeting's first and last day.
+// per class meeting (and a single event per one-off session), in Bogotá time, between the meeting's first and last day.
 
 import { dayName, formatLocation, titleCase } from "./format";
 import type { DayOfWeek, ScheduledSection } from "./types";
@@ -95,7 +95,7 @@ export function buildIcs(schedule: ScheduledSection[], calendarName: string, now
   let skipped = 0;
 
   for (const section of schedule) {
-    for (const m of section.meetings) {
+    for (const m of [...section.meetings, ...(section.sessions ?? [])]) {
       if (!m.startDate || !m.endDate) {
         skipped++;
         continue;
@@ -114,7 +114,7 @@ export function buildIcs(schedule: ScheduledSection[], calendarName: string, now
 
       lines.push(
         "BEGIN:VEVENT",
-        `UID:${section.term}-${section.nrc}-${m.day}-${compactTime(m.start)}@senehorario.cmolina.xyz`,
+        `UID:${section.term}-${section.nrc}-${m.day}-${compactTime(m.start)}${m.startDate === m.endDate ? `-${compactDate(first)}` : ""}@senehorario.cmolina.xyz`,
         `DTSTAMP:${utcStamp(now)}`,
         `DTSTART;TZID=${TZ}:${compactDate(first)}T${compactTime(m.start)}`,
         `DTEND;TZID=${TZ}:${compactDate(first)}T${compactTime(m.end)}`,

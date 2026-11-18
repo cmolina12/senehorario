@@ -45,16 +45,18 @@ function write(key: string, value: unknown) {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 
+const isMeetingList = (v: unknown) =>
+  Array.isArray(v) &&
+  v.every((m) => isObject(m) && typeof m.day === "string" && typeof m.start === "string" && typeof m.end === "string");
+
 /** Enough structure for the scheduler and UI not to crash on stored/imported data. */
 function isSectionLike(v: unknown): boolean {
   return (
     isObject(v) &&
     typeof v.nrc === "string" &&
     typeof v.term === "string" &&
-    Array.isArray(v.meetings) &&
-    v.meetings.every(
-      (m) => isObject(m) && typeof m.day === "string" && typeof m.start === "string" && typeof m.end === "string",
-    )
+    isMeetingList(v.meetings) &&
+    (v.sessions === undefined || isMeetingList(v.sessions))
   );
 }
 
