@@ -90,7 +90,14 @@ export function CalendarView({
             <PreferencesPanel value={preferences} onChange={onPreferencesChange} />
             {schedule && <NrcList schedule={schedule} optionNumber={optionIndex + 1} courseOrder={courseOrder} />}
             {schedule && shareQuery && term && (
-              <SharePanel shareQuery={shareQuery} schedule={schedule} term={term} optionNumber={optionIndex + 1} />
+              <SharePanel
+                shareQuery={shareQuery}
+                schedule={schedule}
+                term={term}
+                optionNumber={optionIndex + 1}
+                courseOrder={courseOrder}
+                credits={totalCredits}
+              />
             )}
             {optionCount > 0 && (
               <div className="flex items-center gap-1 rounded-xl border border-border bg-surface p-1">

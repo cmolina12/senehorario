@@ -183,7 +183,8 @@ export function Popover({
   badge?: number;
   className?: string;
   panelClassName?: string;
-  children: React.ReactNode;
+  /** A function receives `close`, for actions that should dismiss the panel. */
+  children: React.ReactNode | ((close: () => void) => React.ReactNode);
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const { open, setOpen, ref, rendered, closing } = useDismissable(panelRef);
@@ -248,7 +249,7 @@ export function Popover({
               panelClassName,
             )}
           >
-            {children}
+            {typeof children === "function" ? children(() => setOpen(false)) : children}
           </div>,
           document.body,
         )}
