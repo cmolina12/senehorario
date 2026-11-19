@@ -326,6 +326,8 @@
   padding: 4px 6px;
   line-height: 1.25;
   overflow: hidden;
+  position: relative;
+  container-type: inline-size;
 }
 
 .ev-code {
@@ -363,6 +365,25 @@
   gap: 3px;
   margin-left: 6px;
   font-weight: 600;
+}
+
+/* Narrow blocks (8A/8B splits, overlapping events) have no room next to the
+   time: show just the icon, in the top-right corner. */
+@container (max-width: 150px) {
+  .ev-virtual {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    margin: 0;
+  }
+
+  .ev-virtual-text {
+    display: none;
+  }
+
+  .ev-code:has(~ .ev-time .ev-virtual) {
+    padding-right: 13px;
+  }
 }
 
 .ev-badge {

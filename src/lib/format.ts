@@ -52,10 +52,25 @@ export function deliveryLabel(section: Pick<Section, "attrs" | "campus" | "meeti
   const kinds = section.meetings.map((m) => meetingDelivery(m.location));
   if (kinds.length > 0 && kinds.every((k) => k === "Virtual")) return "Virtual";
   if (kinds.some((k) => k !== null)) return "Híbrida";
-  const campus = section.campus?.toUpperCase() ?? "";
-  if (campus.endsWith("/VIRTUAL")) return "Híbrida";
-  if (campus === "VIRTUAL" || section.attrs?.includes("VIRT")) return "Virtual";
+  if (campusOnlyHybrid(section)) return "Híbrida";
+  if (section.campus?.toUpperCase() === "VIRTUAL" || section.attrs?.includes("VIRT")) return "Virtual";
   return null;
+}
+
+/**
+ * The catalog labels the campus "…PRESENCIAL/VIRTUAL" but no room is online,
+ * so we can't tell which sessions are virtual.
+ */
+function campusOnlyHybrid(section: Pick<Section, "campus" | "meetings">): boolean {
+  if (!section.campus?.toUpperCase().endsWith("/VIRTUAL")) return false;
+  return section.meetings.every((m) => meetingDelivery(m.location) === null);
+}
+
+/** Caveat to show next to a delivery label that only comes from the campus field. */
+export function deliveryNote(section: Pick<Section, "campus" | "meetings">): string | null {
+  return campusOnlyHybrid(section)
+    ? "La oferta la marca como presencial/virtual, pero no dice qué sesiones son virtuales. Confírmalo con el profesor."
+    : null;
 }
 
 const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];

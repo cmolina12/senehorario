@@ -7,6 +7,7 @@ import { IconButton } from "@/components/ui";
 import {
   cicloLabel,
   dayName,
+  deliveryNote,
   formatLocation,
   plural,
   shortDate,
@@ -142,6 +143,12 @@ export function DetailsDrawer({
                 </li>
               )}
             </ul>
+            {deliveryNote(section) && (
+              <p className="flex gap-1.5 text-xs text-fg-muted">
+                <i className="bi bi-info-circle mt-px" aria-hidden="true"></i>
+                {deliveryNote(section)}
+              </p>
+            )}
           </div>
 
           {section.sessions && section.sessions.length > 0 && (
