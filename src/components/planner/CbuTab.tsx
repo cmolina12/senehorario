@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { CardSkeletons, EmptyState } from "@/components/ui";
-import { CBU_AREA_FILTERS, CBU_ATTR_FILTERS, cn, plural } from "@/lib/format";
+import { CBU_AREA_FILTERS, CBU_ATTR_FILTERS, plural } from "@/lib/format";
 import { fitsInSchedule } from "@/lib/scheduler";
 import { coursesInTerm } from "@/lib/terms";
 import type { Course, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
+import { FilterChip } from "./filters";
 import { SectionRow } from "./SectionRow";
 import type { CbuState } from "./useCbus";
 
@@ -161,31 +162,5 @@ function FilterRow({ label, children }: { label: string; children: React.ReactNo
       <span className="w-10 text-xs text-fg-muted">{label}</span>
       {children}
     </div>
-  );
-}
-
-function FilterChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "rounded-full border px-2.5 py-1 text-xs font-semibold transition",
-        active
-          ? "border-accent bg-accent text-on-accent"
-          : "border-border bg-surface text-fg-secondary hover:border-border-strong hover:text-fg",
-      )}
-    >
-      {children}
-    </button>
   );
 }

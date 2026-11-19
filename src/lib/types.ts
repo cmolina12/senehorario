@@ -33,6 +33,7 @@ export interface Section {
   availableSeats: number;
   totalSeats: number;
   attrs: string[]; // e.g. ["ECUR", "VIRT"]
+  level?: string; // "PRE" (undergraduate) or "POS" (graduate); missing in older saved plans
 }
 
 export interface Course {
