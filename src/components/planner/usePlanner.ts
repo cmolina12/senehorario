@@ -90,6 +90,9 @@ async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
   );
 }
 
+/** Coming back to the tab re-checks the plan if the last check is older than this. */
+const RECHECK_AFTER_MS = 5 * 60 * 1000;
+
 const refreshNotice = (changes: PlanChange[]): PlanNotice | null =>
   changes.length > 0
     ? { title: "Actualizamos tu plan con la oferta actual", lines: changes.map(describeChange) }
@@ -343,6 +346,31 @@ export function usePlanner() {
     },
     [applySelection],
   );
+
+  // Re-check seats when the student comes back to the tab after a while, so
+  // "verificados a las…" doesn't quietly go stale while the tab sits open.
+  const liveRef = useRef({ selection, verifiedAt, refreshing, lastAttempt: 0 });
+  useEffect(() => {
+    liveRef.current = { ...liveRef.current, selection, verifiedAt, refreshing };
+  }, [selection, verifiedAt, refreshing]);
+  useEffect(() => {
+    const recheck = () => {
+      if (document.visibilityState !== "visible") return;
+      const live = liveRef.current;
+      const last = Math.max(live.verifiedAt?.getTime() ?? 0, live.lastAttempt);
+      if (live.refreshing || Date.now() - last < RECHECK_AFTER_MS) return;
+      if (Object.keys(live.selection.sections).length === 0) return;
+      live.lastAttempt = Date.now();
+      void refreshFromCatalog(live.selection);
+    };
+    liveRef.current.lastAttempt = Date.now(); // the initial load does its own check
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
+    return () => {
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
+    };
+  }, [refreshFromCatalog]);
 
   /** Replaces the whole selection (restoring state or loading a saved plan), then refreshes it. */
   const loadSnapshot = useCallback(

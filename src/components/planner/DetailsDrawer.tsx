@@ -110,8 +110,6 @@ export function DetailsDrawer({
             <Info label="Campus" value={section.campus ? titleCase(section.campus) : "—"} />
           </dl>
 
-          <OfficialCatalogLink nrc={section.nrc} />
-
           <div className="space-y-1.5">
             <h3 className="text-xs text-fg-muted">Cupos</h3>
             <SeatMeter section={section} />
@@ -177,6 +175,8 @@ export function DetailsDrawer({
               </p>
             </div>
           )}
+
+          <OfficialCatalogLink nrc={section.nrc} />
         </div>
       </aside>
     </div>
