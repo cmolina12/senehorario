@@ -12,19 +12,12 @@ import { FilterChip, FilterMenu } from "./filters";
 import { SectionRow } from "./SectionRow";
 import type { CourseSearch } from "./useCourseSearch";
 
-export interface TermPicker {
-  terms: string[];
-  active: string | null;
-  onChange: (term: string) => void;
-  /** Locked while courses are selected, since a schedule can't mix terms. */
-  locked: boolean;
-}
-
 interface Props {
   search: CourseSearch;
   /** Search results narrowed to the active term. */
   courses: Course[];
-  term: TermPicker;
+  /** The period the planner works on, chosen in the header. */
+  term: string | null;
   /** The schedule option on screen, for "Cabe en mi horario"; null when there is none. */
   schedule: ScheduledSection[] | null;
   selectedCount: (courseCode: string) => number;
@@ -75,32 +68,7 @@ export function SearchTab({
 
   return (
     <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
-        {term.active && (
-          <label
-            className="flex items-center gap-2 text-xs text-fg-secondary"
-            title={term.locked ? "Elimina tus cursos seleccionados para cambiar de periodo" : undefined}
-          >
-            Periodo
-            <span className="relative inline-flex items-center">
-              <select
-                value={term.active}
-                onChange={(e) => term.onChange(e.target.value)}
-                disabled={term.locked || term.terms.length < 2}
-                className="h-8 appearance-none rounded-lg border border-border bg-surface pr-7 pl-2.5 text-xs font-semibold text-fg disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {term.terms.map((t) => (
-                  <option key={t} value={t}>
-                    {formatTerm(t)}
-                  </option>
-                ))}
-              </select>
-              <i className="bi bi-chevron-down pointer-events-none absolute right-2.5 text-2xs text-fg-muted" aria-hidden="true"></i>
-            </span>
-          </label>
-        )}
-      </div>
+      <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
 
       <form
         className="space-y-2"
@@ -289,9 +257,9 @@ export function SearchTab({
           Prueba con el código (p. ej. MATE1203), el NRC o parte del nombre.
         </EmptyState>
       )}
-      {!search.loading && search.courses.length > 0 && courses.length === 0 && term.active && (
+      {!search.loading && search.courses.length > 0 && courses.length === 0 && term && (
         <EmptyState icon="bi-calendar-x" title="Sin secciones en este periodo">
-          Estos cursos no tienen secciones en {formatTerm(term.active)}.
+          Estos cursos no tienen secciones en {formatTerm(term)}.
         </EmptyState>
       )}
       {search.error && (

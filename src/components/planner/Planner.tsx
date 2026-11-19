@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
+import { NewsLink } from "@/components/NewsLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { blockEvents, courseColor, visibleRange } from "@/lib/calendar-events";
 import { cn } from "@/lib/format";
@@ -12,6 +13,7 @@ import { CalendarView } from "./CalendarView";
 import { CbuTab } from "./CbuTab";
 import { CoursesTab } from "./CoursesTab";
 import { DetailsDrawer } from "./DetailsDrawer";
+import { PeriodMenu } from "./PeriodMenu";
 import { PlansModal } from "./PlansModal";
 import { SearchTab } from "./SearchTab";
 import { useCbus } from "./useCbus";
@@ -122,12 +124,7 @@ export function Planner() {
         search={search}
         courses={visibleCourses}
         schedule={planner.currentSchedule}
-        term={{
-          terms: knownTerms,
-          active: activeTerm,
-          onChange: setChosenTerm,
-          locked: courseCount > 0,
-        }}
+        term={activeTerm}
         selectedCount={selectedCount}
         colorFor={colorFor}
         isSectionSelected={planner.isSectionSelected}
@@ -173,13 +170,37 @@ export function Planner() {
   return (
     <div className="flex h-dvh flex-col bg-bg tabular-nums">
       {/* Top bar */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b-[3px] border-accent bg-surface px-3 sm:px-4">
-        <Link href="/" className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/peluche.png" alt="" className="size-7" />
-          <span className="font-extrabold tracking-tight">Senéhorario</span>
-        </Link>
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-3 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Link href="/" className="group flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
+            {/* Cropped to the mascot so it reads at header size. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/peluche-mark.png"
+              alt=""
+              className="size-9 transition-transform group-hover:-rotate-6 motion-reduce:transition-none"
+            />
+            <span className="font-extrabold tracking-tight">Senéhorario</span>
+          </Link>
+          {activeTerm && (
+            <>
+              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true"></span>
+              <PeriodMenu terms={knownTerms} active={activeTerm} locked={courseCount > 0} onChange={setChosenTerm} />
+            </>
+          )}
+        </div>
         <div className="flex items-center gap-1">
+          <NewsLink />
+          <a
+            href="https://github.com/cmolina12/senehorario"
+            target="_blank"
+            rel="noopener"
+            aria-label="Código en GitHub"
+            title="Código en GitHub"
+            className="hidden size-9 items-center justify-center rounded-lg text-fg-secondary transition hover:bg-surface-hover hover:text-fg sm:inline-flex"
+          >
+            <i className="bi bi-github" aria-hidden="true"></i>
+          </a>
           <button
             type="button"
             onClick={openPlans}

@@ -18,6 +18,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Mejora",
+    text: "El periodo se elige desde la barra superior, y un punto en Novedades te avisa cuando hay cambios nuevos.",
+  },
+  {
+    date: "2026-11",
+    tag: "Mejora",
     text: "Si no hay horarios compatibles, te decimos qué cursos chocan. Además, los resultados de búsqueda muestran primero los cursos cuyo código coincide.",
   },
   {
