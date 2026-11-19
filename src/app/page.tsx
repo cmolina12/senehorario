@@ -188,7 +188,7 @@ export default async function LandingPage() {
                     para que las recorras en el calendario y elijas la tuya.
                   </FaqItem>
                   <FaqItem question="¿Senéhorario me inscribe los cursos?">
-                    No. Aquí planeas; la inscripción la haces tú en <strong>Banner</strong>. Cuando
+                    No. Aquí planeas, y la inscripción la haces tú en <strong>Banner</strong>. Cuando
                     tengas tu opción, usa <strong>NRCs → Copiar todos</strong> y pégalos en Banner.
                   </FaqItem>
                   <FaqItem question="¿De dónde salen los datos y qué pasa si cambian?">
@@ -201,7 +201,7 @@ export default async function LandingPage() {
                     En tu navegador. No necesitas cuenta y tus planes no se guardan en ningún servidor.
                     Para abrir un plan en otro dispositivo o compartirlo, usa{" "}
                     <strong>Compartir</strong> (un enlace) o descárgalo desde <strong>Mis planes</strong>.
-                    Usamos Google Analytics para contar visitas y saber qué partes del sitio se usan; no
+                    Usamos Google Analytics para contar visitas y saber qué partes del sitio se usan. No
                     le enviamos tus cursos, tus planes ni lo que escribes.
                   </FaqItem>
                   <FaqItem question="¿Revisa si un curso tiene laboratorio o curso complementario?">

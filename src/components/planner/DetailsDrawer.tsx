@@ -93,7 +93,7 @@ export function DetailsDrawer({
             <p className="text-center text-xs text-fg-muted">
               {pinned
                 ? "Todas las opciones incluyen esta sección."
-                : "Todas las opciones la incluirán; el resto de tus cursos sigue variando."}
+                : "Todas las opciones la incluirán, y el resto de tus cursos sigue variando."}
             </p>
           </div>
 

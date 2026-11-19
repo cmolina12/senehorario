@@ -149,7 +149,7 @@ export function buildImageModel(
   for (const s of schedule) {
     const sessions = s.sessions ?? [];
     if (sessions.length === 0) continue;
-    const text = sessions.length > 2 ? sessionsSummary(sessions) : sessions.map(sessionLabel).join("; ");
+    const text = sessions.length > 2 ? sessionsSummary(sessions) : sessions.map(sessionLabel).join(" · ");
     notes.push(`${s.courseCode}: ${text}`);
   }
 

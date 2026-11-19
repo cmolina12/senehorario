@@ -86,7 +86,7 @@ export function ScheduleImageDialog({ open, onClose, schedule, courseOrder, term
       await navigator.clipboard.write([new ClipboardItem({ "image/png": image.blob })]);
       flash("Imagen copiada");
     } catch {
-      flash("No se pudo copiar; usa Descargar");
+      flash("No se pudo copiar. Usa Descargar.");
     }
   };
 
