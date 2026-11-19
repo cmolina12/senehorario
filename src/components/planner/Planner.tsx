@@ -21,7 +21,7 @@ import { CbuTab } from "./CbuTab";
 import { CoursesTab } from "./CoursesTab";
 import { DetailsDrawer } from "./DetailsDrawer";
 import { PeriodMenu } from "./PeriodMenu";
-import { PlanStatus } from "./PlanStatus";
+import { PlanControl } from "./PlanControl";
 import { PlansModal } from "./PlansModal";
 import { SearchTab } from "./SearchTab";
 import { useCbus } from "./useCbus";
@@ -215,38 +215,23 @@ export function Planner() {
             />
             <span className="font-extrabold tracking-tight">Senéhorario</span>
           </Link>
-          {activeTerm && (
-            <>
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true"></span>
+          <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true"></span>
+          {/* What you're working on: the period and the plan. */}
+          <div className="flex min-w-0 items-center gap-1.5">
+            {activeTerm && (
               <PeriodMenu terms={knownTerms} active={activeTerm} locked={courseCount > 0} onChange={setChosenTerm} />
-            </>
-          )}
-          {(courseCount > 0 || activePlan) && (
-            <div className="hidden min-w-0 md:block">
-              <PlanStatus name={activePlan} dirty={dirty} onSave={savePlan} />
-            </div>
-          )}
+            )}
+            <PlanControl
+              name={activePlan}
+              dirty={dirty}
+              hasCourses={courseCount > 0}
+              onOpen={openPlans}
+              onSave={savePlan}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <NewsLink />
-          <a
-            href="https://github.com/cmolina12/senehorario"
-            target="_blank"
-            rel="noopener"
-            aria-label="Código en GitHub"
-            title="Código en GitHub"
-            className="hidden size-9 items-center justify-center rounded-lg text-fg-secondary transition hover:bg-surface-hover hover:text-fg sm:inline-flex"
-          >
-            <i className="bi bi-github" aria-hidden="true"></i>
-          </a>
-          <button
-            type="button"
-            onClick={openPlans}
-            className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-fg-secondary transition hover:bg-surface-hover hover:text-fg"
-          >
-            <i className="bi bi-bookmark-star" aria-hidden="true"></i>
-            <span className="hidden sm:inline">Mis planes</span>
-          </button>
           <ThemeToggle />
         </div>
       </header>
