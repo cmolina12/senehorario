@@ -70,14 +70,6 @@ export default async function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="hero-trust">
-                  <i className="bi bi-shield-check" aria-hidden="true"></i>
-                  <span>
-                    Hecho por estudiantes, no es una herramienta oficial de la Universidad.{" "}
-                    <strong>Nunca te pediremos tu usuario ni contraseña Uniandes</strong>: tú inscribes en
-                    Banner.
-                  </span>
-                </p>
               </div>
               <div className="lp-col-lg-6 mt-6 min-[992px]:mt-0 text-center!">
                 <div className="hero-visual">
@@ -190,11 +182,6 @@ export default async function LandingPage() {
                   Resolvemos las dudas más comunes para que arranques rápido.
                 </h3>
                 <div className="faq-list">
-                  <FaqItem question="¿Cómo uso Senéhorario?">
-                    Entra a <strong>Comienza</strong>, busca tus cursos por nombre, código o NRC y agrega
-                    las secciones que te sirven. Senéhorario arma todas las combinaciones sin choques
-                    para que las recorras en el calendario y elijas la tuya.
-                  </FaqItem>
                   <FaqItem question="¿Es oficial? ¿Es seguro usarlo?">
                     No es una herramienta oficial de la Universidad de los Andes: la hacen estudiantes y el{" "}
                     <a href={REPO_URL} target="_blank" rel="noopener">
@@ -206,6 +193,11 @@ export default async function LandingPage() {
                       oferta oficial
                     </a>
                     , y revisamos tu plan contra ella cada vez que lo abres o vuelves a la pestaña.
+                  </FaqItem>
+                  <FaqItem question="¿Cómo uso Senéhorario?">
+                    Entra a <strong>Comienza</strong>, busca tus cursos por nombre, código o NRC y agrega
+                    las secciones que te sirven. Senéhorario arma todas las combinaciones sin choques
+                    para que las recorras en el calendario y elijas la tuya.
                   </FaqItem>
                   <FaqItem question="¿Senéhorario me inscribe los cursos?">
                     No. Aquí planeas, y la inscripción la haces tú en <strong>Banner</strong>. Cuando
