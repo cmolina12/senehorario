@@ -1,6 +1,6 @@
 // Display helpers used across the planner UI.
 
-import type { DayOfWeek, Section } from "./types";
+import type { DayOfWeek, Meeting, Section } from "./types";
 
 const DAY_LABELS: Record<string, string> = {
   mon: "Lun",
@@ -80,6 +80,14 @@ export function shortDate(iso: string): string {
   const [, month, day] = iso.split("-").map(Number);
   return `${day} ${MONTHS[month - 1] ?? ""}`.trim();
 }
+
+/** "Sáb 22 ago · 07:00–09:50" for a one-off dated session. */
+export const sessionLabel = (m: Meeting) =>
+  `${dayLabel(m.day)} ${shortDate(m.startDate!)} · ${shortTime(m.start)}–${shortTime(m.end)}`;
+
+/** "10 sesiones · 6 ago – 26 nov" for sections with many dated sessions. */
+export const sessionsSummary = (sessions: Meeting[]) =>
+  `${sessions.length} sesiones · ${shortDate(sessions[0].startDate!)} – ${shortDate(sessions.at(-1)!.startDate!)}`;
 
 /** The catalog fills unassigned rooms with dashes. */
 export function formatLocation(location: string): string {

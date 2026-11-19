@@ -49,7 +49,10 @@ export function NrcList({
                 <p className="text-sm font-semibold">
                   {s.courseCode} · Sección {s.sectionId}
                   {(s.ptrm === "8A" || s.ptrm === "8B") && (
-                    <span className="ml-1 text-xs text-fg-muted">{s.ptrm}</span>
+                    <span className="ml-1 text-xs text-fg-muted">
+                      <span className="sr-only">· ciclo </span>
+                      {s.ptrm}
+                    </span>
                   )}
                 </p>
                 <p className="truncate text-xs text-fg-muted">{titleCase(s.courseTitle ?? "")}</p>

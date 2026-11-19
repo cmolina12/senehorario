@@ -84,7 +84,10 @@ function AgendaItem({
         <div className="text-sm font-semibold">
           {section.courseCode} · {section.sectionId}
           {(section.ptrm === "8A" || section.ptrm === "8B") && (
-            <span className="ml-1.5 text-xs text-fg-secondary">{section.ptrm}</span>
+            <span className="ml-1.5 text-xs text-fg-secondary">
+              <span className="sr-only">· ciclo </span>
+              {section.ptrm}
+            </span>
           )}
         </div>
         <div className="truncate text-xs text-fg-secondary">{titleCase(section.courseTitle ?? "")}</div>

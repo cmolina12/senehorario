@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import * as api from "@/lib/api";
+import { rankCourses } from "@/lib/search-rank";
 import type { Course } from "@/lib/types";
 
 const SEARCH_ERROR =
@@ -31,7 +32,7 @@ export function useCourseSearch() {
     try {
       const result = await api.searchCourses(q, prof);
       if (id !== requestId.current) return;
-      setCourses(result.courses);
+      setCourses(rankCourses(result.courses, q));
       setTruncated(result.truncated);
       setEmpty(result.courses.length === 0);
       setError("");

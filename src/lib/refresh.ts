@@ -3,6 +3,7 @@
 // plan from last week can be stale.
 
 import { toMinutes } from "./scheduler";
+import { coursesInTerm } from "./terms";
 import { sectionKey, type Course, type Section, type SelectedMeta, type SelectedSections } from "./types";
 
 /** Live data per selected course: the course, "missing" if the catalog no longer has it, or "error" if it couldn't be checked. */
@@ -67,7 +68,9 @@ export function reconcileSelection(
 
     if (kept.length > 0) {
       nextSections[code] = kept;
-      nextMeta[code] = { title: live.title, credits: live.credits };
+      // The term's own title; a course can be renamed between terms.
+      const [inTerm] = coursesInTerm([live], kept[0].term);
+      nextMeta[code] = { title: inTerm?.title ?? live.title, credits: live.credits };
       changes.push(...courseChanges);
     } else {
       changes.push({ kind: "courseRemoved", courseCode: code });

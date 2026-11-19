@@ -4,7 +4,7 @@ import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import { courseColor, type VisibleRange } from "@/lib/calendar-events";
-import { cn, dayLabel, plural, shortDate, shortTime, titleCase } from "@/lib/format";
+import { cn, plural, sessionLabel, sessionsSummary, titleCase } from "@/lib/format";
 import { usePresence } from "@/lib/use-presence";
 import type { Preferences } from "@/lib/preferences";
 
@@ -191,14 +191,21 @@ interface OffGridProps {
  * weekly time (theses, practicums) and one-off dated sessions (exams,
  * Saturday workshops), in date order.
  */
+const MAX_SESSION_CHIPS = 3;
+
 function OffGridLists({ schedule, courseOrder, onSelect }: OffGridProps) {
   const unscheduled = schedule.filter((s) => s.meetings.length === 0 && !s.sessions?.length);
+  // Each date of a section with a few sessions; one summary chip (opening
+  // the details, which list every date) for sections with many.
   const sessions = schedule
-    .flatMap((section) => (section.sessions ?? []).map((meeting) => ({ section, meeting })))
-    .sort(
-      (a, b) =>
-        a.meeting.startDate!.localeCompare(b.meeting.startDate!) || a.meeting.start.localeCompare(b.meeting.start),
-    );
+    .flatMap((section) => {
+      const list = section.sessions ?? [];
+      if (list.length > MAX_SESSION_CHIPS) {
+        return [{ section, first: list[0], key: "all", detail: sessionsSummary(list) }];
+      }
+      return list.map((m) => ({ section, first: m, key: `${m.startDate}-${m.start}`, detail: sessionLabel(m) }));
+    })
+    .sort((a, b) => a.first.startDate!.localeCompare(b.first.startDate!) || a.first.start.localeCompare(b.first.start));
   const strip = { courseOrder, onSelect };
   return (
     <>
@@ -217,11 +224,11 @@ function OffGridLists({ schedule, courseOrder, onSelect }: OffGridProps) {
         {...strip}
         icon="bi-calendar-event"
         label="Sesiones con fecha"
-        items={sessions.map(({ section, meeting }) => ({
-          key: `${section.term}-${section.nrc}-${meeting.startDate}-${meeting.start}`,
+        items={sessions.map(({ section, key, detail }) => ({
+          key: `${section.term}-${section.nrc}-${key}`,
           section,
           heading: section.courseCode,
-          detail: `${dayLabel(meeting.day)} ${shortDate(meeting.startDate!)} · ${shortTime(meeting.start)}–${shortTime(meeting.end)}`,
+          detail,
         }))}
       />
     </>

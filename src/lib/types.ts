@@ -33,6 +33,8 @@ export interface Section {
   availableSeats: number;
   totalSeats: number;
   attrs: string[]; // e.g. ["ECUR", "VIRT"]
+  /** Set when this section's catalog title differs from the course's (e.g. another term renamed it). */
+  title?: string;
   level?: string; // "PRE" (undergraduate) or "POS" (graduate); missing in older saved plans
 }
 

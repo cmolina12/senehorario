@@ -17,6 +17,16 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Mejora",
+    text: "Si no hay horarios compatibles, te decimos qué cursos chocan. Además, los resultados de búsqueda muestran primero los cursos cuyo código coincide.",
+  },
+  {
+    date: "2026-11",
+    tag: "Corrección",
+    text: "Más clases de una sola fecha y rotaciones cortas se muestran con su fecha en vez de como clases semanales, y cada periodo usa su propio nombre de curso.",
+  },
+  {
+    date: "2026-11",
     tag: "Nuevo",
     text: "Filtros en la búsqueda: con cupos, que quepan en tu horario, pregrado o posgrado, modalidad, ciclo (8A/8B) y cursos en inglés.",
   },
