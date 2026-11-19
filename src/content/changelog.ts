@@ -18,7 +18,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Mejora",
-    text: "Comprueba lo que ves: los detalles de cada sección enlazan a la oferta oficial, y te mostramos a qué hora se consultaron los cupos.",
+    text: "Te mostramos a qué hora se consultaron los cupos, y tu plan se vuelve a verificar con la oferta oficial cuando regresas a la pestaña.",
   },
   {
     date: "2026-11",

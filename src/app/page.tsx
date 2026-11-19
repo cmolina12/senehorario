@@ -205,7 +205,7 @@ export default async function LandingPage() {
                     <a href="https://ofertadecursos.uniandes.edu.co/" target="_blank" rel="noopener">
                       oferta oficial
                     </a>
-                    ; desde cada curso puedes abrirla para comprobarlo.
+                    , y revisamos tu plan contra ella cada vez que lo abres o vuelves a la pestaña.
                   </FaqItem>
                   <FaqItem question="¿Senéhorario me inscribe los cursos?">
                     No. Aquí planeas; la inscripción la haces tú en <strong>Banner</strong>. Cuando

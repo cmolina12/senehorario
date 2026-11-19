@@ -17,7 +17,6 @@ import {
 } from "@/lib/format";
 import type { Pins } from "@/lib/pins";
 import { formatTerm } from "@/lib/terms";
-import { OfficialCatalogLink } from "./OfficialCatalogLink";
 import { ProfessorLinks, SeatMeter } from "./SectionRow";
 import type { SelectedEventInfo } from "./usePlanner";
 
@@ -175,8 +174,6 @@ export function DetailsDrawer({
               </p>
             </div>
           )}
-
-          <OfficialCatalogLink nrc={section.nrc} />
         </div>
       </aside>
     </div>
