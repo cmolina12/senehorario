@@ -121,6 +121,7 @@ export function Planner() {
       <SearchTab
         search={search}
         courses={visibleCourses}
+        schedule={planner.currentSchedule}
         term={{
           terms: knownTerms,
           active: activeTerm,

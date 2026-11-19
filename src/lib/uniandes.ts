@@ -38,6 +38,7 @@ export interface ApiCourse {
   ptrm: string;
   seatsavail: string;
   campus: string;
+  levele?: string | null; // "PRE" or "POS"
   schedules: ApiSchedule[] | null;
   instructors: { name: string | null }[] | null;
   attr: { code: string | null }[] | null;
@@ -220,6 +221,7 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       availableSeats,
       totalSeats,
       attrs: (a.attr ?? []).map((x) => x.code).filter((c): c is string => !!c),
+      ...(a.levele && { level: a.levele }),
     };
     course.sections.push(section);
   }

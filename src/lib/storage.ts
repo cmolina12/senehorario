@@ -6,11 +6,13 @@
 import { toGroups } from "./groups";
 import { toPins, type Pins } from "./pins";
 import { toPreferences, type Preferences } from "./preferences";
+import { toSearchFilters, type SearchFilters } from "./search-filters";
 import type { SelectedMeta, SelectedSections } from "./types";
 
 const STATE_KEY = "planningState";
 const PLANS_KEY = "savedPlans";
 const PREFERENCES_KEY = "schedulePreferences";
+const SEARCH_FILTERS_KEY = "searchFilters";
 
 export interface PlanSnapshot {
   selectedSectionsByCourse: SelectedSections;
@@ -97,3 +99,6 @@ export const persistSavedPlans = (plans: SavedPlans) => write(PLANS_KEY, plans);
 
 export const loadPreferences = (): Preferences => toPreferences(read(PREFERENCES_KEY));
 export const savePreferences = (prefs: Preferences) => write(PREFERENCES_KEY, prefs);
+
+export const loadSearchFilters = (): SearchFilters => toSearchFilters(read(SEARCH_FILTERS_KEY));
+export const saveSearchFilters = (filters: SearchFilters) => write(SEARCH_FILTERS_KEY, filters);

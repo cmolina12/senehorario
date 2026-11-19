@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CardSkeletons, EmptyState } from "@/components/ui";
+import { plural } from "@/lib/format";
+import { filterCourses, hasActiveFilters, NO_FILTERS, type SearchFilters } from "@/lib/search-filters";
+import { loadSearchFilters, saveSearchFilters } from "@/lib/storage";
 import { formatTerm } from "@/lib/terms";
-import type { Course, Section } from "@/lib/types";
+import type { Course, ScheduledSection, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
+import { FilterChip, FilterMenu } from "./filters";
 import { SectionRow } from "./SectionRow";
 import type { CourseSearch } from "./useCourseSearch";
 
@@ -21,6 +25,8 @@ interface Props {
   /** Search results narrowed to the active term. */
   courses: Course[];
   term: TermPicker;
+  /** The schedule option on screen, for "Cabe en mi horario"; null when there is none. */
+  schedule: ScheduledSection[] | null;
   selectedCount: (courseCode: string) => number;
   /** Color of a selected course; undefined when it isn't selected. */
   colorFor: (courseCode: string) => string | undefined;
@@ -37,6 +43,7 @@ export function SearchTab({
   search,
   courses,
   term,
+  schedule,
   selectedCount,
   colorFor,
   isSectionSelected,
@@ -45,6 +52,26 @@ export function SearchTab({
   onRemoveCourse,
 }: Props) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [filters, setFilters] = useState<SearchFilters>(NO_FILTERS);
+  const filtersLoaded = useRef(false);
+
+  // Remembered per browser; read after mount so the server render matches.
+  useEffect(() => {
+    if (filtersLoaded.current) return;
+    filtersLoaded.current = true;
+    setFilters(loadSearchFilters());
+  }, []);
+
+  const updateFilters = (patch: Partial<SearchFilters>) => {
+    const next = { ...filters, ...patch };
+    setFilters(next);
+    saveSearchFilters(next);
+  };
+
+  const filtering = hasActiveFilters(filters);
+  const filtered = useMemo(() => filterCourses(courses, filters, schedule), [courses, filters, schedule]);
+  const shownSections = filtered.reduce((n, c) => n + c.sections.length, 0);
+  const totalSections = courses.reduce((n, c) => n + c.sections.length, 0);
 
   return (
     <div className="space-y-4 p-4">
@@ -117,9 +144,82 @@ export function SearchTab({
       {search.loading && <CardSkeletons label="Buscando cursos…" />}
 
       {!search.loading && courses.length > 0 && (
+        <div className="space-y-2">
+          <div className="space-y-1.5" role="group" aria-label="Filtros">
+            <div className="flex flex-wrap gap-1.5">
+              <FilterChip active={filters.withSeats} onClick={() => updateFilters({ withSeats: !filters.withSeats })}>
+                Con cupos
+              </FilterChip>
+              <FilterChip
+                active={filters.fitsSchedule && !!schedule}
+                disabled={!schedule}
+                title={schedule ? undefined : "Agrega cursos para generar un horario primero"}
+                onClick={() => updateFilters({ fitsSchedule: !filters.fitsSchedule })}
+              >
+                Cabe en mi horario
+              </FilterChip>
+              <FilterChip active={filters.english} onClick={() => updateFilters({ english: !filters.english })}>
+                En inglés
+              </FilterChip>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <FilterMenu
+                label="Nivel"
+                anyLabel="Cualquier nivel"
+                value={filters.level}
+                options={[
+                  { value: "PRE", label: "Pregrado" },
+                  { value: "POS", label: "Posgrado" },
+                ]}
+                onChange={(level) => updateFilters({ level })}
+              />
+              <FilterMenu
+                label="Modalidad"
+                anyLabel="Cualquier modalidad"
+                value={filters.delivery}
+                options={[
+                  { value: "presencial", label: "Presencial" },
+                  { value: "virtual", label: "Virtual" },
+                  { value: "hibrida", label: "Híbrida" },
+                ]}
+                onChange={(delivery) => updateFilters({ delivery })}
+              />
+              <FilterMenu
+                label="Ciclo"
+                anyLabel="Cualquier ciclo"
+                value={filters.cycle}
+                options={[
+                  { value: "16", label: "16 semanas" },
+                  { value: "8A", label: "Ciclo 8A" },
+                  { value: "8B", label: "Ciclo 8B" },
+                ]}
+                onChange={(cycle) => updateFilters({ cycle })}
+              />
+              {filtering && (
+                <button
+                  type="button"
+                  onClick={() => updateFilters(NO_FILTERS)}
+                  className="ml-auto px-1 text-xs font-semibold text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+                >
+                  Quitar filtros
+                </button>
+              )}
+            </div>
+          </div>
+          {filtering && (
+            <p className="text-xs text-fg-muted">
+              {filtered.length} {plural(filtered.length, "curso", "cursos")} · {shownSections} de {totalSections}{" "}
+              {plural(totalSections, "sección", "secciones")}
+            </p>
+          )}
+        </div>
+      )}
+
+      {!search.loading && filtered.length > 0 && (
         <div className="space-y-2.5">
-          {courses.map((course) => {
+          {filtered.map((course) => {
             const count = selectedCount(course.code);
+            const narrowed = course.sections.length < course.totalSections;
             return (
               <CourseCard
                 key={course.code}
@@ -130,11 +230,15 @@ export function SearchTab({
                 expanded={!!expanded[course.code]}
                 onToggleExpanded={() => setExpanded((x) => ({ ...x, [course.code]: !x[course.code] }))}
                 selectedCount={count}
-                meta={`${course.sections.length} ${course.sections.length === 1 ? "sección" : "secciones"}`}
+                meta={
+                  narrowed
+                    ? `${course.sections.length} de ${course.totalSections} ${plural(course.totalSections, "sección", "secciones")}`
+                    : `${course.sections.length} ${plural(course.sections.length, "sección", "secciones")}`
+                }
               >
                 <div className="flex flex-wrap gap-1.5 py-3">
                   <ActionButton icon="bi-plus-circle" onClick={() => onAddSections(course, false)}>
-                    Agregar todas
+                    {narrowed ? `Agregar ${plural(course.sections.length, "esta", `estas ${course.sections.length}`)}` : "Agregar todas"}
                   </ActionButton>
                   <ActionButton icon="bi-plus-circle-dotted" onClick={() => onAddSections(course, true)}>
                     Con cupos
@@ -159,6 +263,18 @@ export function SearchTab({
             );
           })}
         </div>
+      )}
+
+      {!search.loading && courses.length > 0 && filtered.length === 0 && (
+        <EmptyState icon="bi-funnel" title="Ningún curso coincide con los filtros">
+          <button
+            type="button"
+            onClick={() => updateFilters(NO_FILTERS)}
+            className="mt-1 text-sm font-semibold text-fg underline underline-offset-2"
+          >
+            Quitar filtros
+          </button>
+        </EmptyState>
       )}
 
       {!search.loading && search.truncated && courses.length > 0 && (

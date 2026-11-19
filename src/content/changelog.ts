@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Nuevo",
+    text: "Filtros en la búsqueda: con cupos, que quepan en tu horario, pregrado o posgrado, modalidad, ciclo (8A/8B) y cursos en inglés.",
+  },
+  {
+    date: "2026-11",
     tag: "Corrección",
     text: "Las sesiones de un solo día (parciales, talleres de sábado) ya no aparecen como clases semanales ni bloquean ese horario todo el semestre; se listan con su fecha debajo del calendario.",
   },
