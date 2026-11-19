@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Mejora",
+    text: "Los horarios se generan mucho más rápido con varios cursos: la página ya no se congela unos segundos al agregar uno.",
+  },
+  {
+    date: "2026-11",
     tag: "Nuevo",
     text: "La barra superior muestra qué plan de Mis planes tienes abierto y si tiene cambios sin guardar; guárdalos con un clic.",
   },
