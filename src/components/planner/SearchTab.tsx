@@ -8,7 +8,7 @@ import { loadSearchFilters, saveSearchFilters } from "@/lib/storage";
 import { formatTerm } from "@/lib/terms";
 import type { Course, ScheduledSection, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
-import { FilterChip, FilterSelect } from "./filters";
+import { FilterChip, FilterMenu } from "./filters";
 import { SectionRow } from "./SectionRow";
 import type { CourseSearch } from "./useCourseSearch";
 
@@ -145,59 +145,66 @@ export function SearchTab({
 
       {!search.loading && courses.length > 0 && (
         <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filtros">
-            <FilterChip active={filters.withSeats} onClick={() => updateFilters({ withSeats: !filters.withSeats })}>
-              Con cupos
-            </FilterChip>
-            <FilterChip
-              active={filters.fitsSchedule && !!schedule}
-              disabled={!schedule}
-              title={schedule ? undefined : "Agrega cursos para generar un horario primero"}
-              onClick={() => updateFilters({ fitsSchedule: !filters.fitsSchedule })}
-            >
-              Cabe en mi horario
-            </FilterChip>
-            <FilterSelect
-              label="Nivel"
-              value={filters.level}
-              options={[
-                { value: "PRE", label: "Pregrado" },
-                { value: "POS", label: "Posgrado" },
-              ]}
-              onChange={(level) => updateFilters({ level })}
-            />
-            <FilterSelect
-              label="Modalidad"
-              value={filters.delivery}
-              options={[
-                { value: "presencial", label: "Presencial" },
-                { value: "virtual", label: "Virtual" },
-                { value: "hibrida", label: "Híbrida" },
-              ]}
-              onChange={(delivery) => updateFilters({ delivery })}
-            />
-            <FilterSelect
-              label="Ciclo"
-              value={filters.cycle}
-              options={[
-                { value: "16", label: "16 semanas" },
-                { value: "8A", label: "8A" },
-                { value: "8B", label: "8B" },
-              ]}
-              onChange={(cycle) => updateFilters({ cycle })}
-            />
-            <FilterChip active={filters.english} onClick={() => updateFilters({ english: !filters.english })}>
-              En inglés
-            </FilterChip>
-            {filtering && (
-              <button
-                type="button"
-                onClick={() => updateFilters(NO_FILTERS)}
-                className="px-1.5 text-xs font-semibold text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+          <div className="space-y-1.5" role="group" aria-label="Filtros">
+            <div className="flex flex-wrap gap-1.5">
+              <FilterChip active={filters.withSeats} onClick={() => updateFilters({ withSeats: !filters.withSeats })}>
+                Con cupos
+              </FilterChip>
+              <FilterChip
+                active={filters.fitsSchedule && !!schedule}
+                disabled={!schedule}
+                title={schedule ? undefined : "Agrega cursos para generar un horario primero"}
+                onClick={() => updateFilters({ fitsSchedule: !filters.fitsSchedule })}
               >
-                Quitar filtros
-              </button>
-            )}
+                Cabe en mi horario
+              </FilterChip>
+              <FilterChip active={filters.english} onClick={() => updateFilters({ english: !filters.english })}>
+                En inglés
+              </FilterChip>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <FilterMenu
+                label="Nivel"
+                anyLabel="Cualquier nivel"
+                value={filters.level}
+                options={[
+                  { value: "PRE", label: "Pregrado" },
+                  { value: "POS", label: "Posgrado" },
+                ]}
+                onChange={(level) => updateFilters({ level })}
+              />
+              <FilterMenu
+                label="Modalidad"
+                anyLabel="Cualquier modalidad"
+                value={filters.delivery}
+                options={[
+                  { value: "presencial", label: "Presencial" },
+                  { value: "virtual", label: "Virtual" },
+                  { value: "hibrida", label: "Híbrida" },
+                ]}
+                onChange={(delivery) => updateFilters({ delivery })}
+              />
+              <FilterMenu
+                label="Ciclo"
+                anyLabel="Cualquier ciclo"
+                value={filters.cycle}
+                options={[
+                  { value: "16", label: "16 semanas" },
+                  { value: "8A", label: "Ciclo 8A" },
+                  { value: "8B", label: "Ciclo 8B" },
+                ]}
+                onChange={(cycle) => updateFilters({ cycle })}
+              />
+              {filtering && (
+                <button
+                  type="button"
+                  onClick={() => updateFilters(NO_FILTERS)}
+                  className="ml-auto px-1 text-xs font-semibold text-fg-muted underline-offset-2 hover:text-fg hover:underline"
+                >
+                  Quitar filtros
+                </button>
+              )}
+            </div>
           </div>
           {filtering && (
             <p className="text-xs text-fg-muted">

@@ -87,7 +87,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
  * Open/closed state that closes on outside click or Escape. `inside` is
  * another element that counts as inside (a panel rendered in a portal).
  */
-function useDismissable(inside?: React.RefObject<HTMLElement | null>) {
+export function useDismissable(inside?: React.RefObject<HTMLElement | null>) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
