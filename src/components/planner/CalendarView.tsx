@@ -173,7 +173,7 @@ export function CalendarView({
           </EmptyState>
         ) : courseCount === 0 || !schedule ? (
           <EmptyState icon="bi-calendar-week" title="Tu semana aparecerá aquí">
-            <p>Busca tus cursos y agrega las secciones que te sirvan; generamos todas las combinaciones sin choques.</p>
+            <p>Busca tus cursos y agrega las secciones que te sirvan. Generamos todas las combinaciones sin choques.</p>
             <button
               type="button"
               onClick={onGoToSearch}

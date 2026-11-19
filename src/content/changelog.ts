@@ -33,12 +33,12 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Nuevo",
-    text: "La barra superior muestra qué plan de Mis planes tienes abierto y si tiene cambios sin guardar; guárdalos con un clic.",
+    text: "La barra superior muestra qué plan de Mis planes tienes abierto y si tiene cambios sin guardar, para guardarlos con un clic.",
   },
   {
     date: "2026-11",
     tag: "Mejora",
-    text: "El modo claro u oscuro sigue al de tu sistema, también cuando cambia de noche; si eliges el mismo que tu sistema, vuelve a seguirlo automáticamente.",
+    text: "El modo claro u oscuro sigue al de tu sistema, también cuando cambia de noche. Si eliges el mismo que tu sistema, vuelve a seguirlo automáticamente.",
   },
   {
     date: "2026-11",
@@ -63,7 +63,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Corrección",
-    text: "Las sesiones de un solo día (parciales, talleres de sábado) ya no aparecen como clases semanales ni bloquean ese horario todo el semestre; se listan con su fecha debajo del calendario.",
+    text: "Las sesiones de un solo día (parciales, talleres de sábado) ya no aparecen como clases semanales ni bloquean ese horario todo el semestre. Ahora se listan con su fecha debajo del calendario.",
   },
   {
     date: "2026-11",

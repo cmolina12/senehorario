@@ -18,7 +18,7 @@
 </p>
 
 > [!NOTE]
-> **English:** a schedule planner for Universidad de los Andes students. The app and its docs are in Spanish; code and commits are in English.
+> **English:** a schedule planner for Universidad de los Andes students. The app and its docs are in Spanish, while code and commits are in English.
 
 <p align="center">
   <img alt="Buscar un curso, agregar las secciones con cupos, recorrer las opciones y copiar los NRCs" src=".github/demo.gif" width="860">
@@ -33,7 +33,7 @@
 | 📌 **Fija una sección** | Elige exactamente la sección que quieres de un curso (desde Mis cursos o al tocar una clase en el calendario) y el resto de tu horario sigue variando. |
 | 🎯 **Grupos «elige uno»** | Agrupa electivas o CBUs y cada horario incluye exactamente uno de ellos. |
 | ✨ **CBUs que encajan** | Los CBUs que caben en los huecos de la opción en pantalla, filtrados por tipo y área. |
-| ⚙️ **Preferencias** | Ordena por menos huecos, menos días, entrada más tarde, salida más temprano o más cupos libres; evita clases antes o después de cierta hora; deja días libres; bloquea tiempo para almorzar, trabajar o hacer deporte. |
+| ⚙️ **Preferencias** | Ordena por menos huecos, menos días, entrada más tarde, salida más temprano o más cupos libres. Evita clases antes o después de cierta hora, deja días libres y bloquea tiempo para almorzar, trabajar o hacer deporte. |
 | 📋 **NRCs para Banner** | Copia un NRC o la lista completa de la opción. |
 | 🔗 **Comparte y exporta** | Links que abren el plan con datos actualizados en cualquier dispositivo, y exportación `.ics` para Google Calendar, Apple Calendar u Outlook. |
 | 💾 **Planes guardados** | Guarda, descarga e importa varios planes. Al abrirlos se revisan contra la oferta en vivo y un aviso muestra las secciones que se llenaron, cambiaron de horario o desaparecieron. |
@@ -52,7 +52,7 @@ flowchart LR
     C -->|link o .ics| F["Compartir /<br>calendario"]
 ```
 
-- **La oferta siempre está en vivo.** Dos rutas de API (`/api/courses`, `/api/courses/cbu`) consultan el catálogo público de Uniandes; solo el conteo de CBUs de la página de inicio se guarda en caché (6 horas).
+- **La oferta siempre está en vivo.** Dos rutas de API (`/api/courses`, `/api/courses/cbu`) consultan el catálogo público de Uniandes. Solo el conteo de CBUs de la página de inicio se guarda en caché (6 horas).
 - **Los horarios se generan en el navegador** (backtracking con un espacio por curso o por grupo «elige uno»), así que cada cambio es instantáneo. El límite es de 2.000 combinaciones para que la página siga respondiendo.
 
 > [!TIP]
@@ -123,7 +123,7 @@ src/
 
 Los issues y pull requests son bienvenidos.
 
-- La lógica de horarios, datos y links vive en `src/lib/` y tiene pruebas unitarias junto a cada archivo (`*.test.ts`); agrega pruebas si cambias algo ahí. Cada pull request corre lint, tipos y pruebas.
+- La lógica de horarios, datos y links vive en `src/lib/` y tiene pruebas unitarias junto a cada archivo (`*.test.ts`). Agrega pruebas si cambias algo ahí. Cada pull request corre lint, tipos y pruebas.
 - Si haces un cambio que los estudiantes van a notar, agrega una entrada al inicio de `CHANGELOG` en `src/content/changelog.ts`. Aparece en [/novedades](https://senehorario.cmolina.xyz/novedades) y, si está entre las tres más recientes, en la página de inicio.
 
 ## Despliegue

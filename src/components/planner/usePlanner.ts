@@ -126,11 +126,11 @@ function noSchedulesMessage(reason: NoScheduleReason, labels: string[]): string 
     const more = reason.pairs.length > 3 ? " (y otros)" : "";
     return reason.pairs.length === 1
       ? `${shown[0]} chocan en todas sus secciones. Agrega otras secciones de alguno de los dos o quita uno.`
-      : `Estos cursos chocan en todas sus secciones: ${shown.join("; ")}${more}. Agrega otras secciones o quita alguno.`;
+      : `Estos cursos chocan en todas sus secciones: ${shown.join(", ")}${more}. Agrega otras secciones o quita alguno.`;
   }
   if (reason.kind === "removable") {
     const names = reason.slots.map((i) => labels[i]);
-    return `Ningún par de cursos choca siempre, pero no caben todos juntos. Si quitas ${joinOr(names)}, sí hay horarios; también puedes agregar más secciones.`;
+    return `Ningún par de cursos choca siempre, pero no caben todos juntos. Si quitas ${joinOr(names)}, sí hay horarios. También puedes agregar más secciones.`;
   }
   return NO_SCHEDULES_ERROR;
 }
