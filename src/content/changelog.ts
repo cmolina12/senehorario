@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Nuevo",
+    text: "Comparte tu horario como imagen: en formato historia para WhatsApp o Instagram, u horizontal para un chat. Cópiala, descárgala o compártela desde el celular.",
+  },
+  {
+    date: "2026-11",
     tag: "Mejora",
     text: "Los horarios se generan mucho más rápido con varios cursos: la página ya no se congela unos segundos al agregar uno.",
   },

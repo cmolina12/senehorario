@@ -7,20 +7,36 @@ import { cn } from "@/lib/format";
 import { buildIcs } from "@/lib/ics";
 import { formatTerm } from "@/lib/terms";
 import type { ScheduledSection } from "@/lib/types";
+import { ScheduleImageDialog } from "./ScheduleImageDialog";
 
 interface Props {
   shareQuery: string;
   schedule: ScheduledSection[];
   term: string;
   optionNumber: number;
+  /** Selected course codes in order; decides each course's color. */
+  courseOrder: string[];
+  credits: number;
 }
 
-/** Share link for the plan and a calendar (.ics) download of the option on screen. */
-export function SharePanel({ shareQuery, schedule, term, optionNumber }: Props) {
+/** Share link for the plan, an image and a calendar (.ics) download of the option on screen. */
+export function SharePanel({
+  shareQuery,
+  schedule,
+  term,
+  optionNumber,
+  courseOrder,
+  credits,
+}: Props) {
   const [copied, setCopied] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
   const [icsNote, setIcsNote] = useState("");
-  const url = typeof window === "undefined" ? "" : `${window.location.origin}/planning?${shareQuery}`;
-  const canNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const url =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/planning?${shareQuery}`;
+  const canNativeShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   const copyLink = async () => {
     if (await copyText(url)) {
@@ -38,7 +54,10 @@ export function SharePanel({ shareQuery, schedule, term, optionNumber }: Props) 
   };
 
   const downloadIcs = () => {
-    const { content, skipped } = buildIcs(schedule, `Senéhorario ${formatTerm(term)}`);
+    const { content, skipped } = buildIcs(
+      schedule,
+      `Senéhorario ${formatTerm(term)}`,
+    );
     const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
     const href = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -54,62 +73,107 @@ export function SharePanel({ shareQuery, schedule, term, optionNumber }: Props) 
   };
 
   return (
-    <Popover icon="bi-share" label="Compartir" panelClassName="w-[22rem]">
-      <div className="space-y-5">
-        <section>
-          <p className="text-sm font-semibold">Enlace al plan</p>
-          <p className="mt-0.5 text-xs text-fg-muted">
-            Abre el mismo plan en otro dispositivo o envíaselo a alguien. Se carga con los cupos y horarios del
-            momento.
-          </p>
-          <div className="mt-2 flex gap-1.5">
-            <input
-              type="text"
-              readOnly
-              value={url}
-              aria-label="Enlace al plan"
-              onFocus={(e) => e.target.select()}
-              className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface-alt px-2.5 text-xs text-fg-secondary focus:border-accent focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={copyLink}
-              className={cn(
-                "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition",
-                copied ? "bg-success/15 text-success" : "bg-accent text-on-accent hover:bg-accent-hover",
-              )}
-            >
-              <i className={cn("bi", copied ? "bi-check-lg" : "bi-link-45deg")} aria-hidden="true"></i>
-              {copied ? "Copiado" : "Copiar"}
-            </button>
-          </div>
-          {canNativeShare && (
-            <button
-              type="button"
-              onClick={nativeShare}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-fg-secondary hover:text-fg"
-            >
-              <i className="bi bi-box-arrow-up" aria-hidden="true"></i> Compartir con otra app…
-            </button>
-          )}
-        </section>
+    <>
+      <Popover icon="bi-share" label="Compartir" panelClassName="w-[22rem]">
+        {(close) => (
+          <div className="space-y-5">
+            <section>
+              <p className="text-sm font-semibold">Imagen del horario</p>
+              <p className="mt-0.5 text-xs text-fg-muted">
+                Para historias de WhatsApp o Instagram, o para pegarla en un
+                chat.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  setImageOpen(true);
+                }}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-on-accent transition hover:bg-accent-hover"
+              >
+                <i className="bi bi-image" aria-hidden="true"></i> Crear imagen
+                de la opción {optionNumber}
+              </button>
+            </section>
 
-        <section>
-          <p className="text-sm font-semibold">Agregar a mi calendario</p>
-          <p className="mt-0.5 text-xs text-fg-muted">
-            Descarga la opción {optionNumber} como clases semanales para Google Calendar, Calendario de Apple u
-            Outlook. No descuenta festivos.
-          </p>
-          <button
-            type="button"
-            onClick={downloadIcs}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold transition hover:border-border-strong"
-          >
-            <i className="bi bi-calendar-plus" aria-hidden="true"></i> Descargar archivo .ics
-          </button>
-          {icsNote && <p className="mt-2 text-xs text-warning">{icsNote}</p>}
-        </section>
-      </div>
-    </Popover>
+            <section>
+              <p className="text-sm font-semibold">Enlace al plan</p>
+              <p className="mt-0.5 text-xs text-fg-muted">
+                Abre el mismo plan en otro dispositivo o envíaselo a alguien. Se
+                carga con los cupos y horarios del momento.
+              </p>
+              <div className="mt-2 flex gap-1.5">
+                <input
+                  type="text"
+                  readOnly
+                  value={url}
+                  aria-label="Enlace al plan"
+                  onFocus={(e) => e.target.select()}
+                  className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface-alt px-2.5 text-xs text-fg-secondary focus:border-accent focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={copyLink}
+                  className={cn(
+                    "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition",
+                    copied
+                      ? "bg-success/15 text-success"
+                      : "bg-accent text-on-accent hover:bg-accent-hover",
+                  )}
+                >
+                  <i
+                    className={cn(
+                      "bi",
+                      copied ? "bi-check-lg" : "bi-link-45deg",
+                    )}
+                    aria-hidden="true"
+                  ></i>
+                  {copied ? "Copiado" : "Copiar"}
+                </button>
+              </div>
+              {canNativeShare && (
+                <button
+                  type="button"
+                  onClick={nativeShare}
+                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-fg-secondary hover:text-fg"
+                >
+                  <i className="bi bi-box-arrow-up" aria-hidden="true"></i>{" "}
+                  Compartir con otra app…
+                </button>
+              )}
+            </section>
+
+            <section>
+              <p className="text-sm font-semibold">Agregar a mi calendario</p>
+              <p className="mt-0.5 text-xs text-fg-muted">
+                Descarga la opción {optionNumber} como clases semanales para
+                Google Calendar, Calendario de Apple u Outlook. No descuenta
+                festivos.
+              </p>
+              <button
+                type="button"
+                onClick={downloadIcs}
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold transition hover:border-border-strong"
+              >
+                <i className="bi bi-calendar-plus" aria-hidden="true"></i>{" "}
+                Descargar archivo .ics
+              </button>
+              {icsNote && (
+                <p className="mt-2 text-xs text-warning">{icsNote}</p>
+              )}
+            </section>
+          </div>
+        )}
+      </Popover>
+      <ScheduleImageDialog
+        open={imageOpen}
+        onClose={() => setImageOpen(false)}
+        schedule={schedule}
+        courseOrder={courseOrder}
+        term={term}
+        optionNumber={optionNumber}
+        credits={credits}
+      />
+    </>
   );
 }
