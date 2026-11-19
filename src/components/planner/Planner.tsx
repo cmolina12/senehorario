@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NewsLink } from "@/components/NewsLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { blockEvents, courseColor, visibleRange } from "@/lib/calendar-events";
 import { cn } from "@/lib/format";
-import { loadSavedPlans, toSnapshot, type PlanSnapshot, type SavedPlans } from "@/lib/storage";
+import {
+  loadSavedPlans,
+  persistSavedPlans,
+  planSignature,
+  toSnapshot,
+  type PlanSnapshot,
+  type SavedPlans,
+} from "@/lib/storage";
 import { buildShareQuery } from "@/lib/share";
 import { coursesInTerm, sortTerms, termsOfCourses } from "@/lib/terms";
 import { CalendarView } from "./CalendarView";
@@ -14,6 +21,7 @@ import { CbuTab } from "./CbuTab";
 import { CoursesTab } from "./CoursesTab";
 import { DetailsDrawer } from "./DetailsDrawer";
 import { PeriodMenu } from "./PeriodMenu";
+import { PlanControl } from "./PlanControl";
 import { PlansModal } from "./PlansModal";
 import { SearchTab } from "./SearchTab";
 import { useCbus } from "./useCbus";
@@ -109,11 +117,36 @@ export function Planner() {
     [selection, scheduleIndex],
   );
 
-  const loadPlan = (snapshot: PlanSnapshot) => {
+  const loadPlan = (name: string, snapshot: PlanSnapshot) => {
     const normalized = toSnapshot(snapshot);
-    if (normalized) planner.loadSnapshot(normalized);
+    if (normalized) {
+      planner.loadSnapshot(normalized);
+      planner.setActivePlan(name);
+    }
     setPlansOpen(false);
     setMobileCalendar(true);
+  };
+
+  // Saved plans are needed up front to tell whether the open plan has changes.
+  const plansLoaded = useRef(false);
+  useEffect(() => {
+    if (plansLoaded.current) return;
+    plansLoaded.current = true;
+    setSavedPlans(loadSavedPlans());
+  }, []);
+
+  const activePlan = planner.activePlan && savedPlans[planner.activePlan] ? planner.activePlan : null;
+  const dirty = !!activePlan && planSignature(savedPlans[activePlan]) !== planSignature(currentSnapshot());
+
+  /** Overwrites the open plan, or asks for a name when there is none. */
+  const savePlan = () => {
+    if (!activePlan) {
+      openPlans();
+      return;
+    }
+    const next = { ...savedPlans, [activePlan]: { ...currentSnapshot(), savedAt: new Date().toISOString() } };
+    setSavedPlans(next);
+    persistSavedPlans(next);
   };
 
   const closeDetails = useCallback(() => setSelectedEvent(null), [setSelectedEvent]);
@@ -182,33 +215,23 @@ export function Planner() {
             />
             <span className="font-extrabold tracking-tight">Senéhorario</span>
           </Link>
-          {activeTerm && (
-            <>
-              <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true"></span>
+          <span className="hidden h-5 w-px bg-border sm:block" aria-hidden="true"></span>
+          {/* What you're working on: the period and the plan. */}
+          <div className="flex min-w-0 items-center gap-1.5">
+            {activeTerm && (
               <PeriodMenu terms={knownTerms} active={activeTerm} locked={courseCount > 0} onChange={setChosenTerm} />
-            </>
-          )}
+            )}
+            <PlanControl
+              name={activePlan}
+              dirty={dirty}
+              hasCourses={courseCount > 0}
+              onOpen={openPlans}
+              onSave={savePlan}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <NewsLink />
-          <a
-            href="https://github.com/cmolina12/senehorario"
-            target="_blank"
-            rel="noopener"
-            aria-label="Código en GitHub"
-            title="Código en GitHub"
-            className="hidden size-9 items-center justify-center rounded-lg text-fg-secondary transition hover:bg-surface-hover hover:text-fg sm:inline-flex"
-          >
-            <i className="bi bi-github" aria-hidden="true"></i>
-          </a>
-          <button
-            type="button"
-            onClick={openPlans}
-            className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-fg-secondary transition hover:bg-surface-hover hover:text-fg"
-          >
-            <i className="bi bi-bookmark-star" aria-hidden="true"></i>
-            <span className="hidden sm:inline">Mis planes</span>
-          </button>
           <ThemeToggle />
         </div>
       </header>
@@ -322,6 +345,9 @@ export function Planner() {
         currentSnapshot={currentSnapshot}
         canSave={courseCount > 0}
         onLoad={loadPlan}
+        activePlan={activePlan}
+        onSaved={planner.setActivePlan}
+        onRemoved={(name) => name === planner.activePlan && planner.setActivePlan(null)}
         onClose={() => setPlansOpen(false)}
       />
     </div>

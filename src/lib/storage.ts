@@ -7,12 +7,13 @@ import { toGroups } from "./groups";
 import { toPins, type Pins } from "./pins";
 import { toPreferences, type Preferences } from "./preferences";
 import { toSearchFilters, type SearchFilters } from "./search-filters";
-import type { SelectedMeta, SelectedSections } from "./types";
+import { sectionKey, type SelectedMeta, type SelectedSections } from "./types";
 
 const STATE_KEY = "planningState";
 const PLANS_KEY = "savedPlans";
 const PREFERENCES_KEY = "schedulePreferences";
 const SEARCH_FILTERS_KEY = "searchFilters";
+const ACTIVE_PLAN_KEY = "activePlan";
 
 export interface PlanSnapshot {
   selectedSectionsByCourse: SelectedSections;
@@ -96,6 +97,28 @@ export function loadSavedPlans(): SavedPlans {
   return plans;
 }
 export const persistSavedPlans = (plans: SavedPlans) => write(PLANS_KEY, plans);
+
+/** Name of the saved plan being edited, if the selection came from (or was saved as) one. */
+export function loadActivePlan(): string | null {
+  const name = read<unknown>(ACTIVE_PLAN_KEY);
+  return typeof name === "string" && name ? name : null;
+}
+export const saveActivePlan = (name: string | null) => write(ACTIVE_PLAN_KEY, name);
+
+/**
+ * What makes two snapshots the same plan: courses, sections, groups and pins.
+ * The option being viewed is left out, so browsing options isn't a change.
+ */
+export function planSignature(snapshot: PlanSnapshot): string {
+  const sections = Object.entries(snapshot.selectedSectionsByCourse)
+    .map(([code, list]) => `${code}:${list.map(sectionKey).sort().join(",")}`)
+    .sort();
+  const groups = (snapshot.courseGroups ?? []).map((g) => [...g].sort().join("~")).sort();
+  const pins = Object.entries(snapshot.pinnedSections ?? {})
+    .map(([code, nrc]) => `${code}=${nrc}`)
+    .sort();
+  return JSON.stringify([sections, groups, pins]);
+}
 
 export const loadPreferences = (): Preferences => toPreferences(read(PREFERENCES_KEY));
 export const savePreferences = (prefs: Preferences) => write(PREFERENCES_KEY, prefs);

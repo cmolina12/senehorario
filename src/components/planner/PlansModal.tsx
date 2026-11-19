@@ -12,7 +12,12 @@ interface Props {
   onPlansChange: (plans: SavedPlans) => void;
   currentSnapshot: () => PlanSnapshot;
   canSave: boolean;
-  onLoad: (snapshot: PlanSnapshot) => void;
+  onLoad: (name: string, snapshot: PlanSnapshot) => void;
+  /** The saved plan currently open, marked in the list. */
+  activePlan: string | null;
+  /** The current selection was saved under this name. */
+  onSaved: (name: string) => void;
+  onRemoved: (name: string) => void;
   onClose: () => void;
 }
 
@@ -28,7 +33,18 @@ function planDate(snapshot: PlanSnapshot): string {
   return date.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSave, onLoad, onClose }: Props) {
+export function PlansModal({
+  open,
+  plans,
+  onPlansChange,
+  currentSnapshot,
+  canSave,
+  onLoad,
+  activePlan,
+  onSaved,
+  onRemoved,
+  onClose,
+}: Props) {
   const { rendered, closing } = usePresence(open ? true : null);
   const [name, setName] = useState("");
   const [importError, setImportError] = useState("");
@@ -49,6 +65,7 @@ export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSav
     const trimmed = name.trim();
     if (!trimmed) return;
     update({ ...plans, [trimmed]: { ...currentSnapshot(), savedAt: new Date().toISOString() } });
+    onSaved(trimmed);
     setName("");
   };
 
@@ -56,6 +73,7 @@ export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSav
     const next = { ...plans };
     delete next[planName];
     update(next);
+    onRemoved(planName);
   };
 
   const exportPlan = (planName: string) => {
@@ -171,17 +189,24 @@ export function PlansModal({ open, plans, onPlansChange, currentSnapshot, canSav
                   <li key={planName} className="flex items-center gap-2 py-2 pr-2 pl-3">
                     <button
                       type="button"
-                      onClick={() => onLoad(plans[planName])}
+                      onClick={() => onLoad(planName, plans[planName])}
                       className="min-w-0 flex-1 rounded-lg py-1 text-left"
                       title="Cargar plan"
                     >
-                      <p className="truncate text-sm font-semibold">{planName}</p>
+                      <p className="flex items-center gap-1.5 text-sm font-semibold">
+                        <span className="truncate">{planName}</span>
+                        {planName === activePlan && (
+                          <span className="shrink-0 rounded-full bg-accent-soft px-1.5 text-2xs leading-4 font-semibold text-fg">
+                            Abierto
+                          </span>
+                        )}
+                      </p>
                       <p className="truncate text-xs text-fg-muted">
                         {planCourses(plans[planName])}
                         {planDate(plans[planName]) && ` · ${planDate(plans[planName])}`}
                       </p>
                     </button>
-                    <IconButton icon="bi-folder2-open" label="Cargar" onClick={() => onLoad(plans[planName])} />
+                    <IconButton icon="bi-folder2-open" label="Cargar" onClick={() => onLoad(planName, plans[planName])} />
                     <IconButton icon="bi-download" label="Descargar" onClick={() => exportPlan(planName)} />
                     <IconButton
                       icon="bi-trash3"
