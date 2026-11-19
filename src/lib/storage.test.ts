@@ -37,3 +37,43 @@ describe("toSnapshot", () => {
     ).toBeNull();
   });
 });
+
+describe("planSignature", async () => {
+  const { planSignature } = await import("./storage");
+  const section = (nrc: string) => ({
+    nrc,
+    sectionId: "1",
+    term: "202710",
+    ptrm: "1",
+    campus: "",
+    meetings: [],
+    professors: [],
+    availableSeats: 1,
+    totalSeats: 1,
+    attrs: [],
+  });
+  const plan = (overrides = {}) => ({
+    selectedSectionsByCourse: { A: [section("1"), section("2")], B: [section("3")] },
+    selectedCoursesMeta: {},
+    selectedScheduleIndex: 0,
+    courseGroups: [["A", "B"]],
+    pinnedSections: { A: "1" },
+    ...overrides,
+  });
+
+  it("ignores order and the option being viewed", () => {
+    const reordered = plan({
+      selectedSectionsByCourse: { B: [section("3")], A: [section("2"), section("1")] },
+      courseGroups: [["B", "A"]],
+      selectedScheduleIndex: 4,
+    });
+    expect(planSignature(reordered)).toBe(planSignature(plan()));
+  });
+
+  it("changes with sections, groups and pins", () => {
+    const base = planSignature(plan());
+    expect(planSignature(plan({ selectedSectionsByCourse: { A: [section("1")], B: [section("3")] } }))).not.toBe(base);
+    expect(planSignature(plan({ courseGroups: [] }))).not.toBe(base);
+    expect(planSignature(plan({ pinnedSections: { A: "2" } }))).not.toBe(base);
+  });
+});

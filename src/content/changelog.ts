@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Nuevo",
+    text: "La barra superior muestra qué plan de Mis planes tienes abierto y si tiene cambios sin guardar; guárdalos con un clic.",
+  },
+  {
+    date: "2026-11",
     tag: "Mejora",
     text: "El periodo se elige desde la barra superior, y un punto en Novedades te avisa cuando hay cambios nuevos.",
   },

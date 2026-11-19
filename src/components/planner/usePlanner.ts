@@ -24,11 +24,13 @@ import {
   type Preferences,
 } from "@/lib/preferences";
 import {
+  loadActivePlan,
   loadPlanningState,
   loadPreferences,
   loadSavedPlans,
   persistSavedPlans,
   savePlanningState,
+  saveActivePlan,
   savePreferences,
   type PlanSnapshot,
 } from "@/lib/storage";
@@ -139,6 +141,13 @@ export function usePlanner() {
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventInfo | null>(null);
   const [notice, setNotice] = useState<PlanNotice | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [activePlan, setActivePlanState] = useState<string | null>(null);
+
+  /** Remembers which saved plan is being edited (null: none). */
+  const setActivePlan = useCallback((name: string | null) => {
+    setActivePlanState(name);
+    saveActivePlan(name);
+  }, []);
 
   // Bumped on every selection change so a slow catalog refresh never
   // overwrites edits made while it was running.
@@ -399,6 +408,8 @@ export function usePlanner() {
       const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
       const savedAs = hasPrevious ? backUpPlan(previous) : null;
       applySelection({ sections, meta, groups: shared.groups, pins: shared.pins }, shared.optionIndex);
+      // The shared selection isn't any of this browser's saved plans.
+      setActivePlan(null);
       setNotice({
         title: "Abriste un plan compartido",
         lines: [
@@ -407,7 +418,7 @@ export function usePlanner() {
         ],
       });
     },
-    [applySelection, loadSnapshot],
+    [applySelection, loadSnapshot, setActivePlan],
   );
 
   /** Updates preferences and regenerates the options from the first one. */
@@ -433,6 +444,7 @@ export function usePlanner() {
     const prefs = loadPreferences();
     preferencesRef.current = prefs;
     setPreferencesState(prefs);
+    setActivePlanState(loadActivePlan());
     const saved = loadPlanningState();
     const shared = parseShareQuery(window.location.search);
     if (shared) {
@@ -531,5 +543,7 @@ export function usePlanner() {
     isSectionSelected,
     loadSnapshot,
     goToSchedule,
+    activePlan,
+    setActivePlan,
   };
 }
