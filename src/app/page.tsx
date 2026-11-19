@@ -198,9 +198,11 @@ export default async function LandingPage() {
                     llenó, cambió o ya no existe.
                   </FaqItem>
                   <FaqItem question="¿Dónde se guardan mis planes?">
-                    En tu navegador. No necesitas cuenta y no guardamos tus datos en ningún servidor.
+                    En tu navegador. No necesitas cuenta y tus planes no se guardan en ningún servidor.
                     Para abrir un plan en otro dispositivo o compartirlo, usa{" "}
                     <strong>Compartir</strong> (un enlace) o descárgalo desde <strong>Mis planes</strong>.
+                    Usamos Google Analytics para contar visitas y saber qué partes del sitio se usan; no
+                    le enviamos tus cursos, tus planes ni lo que escribes.
                   </FaqItem>
                   <FaqItem question="¿Revisa si un curso tiene laboratorio o curso complementario?">
                     No automáticamente. Revisa en la oferta si tu curso tiene uno (por ejemplo,
