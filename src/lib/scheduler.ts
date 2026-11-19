@@ -92,43 +92,52 @@ export function generateAllSchedules<T extends Section>(
  * into a single option that contains both half-semester sections.
  */
 export function mergeHalfSemesterPairs(schedules: ScheduledSection[][]): ScheduledSection[][] {
+  // Comparing every pair of options is quadratic (seconds for 2000 options),
+  // so index instead: only options with an 8A/8B section can pair up, and
+  // partners share "the course + every other section" with opposite halves.
+  const isHalf = (s: ScheduledSection) => s.ptrm === "8A" || s.ptrm === "8B";
+  const halvesOf = schedules.map((schedule) =>
+    schedule.filter(isHalf).map((half) => ({
+      half,
+      key: `${half.courseCode}|${schedule
+        .filter((s) => s !== half)
+        .map(sectionKey)
+        .sort()
+        .join("|")}`,
+    })),
+  );
+  const byKey = new Map<string, number[]>(); // "key#8A" -> option indices, ascending
+  halvesOf.forEach((halves, i) => {
+    for (const { half, key } of halves) {
+      const k = `${key}#${half.ptrm}`;
+      const list = byKey.get(k);
+      if (list) list.push(i);
+      else byKey.set(k, [i]);
+    }
+  });
+
   const result: ScheduledSection[][] = [];
   const used = new Set<number>();
-
   for (let i = 0; i < schedules.length; i++) {
     if (used.has(i)) continue;
-    let merged: ScheduledSection[] | null = null;
-
-    for (let j = i + 1; j < schedules.length; j++) {
-      if (used.has(j)) continue;
-      merged = tryMerge(schedules[i], schedules[j]);
-      if (merged) {
-        used.add(j);
-        break;
+    used.add(i);
+    // The first later option that pairs with this one, as the pairwise scan did.
+    let partner: { j: number; half: ScheduledSection } | null = null;
+    for (const { half, key } of halvesOf[i]) {
+      const opposite = half.ptrm === "8A" ? "8B" : "8A";
+      const j = byKey.get(`${key}#${opposite}`)?.find((j) => j > i && !used.has(j));
+      if (j !== undefined && (!partner || j < partner.j)) {
+        partner = { j, half: halvesOf[j].find((h) => h.key === key && h.half.ptrm === opposite)!.half };
       }
     }
-
-    result.push(merged ?? schedules[i]);
-    used.add(i);
+    if (partner) {
+      used.add(partner.j);
+      result.push([...schedules[i], partner.half]);
+    } else {
+      result.push(schedules[i]);
+    }
   }
   return result;
-}
-
-function tryMerge(a: ScheduledSection[], b: ScheduledSection[]): ScheduledSection[] | null {
-  const keysA = new Set(a.map(sectionKey));
-  const keysB = new Set(b.map(sectionKey));
-  const inANotB = a.filter((s) => !keysB.has(sectionKey(s)));
-  const inBNotA = b.filter((s) => !keysA.has(sectionKey(s)));
-  if (inANotB.length !== 1 || inBNotA.length !== 1) return null;
-
-  const [sA] = inANotB;
-  const [sB] = inBNotA;
-  if (sA.courseCode !== sB.courseCode) return null;
-
-  const ptrms = new Set([sA.ptrm, sB.ptrm]);
-  if (!ptrms.has("8A") || !ptrms.has("8B")) return null;
-
-  return [...a, sB];
 }
 
 export type NoScheduleReason =

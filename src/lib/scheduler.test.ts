@@ -6,7 +6,7 @@ import {
   mergeHalfSemesterPairs,
   sectionsConflict,
 } from "./scheduler";
-import type { DayOfWeek, Meeting, ScheduledSection, Section } from "./types";
+import { sectionKey, type DayOfWeek, type Meeting, type ScheduledSection, type Section } from "./types";
 
 const meeting = (day: DayOfWeek, start: string, end: string): Meeting => ({
   day,
@@ -183,6 +183,72 @@ describe("mergeHalfSemesterPairs", () => {
     const s1 = tag(section("1", []), "AAAA1000");
     const s2 = tag(section("2", []), "AAAA1000");
     expect(mergeHalfSemesterPairs([[s1], [s2]])).toHaveLength(2);
+  });
+
+  // The previous pairwise implementation, kept as the reference result.
+  function tryMerge(a: ScheduledSection[], b: ScheduledSection[]): ScheduledSection[] | null {
+    const keysA = new Set(a.map(sectionKey));
+    const keysB = new Set(b.map(sectionKey));
+    const inANotB = a.filter((s) => !keysB.has(sectionKey(s)));
+    const inBNotA = b.filter((s) => !keysA.has(sectionKey(s)));
+    if (inANotB.length !== 1 || inBNotA.length !== 1) return null;
+  
+    const [sA] = inANotB;
+    const [sB] = inBNotA;
+    if (sA.courseCode !== sB.courseCode) return null;
+  
+    const ptrms = new Set([sA.ptrm, sB.ptrm]);
+    if (!ptrms.has("8A") || !ptrms.has("8B")) return null;
+  
+    return [...a, sB];
+  }
+
+  function pairwise(schedules: ScheduledSection[][]): ScheduledSection[][] {
+    const result: ScheduledSection[][] = [];
+    const used = new Set<number>();
+    for (let i = 0; i < schedules.length; i++) {
+      if (used.has(i)) continue;
+      let merged: ScheduledSection[] | null = null;
+      for (let j = i + 1; j < schedules.length; j++) {
+        if (used.has(j)) continue;
+        merged = tryMerge(schedules[i], schedules[j]);
+        if (merged) {
+          used.add(j);
+          break;
+        }
+      }
+      result.push(merged ?? schedules[i]);
+      used.add(i);
+    }
+    return result;
+  }
+
+  it("matches the pairwise merge on generated options", () => {
+    // Courses with full-term, 8A and 8B sections; each course has its own hour.
+    const days: DayOfWeek[] = ["MONDAY", "TUESDAY", "WEDNESDAY"];
+    let nrc = 0;
+    const course = (code: string, hour: number, ptrms: string[]) =>
+      ptrms.map((ptrm, i) =>
+        tag(section(String(++nrc), [meeting(days[i % 3], `${hour}:00`, `${hour}:50`)], ptrm), code),
+      );
+    const candidates = [
+      course("AAAA1000", 10, ["8A", "8B", "1", "8A"]),
+      course("BBBB1000", 11, ["8B", "8A", "8B"]),
+      course("CCCC1000", 12, ["1", "1"]),
+      course("DDDD1000", 13, ["8A", "8B"]),
+    ];
+    const schedules = generateAllSchedules(candidates);
+    expect(schedules.length).toBeGreaterThan(5);
+    const merged = mergeHalfSemesterPairs(schedules);
+    expect(merged.length).toBeLessThan(schedules.length); // some pairs did merge
+    expect(nrcs(merged)).toEqual(nrcs(pairwise(schedules)));
+  });
+
+  it("handles thousands of options quickly", () => {
+    const many = Array.from({ length: 2000 }, (_, i) => [tag(section(`x${i}`, []), "AAAA1000"), tag(section(`y${i}`, []), "BBBB1000")]);
+    const start = performance.now();
+    expect(mergeHalfSemesterPairs(many)).toHaveLength(2000);
+    expect(performance.now() - start).toBeLessThan(200);
   });
 });
 
