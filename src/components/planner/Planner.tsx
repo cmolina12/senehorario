@@ -173,10 +173,15 @@ export function Planner() {
   return (
     <div className="flex h-dvh flex-col bg-bg tabular-nums">
       {/* Top bar */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b-[3px] border-accent bg-surface px-3 sm:px-4">
-        <Link href="/" className="flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-3 sm:px-4">
+        <Link href="/" className="group flex items-center gap-2 rounded-lg px-1.5 py-1 transition hover:bg-surface-hover">
+          {/* Cropped to the mascot so it reads at header size. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/peluche.png" alt="" className="size-7" />
+          <img
+            src="/images/peluche-mark.png"
+            alt=""
+            className="size-9 transition-transform group-hover:-rotate-6 motion-reduce:transition-none"
+          />
           <span className="font-extrabold tracking-tight">Senéhorario</span>
         </Link>
         <div className="flex items-center gap-1">

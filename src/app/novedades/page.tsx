@@ -26,9 +26,13 @@ export default function NovedadesPage() {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-4xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="group flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/peluche.png" alt="" className="size-8" />
+            <img
+              src="/images/peluche-mark.png"
+              alt=""
+              className="size-9 transition-transform group-hover:-rotate-6 motion-reduce:transition-none"
+            />
             <span className="text-lg font-extrabold tracking-tight">Senéhorario</span>
           </Link>
           <div className="flex items-center gap-2">
