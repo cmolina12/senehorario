@@ -295,6 +295,7 @@ export function Planner() {
             onEventClick={setSelectedEvent}
             onGoToSearch={() => showTab("search")}
             refreshing={planner.refreshing}
+            verifiedAt={planner.verifiedAt}
             notice={planner.notice}
             onDismissNotice={planner.dismissNotice}
             shareQuery={

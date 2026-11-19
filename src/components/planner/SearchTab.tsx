@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardSkeletons, EmptyState } from "@/components/ui";
-import { plural } from "@/lib/format";
+import { clockTime, plural } from "@/lib/format";
 import { filterCourses, hasActiveFilters, NO_FILTERS, type SearchFilters } from "@/lib/search-filters";
 import { loadSearchFilters, saveSearchFilters } from "@/lib/storage";
 import { formatTerm } from "@/lib/terms";
@@ -68,7 +68,19 @@ export function SearchTab({
 
   return (
     <div className="space-y-4 p-4">
-      <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
+        {search.fetchedAt && search.courses.length > 0 && (
+          <span
+            className="inline-flex items-center gap-1 text-xs text-fg-muted"
+            title={`Datos de la oferta oficial, consultados a las ${clockTime(search.fetchedAt)}`}
+          >
+            <i className="bi bi-clock-history" aria-hidden="true"></i>
+            <span className="sr-only">Oferta oficial consultada a las</span>
+            {clockTime(search.fetchedAt)}
+          </span>
+        )}
+      </div>
 
       <form
         className="space-y-2"

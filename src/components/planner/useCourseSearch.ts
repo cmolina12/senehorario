@@ -16,6 +16,8 @@ export function useCourseSearch() {
   const [empty, setEmpty] = useState(false);
   const [error, setError] = useState("");
   const [truncated, setTruncated] = useState(false);
+  /** When the results on screen came from the catalog. */
+  const [fetchedAt, setFetchedAt] = useState<Date | null>(null);
   const requestId = useRef(0);
 
   const search = useCallback(async (q: string, prof: string) => {
@@ -33,6 +35,7 @@ export function useCourseSearch() {
       const result = await api.searchCourses(q, prof);
       if (id !== requestId.current) return;
       setCourses(rankCourses(result.courses, q));
+      setFetchedAt(new Date());
       setTruncated(result.truncated);
       setEmpty(result.courses.length === 0);
       setError("");
@@ -67,6 +70,7 @@ export function useCourseSearch() {
     empty,
     error,
     truncated,
+    fetchedAt,
     submit: () => void search(query, professor),
     searchFor,
   };

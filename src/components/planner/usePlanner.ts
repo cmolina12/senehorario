@@ -90,6 +90,9 @@ async function fetchFreshCourses(codes: string[]): Promise<FreshCourses> {
   );
 }
 
+/** Coming back to the tab re-checks the plan if the last check is older than this. */
+const RECHECK_AFTER_MS = 5 * 60 * 1000;
+
 const refreshNotice = (changes: PlanChange[]): PlanNotice | null =>
   changes.length > 0
     ? { title: "Actualizamos tu plan con la oferta actual", lines: changes.map(describeChange) }
@@ -141,6 +144,8 @@ export function usePlanner() {
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventInfo | null>(null);
   const [notice, setNotice] = useState<PlanNotice | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  /** When the selection was last checked against the live catalog. */
+  const [verifiedAt, setVerifiedAt] = useState<Date | null>(null);
   const [activePlan, setActivePlanState] = useState<string | null>(null);
 
   /** Remembers which saved plan is being edited (null: none). */
@@ -337,9 +342,35 @@ export function usePlanner() {
       const reshaped = result.changes.some((c) => c.kind !== "full" && c.kind !== "unverified");
       applySelection({ sections: result.sections, meta: result.meta }, reshaped ? 0 : scheduleIndexRef.current);
       setNotice(refreshNotice(result.changes));
+      if (!result.changes.some((c) => c.kind === "unverified")) setVerifiedAt(new Date());
     },
     [applySelection],
   );
+
+  // Re-check seats when the student comes back to the tab after a while, so
+  // "verificados a las…" doesn't quietly go stale while the tab sits open.
+  const liveRef = useRef({ selection, verifiedAt, refreshing, lastAttempt: 0 });
+  useEffect(() => {
+    liveRef.current = { ...liveRef.current, selection, verifiedAt, refreshing };
+  }, [selection, verifiedAt, refreshing]);
+  useEffect(() => {
+    const recheck = () => {
+      if (document.visibilityState !== "visible") return;
+      const live = liveRef.current;
+      const last = Math.max(live.verifiedAt?.getTime() ?? 0, live.lastAttempt);
+      if (live.refreshing || Date.now() - last < RECHECK_AFTER_MS) return;
+      if (Object.keys(live.selection.sections).length === 0) return;
+      live.lastAttempt = Date.now();
+      void refreshFromCatalog(live.selection);
+    };
+    liveRef.current.lastAttempt = Date.now(); // the initial load does its own check
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
+    return () => {
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
+    };
+  }, [refreshFromCatalog]);
 
   /** Replaces the whole selection (restoring state or loading a saved plan), then refreshes it. */
   const loadSnapshot = useCallback(
@@ -408,6 +439,7 @@ export function usePlanner() {
       const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
       const savedAs = hasPrevious ? backUpPlan(previous) : null;
       applySelection({ sections, meta, groups: shared.groups, pins: shared.pins }, shared.optionIndex);
+      if (!changes.some((c) => c.kind === "unverified")) setVerifiedAt(new Date());
       // The shared selection isn't any of this browser's saved plans.
       setActivePlan(null);
       setNotice({
@@ -536,6 +568,7 @@ export function usePlanner() {
     preferences,
     setPreferences,
     refreshing,
+    verifiedAt,
     toggleSection,
     addSections,
     removeCourse,

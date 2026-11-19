@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Mejora",
+    text: "Te mostramos a qué hora se consultaron los cupos, y tu plan se vuelve a verificar con la oferta oficial cuando regresas a la pestaña.",
+  },
+  {
+    date: "2026-11",
     tag: "Nuevo",
     text: "Comparte tu horario como imagen: en formato historia para WhatsApp o Instagram, u horizontal para un chat. Cópiala, descárgala o compártela desde el celular.",
   },
