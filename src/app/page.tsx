@@ -63,13 +63,21 @@ export default async function LandingPage() {
                   Universidad de los Andes.
                 </p>
                 <ul className="hero-assurance" aria-label="Por qué usar Senéhorario">
-                  {["Gratis", "Sin cuenta", "Código abierto", "Datos oficiales de Uniandes"].map((item) => (
+                  {["Gratis", "Sin cuenta", "Código abierto", "Datos de la oferta oficial"].map((item) => (
                     <li key={item}>
                       <i className="bi bi-check2" aria-hidden="true"></i>
                       {item}
                     </li>
                   ))}
                 </ul>
+                <p className="hero-trust">
+                  <i className="bi bi-shield-check" aria-hidden="true"></i>
+                  <span>
+                    Hecho por estudiantes, no es una herramienta oficial de la Universidad.{" "}
+                    <strong>Nunca te pediremos tu usuario ni contraseña Uniandes</strong>: tú inscribes en
+                    Banner.
+                  </span>
+                </p>
               </div>
               <div className="lp-col-lg-6 mt-6 min-[992px]:mt-0 text-center!">
                 <div className="hero-visual">
@@ -186,6 +194,18 @@ export default async function LandingPage() {
                     Entra a <strong>Comienza</strong>, busca tus cursos por nombre, código o NRC y agrega
                     las secciones que te sirven. Senéhorario arma todas las combinaciones sin choques
                     para que las recorras en el calendario y elijas la tuya.
+                  </FaqItem>
+                  <FaqItem question="¿Es oficial? ¿Es seguro usarlo?">
+                    No es una herramienta oficial de la Universidad de los Andes: la hacen estudiantes y el{" "}
+                    <a href={REPO_URL} target="_blank" rel="noopener">
+                      código es abierto
+                    </a>
+                    . No hay cuentas: <strong>nunca te pediremos tu usuario ni contraseña Uniandes</strong>, y
+                    nada de lo que haces aquí toca tu inscripción. Los cursos, horarios y cupos vienen de la{" "}
+                    <a href="https://ofertadecursos.uniandes.edu.co/" target="_blank" rel="noopener">
+                      oferta oficial
+                    </a>
+                    ; desde cada curso puedes abrirla para comprobarlo.
                   </FaqItem>
                   <FaqItem question="¿Senéhorario me inscribe los cursos?">
                     No. Aquí planeas; la inscripción la haces tú en <strong>Banner</strong>. Cuando

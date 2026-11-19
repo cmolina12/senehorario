@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Mejora",
+    text: "Comprueba lo que ves: cada curso y sección enlaza a la oferta oficial, y te mostramos a qué hora se consultaron los cupos.",
+  },
+  {
+    date: "2026-11",
     tag: "Nuevo",
     text: "Comparte tu horario como imagen: en formato historia para WhatsApp o Instagram, u horizontal para un chat. Cópiala, descárgala o compártela desde el celular.",
   },

@@ -17,6 +17,7 @@ import {
 } from "@/lib/format";
 import type { Pins } from "@/lib/pins";
 import { formatTerm } from "@/lib/terms";
+import { OfficialCatalogLink } from "./OfficialCatalogLink";
 import { ProfessorLinks, SeatMeter } from "./SectionRow";
 import type { SelectedEventInfo } from "./usePlanner";
 
@@ -108,6 +109,8 @@ export function DetailsDrawer({
             />
             <Info label="Campus" value={section.campus ? titleCase(section.campus) : "—"} />
           </dl>
+
+          <OfficialCatalogLink query={section.nrc} what="el NRC" />
 
           <div className="space-y-1.5">
             <h3 className="text-xs text-fg-muted">Cupos</h3>

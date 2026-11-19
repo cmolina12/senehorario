@@ -141,6 +141,8 @@ export function usePlanner() {
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventInfo | null>(null);
   const [notice, setNotice] = useState<PlanNotice | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  /** When the selection was last checked against the live catalog. */
+  const [verifiedAt, setVerifiedAt] = useState<Date | null>(null);
   const [activePlan, setActivePlanState] = useState<string | null>(null);
 
   /** Remembers which saved plan is being edited (null: none). */
@@ -337,6 +339,7 @@ export function usePlanner() {
       const reshaped = result.changes.some((c) => c.kind !== "full" && c.kind !== "unverified");
       applySelection({ sections: result.sections, meta: result.meta }, reshaped ? 0 : scheduleIndexRef.current);
       setNotice(refreshNotice(result.changes));
+      if (!result.changes.some((c) => c.kind === "unverified")) setVerifiedAt(new Date());
     },
     [applySelection],
   );
@@ -408,6 +411,7 @@ export function usePlanner() {
       const hasPrevious = !!previous && Object.keys(previous.selectedSectionsByCourse).length > 0;
       const savedAs = hasPrevious ? backUpPlan(previous) : null;
       applySelection({ sections, meta, groups: shared.groups, pins: shared.pins }, shared.optionIndex);
+      if (!changes.some((c) => c.kind === "unverified")) setVerifiedAt(new Date());
       // The shared selection isn't any of this browser's saved plans.
       setActivePlan(null);
       setNotice({
@@ -536,6 +540,7 @@ export function usePlanner() {
     preferences,
     setPreferences,
     refreshing,
+    verifiedAt,
     toggleSection,
     addSections,
     removeCourse,

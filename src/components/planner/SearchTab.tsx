@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CardSkeletons, EmptyState } from "@/components/ui";
-import { plural } from "@/lib/format";
+import { clockTime, plural } from "@/lib/format";
 import { filterCourses, hasActiveFilters, NO_FILTERS, type SearchFilters } from "@/lib/search-filters";
 import { loadSearchFilters, saveSearchFilters } from "@/lib/storage";
 import { formatTerm } from "@/lib/terms";
 import type { Course, ScheduledSection, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
 import { FilterChip, FilterMenu } from "./filters";
+import { OfficialCatalogLink } from "./OfficialCatalogLink";
 import { SectionRow } from "./SectionRow";
 import type { CourseSearch } from "./useCourseSearch";
 
@@ -174,12 +175,15 @@ export function SearchTab({
               )}
             </div>
           </div>
-          {filtering && (
-            <p className="text-xs text-fg-muted">
-              {filtered.length} {plural(filtered.length, "curso", "cursos")} · {shownSections} de {totalSections}{" "}
-              {plural(totalSections, "sección", "secciones")}
-            </p>
-          )}
+          <p className="text-xs text-fg-muted">
+            {filtering && (
+              <>
+                {filtered.length} {plural(filtered.length, "curso", "cursos")} · {shownSections} de {totalSections}{" "}
+                {plural(totalSections, "sección", "secciones")} ·{" "}
+              </>
+            )}
+            Datos de la oferta oficial{search.fetchedAt && ` · consultados a las ${clockTime(search.fetchedAt)}`}
+          </p>
         </div>
       )}
 
@@ -216,6 +220,7 @@ export function SearchTab({
                       Quitar
                     </ActionButton>
                   )}
+                  <OfficialCatalogLink query={course.code} what="el código" className="ml-auto self-center" />
                 </div>
                 <div className="divide-y divide-border border-t border-border">
                   {course.sections.map((section) => (

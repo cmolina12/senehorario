@@ -4,7 +4,7 @@ import type { EventInput } from "@fullcalendar/core";
 import dynamic from "next/dynamic";
 import { EmptyState, IconButton, Spinner } from "@/components/ui";
 import { courseColor, type VisibleRange } from "@/lib/calendar-events";
-import { cn, plural, sessionLabel, sessionsSummary, titleCase } from "@/lib/format";
+import { clockTime, cn, plural, sessionLabel, sessionsSummary, titleCase } from "@/lib/format";
 import { usePresence } from "@/lib/use-presence";
 import type { Preferences } from "@/lib/preferences";
 
@@ -37,6 +37,8 @@ interface Props {
   onEventClick: (info: SelectedEventInfo) => void;
   onGoToSearch: () => void;
   refreshing: boolean;
+  /** When the plan was last checked against the live catalog. */
+  verifiedAt: Date | null;
   notice: PlanNotice | null;
   onDismissNotice: () => void;
   /** Query string that reproduces the current plan, or null when there's nothing to share. */
@@ -61,6 +63,7 @@ export function CalendarView({
   onEventClick,
   onGoToSearch,
   refreshing,
+  verifiedAt,
   notice,
   onDismissNotice,
   shareQuery,
@@ -78,10 +81,18 @@ export function CalendarView({
               ? "Aún no has agregado cursos"
               : `${courseCount} ${plural(courseCount, "curso", "cursos")} · ${totalCredits} ${plural(totalCredits, "crédito", "créditos")}${term ? ` · ${formatTerm(term)}` : ""}`}
           </p>
-          {refreshing && (
+          {refreshing ? (
             <p className="mt-1 inline-flex items-center gap-2 text-xs text-fg-muted">
               <Spinner className="size-3" /> Verificando cupos con la oferta actual…
             </p>
+          ) : (
+            verifiedAt &&
+            courseCount > 0 && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-fg-muted">
+                <i className="bi bi-check2-circle text-success" aria-hidden="true"></i>
+                Cupos y horarios verificados con la oferta oficial a las {clockTime(verifiedAt)}
+              </p>
+            )
           )}
         </div>
 

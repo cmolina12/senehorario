@@ -98,6 +98,10 @@ export function formatLocation(location: string): string {
   return [...new Set(parts)].join(" / ");
 }
 
+/** "10:42 a. m." in Bogotá time, for "checked at" notes. */
+export const clockTime = (date: Date) =>
+  date.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit", timeZone: "America/Bogota" });
+
 /** Joins class names, skipping falsy values. */
 export const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
 
