@@ -64,11 +64,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+        {/* Shared-plan links carry course codes and NRCs in the query string;
+            report only the path (plus campaign tags) so plans never reach analytics. */}
         <Script id="gtag-init" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag("js", new Date());
-gtag("config", "${GA_ID}");`}
+var gaQuery = new URLSearchParams(location.search);
+var gaKept = new URLSearchParams();
+gaQuery.forEach(function (v, k) { if (k.indexOf("utm_") === 0) gaKept.append(k, v); });
+var gaSearch = gaKept.toString();
+gtag("config", "${GA_ID}", { page_location: location.origin + location.pathname + (gaSearch ? "?" + gaSearch : "") });`}
         </Script>
       </body>
     </html>

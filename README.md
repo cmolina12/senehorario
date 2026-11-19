@@ -56,7 +56,7 @@ flowchart LR
 - **Los horarios se generan en el navegador** (backtracking con un espacio por curso o por grupo «elige uno»), así que cada cambio es instantáneo. El límite es de 2.000 combinaciones para que la página siga respondiendo.
 
 > [!TIP]
-> **Tus datos se quedan en tu navegador.** No hay cuentas ni base de datos: la selección, los planes y las preferencias viven en `localStorage`, y los links para compartir solo llevan el periodo, los códigos de los cursos y los NRCs. El sitio usa Google Analytics para contar visitas.
+> **Tus datos se quedan en tu navegador.** No hay cuentas ni base de datos: la selección, los planes y las preferencias viven en `localStorage`, y los links para compartir solo llevan el periodo, los códigos de los cursos y los NRCs. El sitio usa Google Analytics para contar visitas y ver qué partes se usan; las URLs se le reportan sin parámetros (salvo `utm_*`), así que los planes compartidos no llegan a la analítica.
 
 ## Hoja de ruta
 
