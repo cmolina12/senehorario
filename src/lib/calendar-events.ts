@@ -93,8 +93,12 @@ function makeEvent(
   };
 }
 
+// The label collapses to just the icon in narrow blocks (see .ev-virtual-text),
+// so the title and aria-label keep it readable.
 const deliveryTag = (delivery: Delivery | null) =>
-  delivery ? `<span class="ev-virtual"><i class="bi bi-camera-video" aria-hidden="true"></i>${delivery}</span>` : "";
+  delivery
+    ? `<span class="ev-virtual" title="${delivery}" aria-label="${delivery}"><i class="bi bi-camera-video" aria-hidden="true"></i><span class="ev-virtual-text" aria-hidden="true">${delivery}</span></span>`
+    : "";
 
 const badge = (ptrm: string) => `<span class="ev-badge">${escapeHtml(ptrm)}</span>`;
 
