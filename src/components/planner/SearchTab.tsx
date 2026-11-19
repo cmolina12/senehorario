@@ -68,7 +68,19 @@ export function SearchTab({
 
   return (
     <div className="space-y-4 p-4">
-      <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-base font-extrabold tracking-tight">Buscar cursos</h2>
+        {search.fetchedAt && search.courses.length > 0 && (
+          <span
+            className="inline-flex items-center gap-1 text-xs text-fg-muted"
+            title={`Datos de la oferta oficial, consultados a las ${clockTime(search.fetchedAt)}`}
+          >
+            <i className="bi bi-clock-history" aria-hidden="true"></i>
+            <span className="sr-only">Oferta oficial consultada a las</span>
+            {clockTime(search.fetchedAt)}
+          </span>
+        )}
+      </div>
 
       <form
         className="space-y-2"
@@ -174,15 +186,12 @@ export function SearchTab({
               )}
             </div>
           </div>
-          <p className="text-xs text-fg-muted">
-            {filtering && (
-              <>
-                {filtered.length} {plural(filtered.length, "curso", "cursos")} · {shownSections} de {totalSections}{" "}
-                {plural(totalSections, "sección", "secciones")} ·{" "}
-              </>
-            )}
-            Datos de la oferta oficial{search.fetchedAt && ` · consultados a las ${clockTime(search.fetchedAt)}`}
-          </p>
+          {filtering && (
+            <p className="text-xs text-fg-muted">
+              {filtered.length} {plural(filtered.length, "curso", "cursos")} · {shownSections} de {totalSections}{" "}
+              {plural(totalSections, "sección", "secciones")}
+            </p>
+          )}
         </div>
       )}
 
