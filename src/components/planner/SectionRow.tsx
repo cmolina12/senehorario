@@ -6,6 +6,7 @@ import {
   cn,
   dayLabel,
   deliveryLabel,
+  deliveryNote,
   professorUrl,
   seatLevel,
   shortDate,
@@ -66,6 +67,7 @@ export function MeetingChips({ section }: { section: Section }) {
   const sessions = section.sessions ?? [];
   if (section.meetings.length === 0 && sessions.length === 0) return <Chip>Sin horario</Chip>;
   const delivery = deliveryLabel(section);
+  const note = deliveryNote(section);
   return (
     <>
       {section.meetings.map((m, i) => (
@@ -74,10 +76,13 @@ export function MeetingChips({ section }: { section: Section }) {
         </Chip>
       ))}
       {delivery && (
-        <Chip>
-          <i className="bi bi-camera-video mr-1" aria-hidden="true"></i>
-          {delivery}
-        </Chip>
+        <span title={note ?? undefined}>
+          <Chip>
+            <i className="bi bi-camera-video mr-1" aria-hidden="true"></i>
+            {delivery}
+            {note && <i className="bi bi-question-circle ml-1 text-fg-muted" aria-label={note}></i>}
+          </Chip>
+        </span>
       )}
       {sessions.length > 0 && (
         <span title={sessions.map((m) => `${dayLabel(m.day)} ${shortDate(m.startDate!)} ${shortTime(m.start)}–${shortTime(m.end)}`).join("\n")}>

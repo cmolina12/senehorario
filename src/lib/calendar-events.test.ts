@@ -110,6 +110,16 @@ describe("helpers", () => {
     expect(deliveryLabel({ attrs: [], campus: "PPAL-PRESENCIAL/VIRTUAL", meetings: [inPerson] })).toBe("Híbrida");
   });
 
+  it("adds a caveat only when hybrid comes from the campus label alone", async () => {
+    const { deliveryNote } = await import("./format");
+    const online = { day: "FRIDAY" as const, start: "17:00", end: "18:50", location: ".VIRTUAL .VIRT" };
+    const inPerson = { ...online, location: ".Edif. SD .SD_402" };
+    const hybridCampus = "PPAL-PRESENCIAL/VIRTUAL";
+    expect(deliveryNote({ campus: hybridCampus, meetings: [inPerson] })).toMatch(/Confírmalo/);
+    expect(deliveryNote({ campus: hybridCampus, meetings: [inPerson, online] })).toBeNull();
+    expect(deliveryNote({ campus: "CAMPUS PRINCIPAL", meetings: [inPerson] })).toBeNull();
+  });
+
   it("formats merged blocks with several locations", async () => {
     const { meetingDelivery } = await import("./format");
     expect(formatLocation(".Edif. AU .AU_207 / .VIRTUAL .VIRT")).toBe(".Edif. AU .AU_207 / Virtual");
