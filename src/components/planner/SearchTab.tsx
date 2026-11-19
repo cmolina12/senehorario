@@ -9,7 +9,6 @@ import { formatTerm } from "@/lib/terms";
 import type { Course, ScheduledSection, Section } from "@/lib/types";
 import { CourseCard } from "./CourseCard";
 import { FilterChip, FilterMenu } from "./filters";
-import { OfficialCatalogLink } from "./OfficialCatalogLink";
 import { SectionRow } from "./SectionRow";
 import type { CourseSearch } from "./useCourseSearch";
 
@@ -220,7 +219,6 @@ export function SearchTab({
                       Quitar
                     </ActionButton>
                   )}
-                  <OfficialCatalogLink query={course.code} what="el código" className="ml-auto self-center" />
                 </div>
                 <div className="divide-y divide-border border-t border-border">
                   {course.sections.map((section) => (
