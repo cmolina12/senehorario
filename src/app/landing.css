@@ -679,27 +679,6 @@
     font-size: 1rem;
   }
 
-  .hero-trust {
-    display: flex;
-    gap: 8px;
-    margin: 14px 0 0;
-    max-width: 34rem;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-  }
-
-  .hero-trust i {
-    color: var(--success);
-    font-size: 1rem;
-    line-height: 1.3;
-  }
-
-  .hero-trust strong {
-    color: var(--text-secondary);
-    font-weight: 600;
-  }
-
   .features-heading {
     display: flex;
     flex-direction: column;
