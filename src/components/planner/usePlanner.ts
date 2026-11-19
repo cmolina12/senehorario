@@ -9,7 +9,13 @@ import { buildSlots, normalizeGroups, type CourseGroups } from "@/lib/groups";
 import { normalizePins, slotSections, togglePin as togglePinIn, type Pins } from "@/lib/pins";
 import { describeChange, reconcileSelection, type FreshCourses, type PlanChange } from "@/lib/refresh";
 import { parseShareQuery, type SharedPlan } from "@/lib/share";
-import { MAX_SCHEDULES, generateAllSchedules, mergeHalfSemesterPairs } from "@/lib/scheduler";
+import {
+  MAX_SCHEDULES,
+  explainNoSchedules,
+  generateAllSchedules,
+  mergeHalfSemesterPairs,
+  type NoScheduleReason,
+} from "@/lib/scheduler";
 import {
   DEFAULT_PREFERENCES,
   activeFilterCount,
@@ -105,6 +111,25 @@ function backUpPlan(snapshot: PlanSnapshot): string {
 const NO_SCHEDULES_ERROR =
   "Todas las combinaciones de las secciones seleccionadas tienen choques. Agrega más secciones o quita alguna que esté causando conflicto.";
 
+const joinOr = (items: string[]) =>
+  items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} o ${items.at(-1)}`;
+
+/** Names the courses behind "no schedules" when they can be pinned down. */
+function noSchedulesMessage(reason: NoScheduleReason, labels: string[]): string {
+  if (reason.kind === "pairs") {
+    const shown = reason.pairs.slice(0, 3).map(([a, b]) => `${labels[a]} y ${labels[b]}`);
+    const more = reason.pairs.length > 3 ? " (y otros)" : "";
+    return reason.pairs.length === 1
+      ? `${shown[0]} chocan en todas sus secciones. Agrega otras secciones de alguno de los dos o quita uno.`
+      : `Estos cursos chocan en todas sus secciones: ${shown.join("; ")}${more}. Agrega otras secciones o quita alguno.`;
+  }
+  if (reason.kind === "removable") {
+    const names = reason.slots.map((i) => labels[i]);
+    return `Ningún par de cursos choca siempre, pero no caben todos juntos. Si quitas ${joinOr(names)}, sí hay horarios; también puedes agregar más secciones.`;
+  }
+  return NO_SCHEDULES_ERROR;
+}
+
 export function usePlanner() {
   const [selection, setSelection] = useState<Selection>(EMPTY_SELECTION);
   const [schedules, setSchedules] = useState<ScheduledSection[][]>([]);
@@ -181,9 +206,11 @@ export function usePlanner() {
       if (blockedCodes.length > 0) {
         error = `Ninguna sección de ${blockedCodes.join(", ")} cumple tus preferencias. Ajusta los horarios, días libres o bloques en Preferencias.`;
       } else if (codes.length > 0 && raw.length === 0) {
-        error = activeFilterCount(prefs) > 0
-          ? `${NO_SCHEDULES_ERROR} También puedes relajar tus preferencias.`
-          : NO_SCHEDULES_ERROR;
+        const message = noSchedulesMessage(
+          explainNoSchedules(candidates),
+          slots.map((slot) => slot.join(" / ")),
+        );
+        error = activeFilterCount(prefs) > 0 ? `${message} También puedes relajar tus preferencias.` : message;
       }
 
       setSchedules(sorted);

@@ -38,6 +38,14 @@ describe("terms", () => {
     expect(coursesInTerm(courses, null)).toBe(courses);
   });
 
+  it("uses the title the chosen term gives the course", () => {
+    const renamed = [course("ISIS3510", [section("1", "202710"), { ...section("2", "202620"), title: "CONSTR. APLICACIONES MÓVILES (TIPO E)" }])];
+    expect(coursesInTerm(renamed, "202620")[0].title).toBe("CONSTR. APLICACIONES MÓVILES (TIPO E)");
+    expect(coursesInTerm(renamed, "202710")[0].title).toBe("ISIS3510");
+    const variant = [course("ISIS1221", [{ ...section("1", "202620"), title: "INTRO (EPSI)" }, section("2", "202620"), section("3", "202620")])];
+    expect(coursesInTerm(variant, "202620")[0].title).toBe("ISIS1221");
+  });
+
   it("keeps only the newest term of a mixed legacy selection", () => {
     const { sections, meta, term } = keepNewestTerm(
       { A: [section("1", "202620"), section("1", "202710")], B: [section("2", "202620")] },

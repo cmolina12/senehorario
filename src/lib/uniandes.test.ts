@@ -68,8 +68,9 @@ describe("mapToDomain", () => {
         start: "06:30:00",
         end: "07:50:00",
         location: ".Edif. SD .SD_205-6",
+        // First and last dates the class actually meets.
         startDate: "2026-08-03",
-        endDate: "2026-11-28",
+        endDate: "2026-11-23",
       },
     ]);
   });
@@ -88,6 +89,12 @@ describe("mapToDomain", () => {
     expect(course.sections[0].meetings).toEqual([
       { day: "THURSDAY", start: "06:30:00", end: "09:20:00", location: ".Edif. AU .AU_207 / .VIRTUAL .VIRT" },
     ]);
+  });
+
+  it("keeps a section's own title when it differs from the course's", () => {
+    const [course] = mapToDomain([raw(), raw({ nrc: "2", term: "202710", title: "ANÁLISIS  DE DATOS (INGLÉS)" })]);
+    expect(course.title).toBe("ANÁLISIS DE DATOS");
+    expect(course.sections.map((s) => s.title)).toEqual([undefined, "ANÁLISIS DE DATOS (INGLÉS)"]);
   });
 
   it("reads Sunday meetings", () => {
@@ -123,6 +130,68 @@ describe("mapToDomain", () => {
     ]);
   });
 
+  it("treats one row per date as a weekly class, keeping alternating rooms", () => {
+    // MMBA4401 sec. 2: every class is its own row, alternating classroom and
+    // online, plus a single Saturday session.
+    const base = { ...raw().schedules![0], l: null, i: null };
+    const day = (flag: "v" | "s", date: string, classroom: string, time = "1800") => ({
+      ...base,
+      [flag]: flag.toUpperCase(),
+      time_ini: time,
+      time_fin: time === "1800" ? "2050" : "1550",
+      building: classroom === ".VIRT" ? ".VIRTUAL" : ".Edif. SD",
+      classroom,
+      date_ini: `${date} 00:00:00`,
+      date_fin: `${date} 00:00:00`,
+    });
+    const [course] = mapToDomain([
+      raw({
+        ptrm: "8A",
+        schedules: [
+          day("s", "2026-08-08", ".SD_702", "1300"),
+          day("v", "2026-08-14", ".VIRT"),
+          day("v", "2026-08-21", ".SD_703"),
+          day("v", "2026-08-28", ".VIRT"),
+          day("v", "2026-09-04", ".SD_703"),
+        ],
+      }),
+    ]);
+    const [section] = course.sections;
+    expect(section.meetings).toEqual([
+      {
+        day: "FRIDAY",
+        start: "18:00:00",
+        end: "20:50:00",
+        location: ".VIRTUAL .VIRT / .Edif. SD .SD_703",
+        startDate: "2026-08-14",
+        endDate: "2026-09-04",
+      },
+    ]);
+    expect(section.sessions).toMatchObject([{ day: "SATURDAY", startDate: "2026-08-08", endDate: "2026-08-08" }]);
+  });
+
+  it("makes every date a session when nothing repeats weekly", () => {
+    // DEMP5102: a Friday afternoon and a Saturday, once. MEDI rotation: two weeks.
+    const base = { ...raw().schedules![0], l: null, i: null };
+    const [course] = mapToDomain([
+      raw({
+        schedules: [
+          { ...base, v: "V", time_ini: "1400", time_fin: "1750", date_ini: "2026-08-21 00:00:00", date_fin: "2026-08-21 00:00:00" },
+          { ...base, s: "S", time_ini: "0800", time_fin: "1750", date_ini: "2026-08-22 00:00:00", date_fin: "2026-08-22 00:00:00" },
+        ],
+      }),
+      raw({
+        nrc: "69697",
+        schedules: [{ ...base, m: "M", time_ini: "0700", time_fin: "1150", date_ini: "2026-07-27 00:00:00", date_fin: "2026-08-09 00:00:00" }],
+      }),
+    ]);
+    const [once, rotation] = course.sections;
+    expect(once.meetings).toEqual([]);
+    expect(once.sessions?.map((m) => m.startDate)).toEqual(["2026-08-21", "2026-08-22"]);
+    expect(rotation.meetings).toEqual([]);
+    expect(rotation.sessions?.map((m) => `${m.day} ${m.startDate}`)).toEqual(["TUESDAY 2026-07-28", "TUESDAY 2026-08-04"]);
+  });
+
   it("keeps short rows of a weekly slot as part of that class", () => {
     // LENG1150: the Thursday class is listed in several date ranges, some a week long.
     const base = { ...raw().schedules![0], l: null, i: null, j: "J" };
@@ -135,7 +204,7 @@ describe("mapToDomain", () => {
     ]);
     const [section] = course.sections;
     expect(section.sessions).toBeUndefined();
-    expect(section.meetings).toMatchObject([{ day: "THURSDAY", startDate: "2027-01-25", endDate: "2027-03-20" }]);
+    expect(section.meetings).toMatchObject([{ day: "THURSDAY", startDate: "2027-01-28", endDate: "2027-03-18" }]);
   });
 
   it("sorts meetings by day and time across schedule rows", () => {

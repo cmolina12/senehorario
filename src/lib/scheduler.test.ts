@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  explainNoSchedules,
   fitsInSchedule,
   generateAllSchedules,
   mergeHalfSemesterPairs,
@@ -143,6 +144,23 @@ describe("sectionsConflict with dates", () => {
     const c = section("3", [meeting("MONDAY", "09:00", "10:00")], "D");
     expect(sectionsConflict(a, b)).toBe(false);
     expect(sectionsConflict(a, c)).toBe(true);
+  });
+});
+
+describe("explainNoSchedules", () => {
+  it("names a pair of courses that clash in every section", () => {
+    const a = [section("1", [meeting("MONDAY", "08:00", "09:20")])];
+    const b = [section("2", [meeting("MONDAY", "09:00", "10:20")]), section("3", [meeting("MONDAY", "08:30", "09:50")])];
+    const c = [section("4", [meeting("FRIDAY", "08:00", "09:20")])];
+    expect(explainNoSchedules([a, c, b])).toEqual({ kind: "pairs", pairs: [[0, 2]] });
+  });
+
+  it("names the courses whose removal leaves schedules when no pair is to blame", () => {
+    // Each pair can be combined, but not all three: A and B share Monday 8:00 / Tuesday 8:00 options.
+    const a = [section("1", [meeting("MONDAY", "08:00", "09:00")]), section("2", [meeting("TUESDAY", "08:00", "09:00")])];
+    const b = [section("3", [meeting("MONDAY", "08:00", "09:00")]), section("4", [meeting("TUESDAY", "08:00", "09:00")])];
+    const c = [section("5", [meeting("MONDAY", "08:00", "09:00")]), section("6", [meeting("TUESDAY", "08:00", "09:00")])];
+    expect(explainNoSchedules([a, b, c])).toEqual({ kind: "removable", slots: [0, 1, 2] });
   });
 });
 

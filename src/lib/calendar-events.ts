@@ -100,7 +100,9 @@ const deliveryTag = (delivery: Delivery | null) =>
     ? `<span class="ev-virtual" title="${delivery}" aria-label="${delivery}"><i class="bi bi-camera-video" aria-hidden="true"></i><span class="ev-virtual-text" aria-hidden="true">${delivery}</span></span>`
     : "";
 
-const badge = (ptrm: string) => `<span class="ev-badge">${escapeHtml(ptrm)}</span>`;
+// The hidden separator keeps "MMBA4401 · 2 8A" from reading as section "28A"
+// for screen readers and copied text.
+const badge = (ptrm: string) => `<span class="sr-only"> · ciclo </span><span class="ev-badge">${escapeHtml(ptrm)}</span>`;
 
 function eventHtml(heading: string, sec: ScheduledSection, meeting: Meeting): string {
   return (

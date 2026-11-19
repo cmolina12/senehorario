@@ -164,40 +164,43 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       const endDate = parseDate(s.date_fin);
       return parseDays(s).map((day): Meeting => ({ day, start, end, location, startDate, endDate }));
     });
-    const slotKey = (m: Meeting) => `${m.day}-${m.start}-${m.end}`;
-    const longest = Math.max(0, ...rows.map(spanDays));
-    const isShort = (m: Meeting) => longest >= MIN_TERM_DAYS && spanDays(m) <= ONE_OFF_MAX_DAYS;
-    // In a section that runs for weeks, a slot that only shows up in rows
-    // lasting a week or less is a one-off session (an exam, a Saturday
-    // workshop), not a weekly class. Short rows in a slot that also has a long
-    // row are just that class split into date ranges (room changes).
-    const weeklySlots = new Set(rows.filter((m) => !isShort(m)).map(slotKey));
-    const isOneOff = (m: Meeting) => isShort(m) && !weeklySlots.has(slotKey(m));
-
-    // The catalog can list the same weekly slot in several rows with
-    // different date ranges; keep one meeting per slot spanning all of them.
-    const bySlot = new Map<string, Meeting>();
+    // Group rows by weekly slot (day + time) and expand dated rows into the
+    // dates they actually meet. The catalog lists the same class in many
+    // shapes: one row for the whole term, several date ranges (room changes),
+    // or one row per date (MMBA4401). Rows without dates stay plain weekly
+    // meetings.
+    const slots = new Map<string, { base: Meeting; undated: boolean; dates: Map<string, string> }>();
     for (const row of rows) {
-      if (isOneOff(row)) continue;
-      const existing = bySlot.get(slotKey(row));
-      if (!existing) {
-        bySlot.set(slotKey(row), { ...row });
+      const key = `${row.day}-${row.start}-${row.end}`;
+      let slot = slots.get(key);
+      if (!slot) {
+        slot = { base: row, undated: false, dates: new Map() };
+        slots.set(key, slot);
+      }
+      if (!row.startDate || !row.endDate) {
+        slot.undated = true;
         continue;
       }
-      if (row.startDate && (!existing.startDate || row.startDate < existing.startDate)) existing.startDate = row.startDate;
-      if (row.endDate && (!existing.endDate || row.endDate > existing.endDate)) existing.endDate = row.endDate;
+      for (const date of weeklyDates(row.startDate, row.endDate, row.day)) slot.dates.set(date, row.location);
     }
-    // Leave dates out entirely rather than half-filled.
-    const meetings = [...bySlot.values()].map((m): Meeting =>
-      m.startDate && m.endDate ? m : { day: m.day, start: m.start, end: m.end, location: m.location },
-    );
 
-    const sessions = new Map<string, Meeting>();
-    for (const row of rows) {
-      if (!isOneOff(row)) continue;
-      const date = firstOccurrence(row.startDate!, row.day);
-      if (date > row.endDate!) continue; // the range never includes that weekday
-      sessions.set(`${date}-${row.start}-${row.end}`, { ...row, startDate: date, endDate: date });
+    // A slot that meets most weeks is a weekly class; otherwise each date is a
+    // one-off session (an exam, a Saturday workshop, a two-week rotation).
+    const meetings: Meeting[] = [];
+    const sessions: Meeting[] = [];
+    for (const { base, undated, dates } of slots.values()) {
+      const { day, start, end } = base;
+      const sorted = [...dates.keys()].sort();
+      // Rooms can change from week to week (or alternate with online classes).
+      const location = [...new Set([...(undated ? [base.location] : []), ...sorted.map((d) => dates.get(d)!)])].join(" / ");
+      if (undated) {
+        // Leave dates out entirely rather than half-filled.
+        meetings.push({ day, start, end, location });
+      } else if (isWeekly(sorted)) {
+        meetings.push({ day, start, end, location, startDate: sorted[0], endDate: sorted.at(-1) });
+      } else {
+        for (const date of sorted) sessions.push({ day, start, end, location: dates.get(date)!, startDate: date, endDate: date });
+      }
     }
 
     meetings.sort((x, y) => DAY_ORDER.indexOf(x.day) - DAY_ORDER.indexOf(y.day) || x.start.localeCompare(y.start));
@@ -212,8 +215,8 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       ptrm: a.ptrm,
       campus: a.campus,
       meetings: mergeOverlapping(meetings),
-      ...(sessions.size > 0 && {
-        sessions: [...sessions.values()].sort(
+      ...(sessions.length > 0 && {
+        sessions: sessions.sort(
           (x, y) => x.startDate!.localeCompare(y.startDate!) || x.start.localeCompare(y.start),
         ),
       }),
@@ -222,6 +225,7 @@ export function mapToDomain(raw: ApiCourse[]): Course[] {
       totalSeats,
       attrs: (a.attr ?? []).map((x) => x.code).filter((c): c is string => !!c),
       ...(a.levele && { level: a.levele }),
+      ...(cleanTitle(a.title) !== course.title && { title: cleanTitle(a.title) }),
     };
     course.sections.push(section);
   }
@@ -260,13 +264,22 @@ function mergeOverlapping(meetings: Meeting[]): Meeting[] {
   return merged;
 }
 
-const MIN_TERM_DAYS = 28;
-const ONE_OFF_MAX_DAYS = 6;
+const DAY_MS = 86_400_000;
 
-/** Days between a meeting's first and last date; -1 when it has no dates. */
-function spanDays(m: Meeting): number {
-  if (!m.startDate || !m.endDate) return -1;
-  return (Date.parse(m.endDate) - Date.parse(m.startDate)) / 86_400_000;
+const addDays = (iso: string, days: number) => new Date(Date.parse(iso) + days * DAY_MS).toISOString().slice(0, 10);
+
+/** Every date from `startDate` to `endDate` that falls on `day`, one week apart. */
+function weeklyDates(startDate: string, endDate: string, day: DayOfWeek): string[] {
+  const dates: string[] = [];
+  for (let d = firstOccurrence(startDate, day); d <= endDate; d = addDays(d, 7)) dates.push(d);
+  return dates;
+}
+
+/** At least three dates, covering at least half the weeks between the first and the last. */
+function isWeekly(sortedDates: string[]): boolean {
+  if (sortedDates.length < 3) return false;
+  const weeks = Math.round((Date.parse(sortedDates.at(-1)!) - Date.parse(sortedDates[0])) / (7 * DAY_MS)) + 1;
+  return sortedDates.length / weeks >= 0.5;
 }
 
 /** "2027-01-25 00:00:00" -> "2027-01-25"; undefined when missing or malformed. */

@@ -9,7 +9,8 @@ import {
   deliveryNote,
   professorUrl,
   seatLevel,
-  shortDate,
+  sessionLabel,
+  sessionsSummary,
   shortTime,
   termLabel,
   titleCase,
@@ -84,13 +85,18 @@ export function MeetingChips({ section }: { section: Section }) {
           </Chip>
         </span>
       )}
-      {sessions.length > 0 && (
-        <span title={sessions.map((m) => `${dayLabel(m.day)} ${shortDate(m.startDate!)} ${shortTime(m.start)}–${shortTime(m.end)}`).join("\n")}>
+      {sessions.length <= 2 ? (
+        sessions.map((m, i) => (
+          <Chip key={`s${i}`}>
+            <i className="bi bi-calendar-event mr-1" aria-hidden="true"></i>
+            {sessionLabel(m)}
+          </Chip>
+        ))
+      ) : (
+        <span title={sessions.map(sessionLabel).join("\n")}>
           <Chip>
             <i className="bi bi-calendar-event mr-1" aria-hidden="true"></i>
-            {sessions.length === 1
-              ? `${dayLabel(sessions[0].day)} ${shortDate(sessions[0].startDate!)}`
-              : `+${sessions.length} sesiones con fecha`}
+            {sessionsSummary(sessions)}
           </Chip>
         </span>
       )}

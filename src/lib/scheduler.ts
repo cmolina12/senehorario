@@ -131,6 +131,32 @@ function tryMerge(a: ScheduledSection[], b: ScheduledSection[]): ScheduledSectio
   return [...a, sB];
 }
 
+export type NoScheduleReason =
+  /** Slot pairs (indices into the candidates) whose sections all clash with each other. */
+  | { kind: "pairs"; pairs: [number, number][] }
+  /** No single pair is to blame; dropping any one of these slots leaves schedules. */
+  | { kind: "removable"; slots: number[] }
+  | { kind: "unknown" };
+
+/**
+ * Why `candidates` produce no schedule, to point the student at the
+ * culprit instead of "everything clashes".
+ */
+export function explainNoSchedules<T extends Section>(candidates: T[][]): NoScheduleReason {
+  const pairs: [number, number][] = [];
+  for (let i = 0; i < candidates.length; i++) {
+    for (let j = i + 1; j < candidates.length; j++) {
+      if (candidates[i].every((a) => candidates[j].every((b) => sectionsConflict(a, b)))) pairs.push([i, j]);
+    }
+  }
+  if (pairs.length > 0) return { kind: "pairs", pairs };
+
+  const slots = candidates
+    .map((_, i) => i)
+    .filter((i) => generateAllSchedules(candidates.filter((_, j) => j !== i), 1).length > 0);
+  return slots.length > 0 ? { kind: "removable", slots } : { kind: "unknown" };
+}
+
 /** Whether a section can be added to an existing schedule without conflicts. */
 export function fitsInSchedule(section: Section, schedule: Section[]): boolean {
   if (section.meetings.length === 0 && !section.sessions?.length) return true;
