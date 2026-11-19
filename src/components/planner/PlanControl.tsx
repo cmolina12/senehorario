@@ -36,7 +36,8 @@ export function PlanControl({
         className="inline-flex h-8 min-w-0 items-center gap-1.5 rounded-full border border-border px-3 text-xs leading-none font-semibold text-fg-secondary transition hover:border-border-strong hover:text-fg"
       >
         <i className="bi bi-bookmark-star" aria-hidden="true"></i>
-        <span className={cn("max-w-48 truncate", name ? "hidden text-fg sm:inline" : "hidden sm:inline")}>
+        {/* truncate clips to the line box, so it needs normal leading or "p" loses its tail. */}
+        <span className={cn("hidden max-w-48 truncate leading-normal sm:block", name && "text-fg")}>
           {name ?? "Mis planes"}
         </span>
         {name &&
