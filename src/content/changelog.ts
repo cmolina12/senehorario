@@ -18,6 +18,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     date: "2026-11",
     tag: "Mejora",
+    text: "El modo claro u oscuro sigue al de tu sistema, también cuando cambia de noche; si eliges el mismo que tu sistema, vuelve a seguirlo automáticamente.",
+  },
+  {
+    date: "2026-11",
+    tag: "Mejora",
     text: "El periodo se elige desde la barra superior, y un punto en Novedades te avisa cuando hay cambios nuevos.",
   },
   {
