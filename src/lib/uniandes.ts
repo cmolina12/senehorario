@@ -91,26 +91,13 @@ async function fetchRaw(
 
 /**
  * Turns a free-text query into the catalog's nameInput format: upper-case,
- * with whitespace replaced by `_`. The catalog no longer accepts spaces or
- * `%` between words (both return nothing), but `_` still matches any single
- * character, so "proyecto de grado" finds "PROYECTO DE GRADO".
+ * with the SQL-style `%` wildcard between words. The catalog URL-decodes the
+ * value twice, so the wildcard goes in already encoded (`%25`), as the
+ * official site sends it. A bare `%` would be decoded again together with the
+ * next letters ("%DE" in "proyecto de grado") and match nothing.
  */
 export function toNameInput(query: string): string {
-  return query.trim().replace(/\s+/g, "_").toUpperCase();
-}
-
-/** Upper-case without accents, for comparisons. */
-const normalize = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase();
-
-/** The query's words, upper-case without accents. */
-export function queryWords(query: string): string[] {
-  return normalize(query).split(/\s+/).filter(Boolean);
-}
-
-/** Every word appears somewhere in the course's code or titles. */
-export function matchesAllWords(course: Course, words: string[]): boolean {
-  const text = normalize([course.code, course.title, ...course.sections.map((s) => s.title ?? "")].join(" "));
-  return words.every((w) => text.includes(w));
+  return query.trim().split(/\s+/).join("%25").toUpperCase();
 }
 
 /**
@@ -126,24 +113,9 @@ export interface SearchResult {
   truncated: boolean;
 }
 
-/**
- * Searches by the query as a phrase. When a multi-word phrase finds nothing
- * (the words aren't next to each other in the title, as in "calculo integral"),
- * searches the longest word alone and keeps the courses that have every word.
- */
 export async function searchCourses(query: string, professor = ""): Promise<SearchResult> {
-  const prof = professor.trim();
-  const raw = await fetchRaw(toNameInput(query), prof, MAX_ROWS);
-  const words = queryWords(query);
-  if (raw.length > 0 || words.length < 2) {
-    return { courses: mapToDomain(raw), truncated: raw.length >= MAX_ROWS };
-  }
-  const longest = words.reduce((a, b) => (b.length > a.length ? b : a));
-  const broad = await fetchRaw(longest, prof, MAX_ROWS);
-  return {
-    courses: mapToDomain(broad).filter((c) => matchesAllWords(c, words)),
-    truncated: broad.length >= MAX_ROWS,
-  };
+  const raw = await fetchRaw(toNameInput(query), professor.trim(), MAX_ROWS);
+  return { courses: mapToDomain(raw), truncated: raw.length >= MAX_ROWS };
 }
 
 /** All CBU (Ciclo Básico Uniandino) courses with their sections. */
