@@ -17,6 +17,11 @@ export const CHANGELOG: ChangelogEntry[] = [
   // ---- noviembre 2026 ----
   {
     date: "2026-11",
+    tag: "Corrección",
+    text: "Las búsquedas de varias palabras, como “proyecto de grado” o “biología celular”, vuelven a encontrar cursos.",
+  },
+  {
+    date: "2026-11",
     tag: "Mejora",
     text: "Te mostramos a qué hora se consultaron los cupos, y tu plan se vuelve a verificar con la oferta oficial cuando regresas a la pestaña.",
   },

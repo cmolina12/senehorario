@@ -91,10 +91,13 @@ async function fetchRaw(
 
 /**
  * Turns a free-text query into the catalog's nameInput format: upper-case,
- * with whitespace replaced by the SQL-style `%` wildcard.
+ * with the SQL-style `%` wildcard between words. The catalog URL-decodes the
+ * value twice, so the wildcard goes in already encoded (`%25`), as the
+ * official site sends it. A bare `%` would be decoded again together with the
+ * next letters ("%DE" in "proyecto de grado") and match nothing.
  */
 export function toNameInput(query: string): string {
-  return query.trim().replace(/\s+/g, "%").toUpperCase();
+  return query.trim().split(/\s+/).join("%25").toUpperCase();
 }
 
 /**

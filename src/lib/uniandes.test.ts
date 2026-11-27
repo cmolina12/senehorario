@@ -254,6 +254,11 @@ describe("helpers", () => {
   });
 
   it("builds the catalog's wildcard query", () => {
-    expect(toNameInput("  control  de produccion ")).toBe("CONTROL%DE%PRODUCCION");
+    // Pre-encoded: the catalog decodes nameInput twice.
+    expect(toNameInput("  control  de produccion ")).toBe("CONTROL%25DE%25PRODUCCION");
+    expect(new URLSearchParams({ nameInput: toNameInput("proyecto de grado") }).toString()).toBe(
+      "nameInput=PROYECTO%2525DE%2525GRADO",
+    );
+    expect(toNameInput("isis1221")).toBe("ISIS1221");
   });
 });
