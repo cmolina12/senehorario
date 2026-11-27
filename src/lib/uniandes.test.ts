@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { cleanTitle, mapToDomain, reorderProfessorName, toNameInput, type ApiCourse } from "./uniandes";
+import {
+  cleanTitle,
+  mapToDomain,
+  matchesAllWords,
+  queryWords,
+  reorderProfessorName,
+  toNameInput,
+  type ApiCourse,
+} from "./uniandes";
 
 const raw = (overrides: Partial<ApiCourse> = {}): ApiCourse => ({
   nrc: "75548",
@@ -254,6 +262,15 @@ describe("helpers", () => {
   });
 
   it("builds the catalog's wildcard query", () => {
-    expect(toNameInput("  control  de produccion ")).toBe("CONTROL%DE%PRODUCCION");
+    expect(toNameInput("  control  de produccion ")).toBe("CONTROL_DE_PRODUCCION");
+    expect(toNameInput("isis1221")).toBe("ISIS1221");
+  });
+
+  it("matches every query word in the code or title, ignoring accents", () => {
+    const course = { code: "MATE1214", title: "CÁLCULO DIFERENCIAL E INTEGRAL", credits: 3, sections: [] };
+    expect(queryWords("  cálculo  integral ")).toEqual(["CALCULO", "INTEGRAL"]);
+    expect(matchesAllWords(course, queryWords("calculo integral"))).toBe(true);
+    expect(matchesAllWords(course, queryWords("mate integral"))).toBe(true);
+    expect(matchesAllWords(course, queryWords("calculo vectorial"))).toBe(false);
   });
 });
